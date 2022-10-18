@@ -1234,7 +1234,12 @@ class FunctionAstAnalyzer:
         for stmt_root_ast_id in self.statements_ast:
 
             stmt_ast:nx.DiGraph = self.statements_ast[stmt_root_ast_id]
-            stmt_type = self.stmts_type_map[str(stmt_root_ast_id)]
+
+            if str(stmt_root_ast_id) in self.stmts_type_map:
+              stmt_type = self.stmts_type_map[str(stmt_root_ast_id)]
+            else:
+                stmt_type = "EXPRESSION" # 默认为一个语句 LUBU_Inu-setSwapAndLiquifyByLimitOnly-2163 @0x62ca828e17b9c3C36D3bCFe0bf6C474355f67C71
+            
             vul_label = 0
             vul_type = ""
             
