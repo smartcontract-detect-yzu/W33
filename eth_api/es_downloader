@@ -1,0 +1,181 @@
+import json
+import os
+import subprocess
+
+from .etherscan import Etherscan
+
+
+def get_sol_file_name_from_path(path):
+    """
+
+    将路径分解为 path + sol_file
+    interfaces/IGovernanceModule.sol
+
+    ==>
+    interfaces | IGovernanceModule.sol
+    """
+
+    # 合约solidity文件，在根目录
+    if "/" not in path:
+        return path, None, None
+
+    # 存在子目录
+    contract_name = None
+    items_in_path = path.split("/")
+    for path_item in items_in_path:
+        if ".sol" in path_item:
+            contract_name = path_item
+    prefix_path = path.split(contract_name)[0]
+
+    # 判断是否为npm托管的外部库依赖
+    external_flag = 0
+    if '@' == prefix_path[0]:
+        external_flag = 1
+
+    return contract_name, prefix_path, external_flag
+
+
+def convert_es_to_local_path(etherscan_path_file, etherscan_prefix):
+    """
+    将etherscan上保存的开发者上传的路径转换为本地的路径
+    本地路径: ../dataset/address/
+
+    情况1：
+    @openzeppelin/contracts/utils/ReentrancyGuard.sol --> ../dataset/address/@openzeppelin/contracts/utils/ReentrancyGuard.sol
+
+    情况2:
+    /Users/k06a/Projects/mooniswap-v2/contracts/libraries/UniERC20.sol
+    -->
+    ../dataset/address/libraries/UniERC20.sol
+    """
+
+    # 如果是npm下载的库，不需要转换
+    if "@" == etherscan_path_file[0]:
+        return etherscan_path_file
+
+    else:
+        local_path = None
+        if etherscan_prefix in etherscan_path_file:
+            local_path = str(etherscan_path_file).split(etherscan_prefix)
+        return local_path[1]
+
+
+def get_es_main_sc_prefix(idx, etherscan_path_name):
+    """
+    获得主体智能合约在etherscan的保存地址:
+        从etherscan下载的代码，第一个sol文件为主体合约文件，其它的是其依赖库文件3
+
+    /Users/k06a/Projects/mooniswap-v2/contracts/Mooniswap.sol
+
+    ==>
+    etherscan_prefix: /Users/k06a/Projects/mooniswap-v2/contracts/
+    main_contract_sol_name: Mooniswap.sol
+    """
+
+    # note: 从etherscan下载的代码，第一个sol文件为主体合约文件，其它的是其依赖库文件
+    if idx != 0:
+        return 0, 0, 0
+
+    # note: 解析主体合约的名称
+    main_contract_sol_name = None
+    etherscan_items = etherscan_path_name.split("/")
+    for etherscan_item in etherscan_items:
+        if ".sol" in etherscan_item:
+            main_contract_sol_name = etherscan_item
+
+    # note: 获得主体合约在etherscan上的路径位置
+    etherscan_prefix = etherscan_path_name.split(main_contract_sol_name)[0]
+
+    return 1, str(etherscan_prefix), str(main_contract_sol_name)
+
+
+def check_es_ret(eth_rst):
+    status = eth_rst["status"]
+    message = eth_rst["message"]
+
+    if '0' == status or message == 'NOTOK':
+        print(eth_rst)
+        return 0
+
+    return 1
+
+
+def is_import_external_contracts(SourceCode_info):
+    if str(SourceCode_info).startswith("{{"):
+        return 1
+    else:
+        return 0
+
+
+def save_single_contract_file(SourceCode_rst, save_file):
+    with open(save_file, "w+") as f:
+        f.write(SourceCode_rst)
+
+
+def save_multi_contract_files(sources, target_dir):
+    etherscan_prefix = None
+    for idx, es_contract_path_name in enumerate(sources):
+        print("======={}th contract:{}========".format(idx, es_contract_path_name))
+
+        flag, prefix, main_contract_name = get_es_main_sc_prefix(idx, str(es_contract_path_name))
+        if flag == 1:
+            etherscan_prefix = prefix
+
+        local_path = convert_es_to_local_path(es_contract_path_name, etherscan_prefix)
+        contract_file, prefix_path, external = get_sol_file_name_from_path(local_path)
+        print("[1]:{} [2]:{} [3]:{}".format(contract_file, prefix_path, external))
+
+        if prefix_path is None:
+            # sol文件放在根目录下
+            sol_file_path = target_dir + contract_file
+        else:
+            # sol文件存在子目录
+            sol_file_path = target_dir + prefix_path
+
+            # 利用 mkdir -p 递归创建文件夹
+            if not os.path.exists(sol_file_path):
+                subprocess.call(["mkdir -p {}".format(sol_file_path)], shell=True)
+
+            sol_file_path = sol_file_path + contract_file
+
+        # 写入代码内容
+        contract_source_code = sources[es_contract_path_name]["content"]
+        with open(sol_file_path, "w+") as f:
+            f.write(contract_source_code)
+
+
+class ES_Downloader:
+
+    def __init__(self, api_key, target_dir):
+        self.api_key = api_key
+        self.dataset_dir = target_dir
+        self.es = None
+
+    def do_init(self):
+        self.es = Etherscan(key=self.api_key)
+
+    def do_download(self, address):
+        eth_rst = self.es.get_source_code_smart_contract(address)
+
+        ret = check_es_ret(eth_rst)
+        if ret == 0:
+            raise RuntimeError("下载智能合约代码失败:", address)
+
+        # 判断目标文件夹是否生成
+        dataset_address_dir = self.dataset_dir + address + "/"
+        if not os.path.exists(dataset_address_dir):
+            os.mkdir(dataset_address_dir)
+
+        if "result" in eth_rst:
+
+            # note: 2种情况多个sol文件和单个sol文件
+            es_result = eth_rst["result"][0]
+            SourceCode_rst = es_result["SourceCode"]
+            ret = is_import_external_contracts(SourceCode_rst)
+            if ret == 0:
+                save_sol_file = dataset_address_dir + "{}.sol".format(address)
+                save_single_contract_file(SourceCode_rst, save_sol_file)
+            else:
+                contracts_infos = json.loads(SourceCode_rst[1:-1])
+                sources = contracts_infos["sources"]  # 得到智能合约源代码列表
+                save_multi_contract_files(sources, dataset_address_dir)
