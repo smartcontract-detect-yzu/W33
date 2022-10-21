@@ -395,6 +395,8 @@ class TrgetInfoCollector:
                         _in_param_cnt = len(_function_slither.parameters)
                         self.duplicate_cfg_infos[simple_key][_in_param_cnt] = function_cfg_info
                         self.duplicate_slither_infos[simple_key][_in_param_cnt] = _function_slither
+                        
+                        self.logger.debug("slither入参类型:{}".format([str(in_param.type) for in_param in _function_slither.parameters]))
 
         # print("!!!! slither 多函数实现:{}".format(self.duplicate_simple_key))
         # print("===目标函数的CFG:{}".format([key for key in self.function_cfg_infos]))

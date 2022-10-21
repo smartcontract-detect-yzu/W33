@@ -491,7 +491,7 @@ class FunctionAstAnalyzer:
         self.sbp_file = self.sample_dir_with_path + "sbp_info.json"
 
         # 语法相关
-        self.input_params = None
+        self.in_param_cnt = None
         self.ast_root  = None
         self.ast_graph = None
         self.normalized_ast_graph = None
@@ -790,27 +790,11 @@ class FunctionAstAnalyzer:
 
         input_param_root = [subnode for subnode in self.ast_graph.successors(self.ast_root)][0]
         if self.ast_graph.nodes[input_param_root]["ast_type"] != "ParameterList":
-            self.input_params = []
-        
+            self.in_param_cnt = 0
         else:
-            input_params_nodes = nx.dfs_tree(self.ast_graph, input_param_root)
-            input_params_sub_ast = nx.DiGraph(nx.subgraph(self.ast_graph, [node for node in input_params_nodes]))
-            if len(input_params_sub_ast.nodes) == 1:
-                self.input_params = []
-            else:
-                input_types_nodes = _get_all_leaf_nodes(input_params_sub_ast)
-                input_types = []
-                for input_type_node in input_types_nodes:
-                    _type = input_params_sub_ast.nodes[input_type_node]["expr"]
-
-                    # 特殊处理
-                    if str(_type).startswith("struct "):
-                        _type = str(_type).split("struct ")[1]
-                    
-                    input_types.append(_type)
-                    self.input_params = input_types
+            self.in_param_cnt = len([subnode for subnode in self.ast_graph.successors(input_param_root)])
         
-        self.logger.debug("入参类型:{}".format(self.input_params))
+        self.logger.debug("入参数量:{}".format(self.in_param_cnt))
     
     def normalize_sbp_in_ast(self):
         """
@@ -1044,7 +1028,7 @@ class FunctionAstAnalyzer:
         if not self.save_png: return
         png_name = self.sample_dir_with_path + "cfg_png//" + "{}-{}.png".format(name_prefix, postfix)
         subprocess.check_call(["dot", "-Tpng", dot_name, "-o", png_name])
-    
+
     def concat_function_modifier_cfg(self):
         
         if self.is_modifier:
@@ -1197,9 +1181,9 @@ class FunctionAstAnalyzer:
 
     def ast_slither_id_align(self):
 
-        cnt_key = len(self.input_params)
+        cnt_key = self.in_param_cnt
         self.cfg_slither =  self.target_infos_collector.get_slither_cfg_info_before_align(self.cfg_key, self.simple_key, cnt_key, self.is_modifier, "slither")
-
+        
         ast_entry = int(self.ast_graph.graph["top_block"])
         cfg_entry = int(self.cfg_slither.entry_point.node_ast_id)
         self.cfg_astid_offset = ast_entry - cfg_entry
