@@ -382,23 +382,24 @@ class TrgetInfoCollector:
                     simple_key = "{}-{}".format(contract.name, _function_slither.name)
                     if simple_key not in self.duplicate_simple_key:
                         self.duplicate_simple_key[simple_key] = 1
-                        
-                    else: # 出现了(1)多态; (2)重复实现: slither的bug
+                    else: 
                         self.duplicate_simple_key[simple_key] += 1
-                        
-                        # 基于入参个数的目标函数选择
-                        if simple_key not in self.duplicate_slither_infos:
-                            self.duplicate_slither_infos[simple_key] = {}
-                            self.duplicate_cfg_infos[simple_key] = {}
 
-                        # 原则:只使用最后一个 --> 如果存在一个fun(param1, param2)的两个slither实现, 选最后一个
-                        _in_param_cnt = len(_function_slither.parameters)
-                        self.duplicate_cfg_infos[simple_key][_in_param_cnt] = function_cfg_info
-                        self.duplicate_slither_infos[simple_key][_in_param_cnt] = _function_slither
-                        
-                        self.logger.debug("slither入参类型:{}".format([str(in_param.type) for in_param in _function_slither.parameters]))
+                    # 出现了(1)多态; (2)重复实现: slither的bug
+                    # 基于入参个数的目标函数选择
+                    if simple_key not in self.duplicate_slither_infos:
+                        self.duplicate_slither_infos[simple_key] = {}
+                        self.duplicate_cfg_infos[simple_key] = {}
 
+                    # 原则:只使用最后一个 --> 如果存在一个fun(param1, param2)的两个slither实现, 选最后一个
+                    _in_param_cnt = len(_function_slither.parameters)
+                    self.duplicate_cfg_infos[simple_key][_in_param_cnt] = function_cfg_info
+                    self.duplicate_slither_infos[simple_key][_in_param_cnt] = _function_slither
+
+                    self.logger.debug("slither入参类型:{}".format([str(in_param.type) for in_param in _function_slither.parameters]))
+        
         # print("!!!! slither 多函数实现:{}".format(self.duplicate_simple_key))
+        # print("!!!! 多态的实现:{}".format(self.duplicate_cfg_infos))
         # print("===目标函数的CFG:{}".format([key for key in self.function_cfg_infos]))
 
     def _get_function_cfg(self, function:SFunction, cname, ast_id):
