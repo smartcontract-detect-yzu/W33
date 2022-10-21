@@ -18,34 +18,35 @@ def _construct_all_stmts_ast_infos_wrapper(target_filter, target_info_collector,
      for c_name in target_filter:
         for f_name in target_filter[c_name]:
 
-           # 0.目标信息 
+           # 目标信息 
            target_info = target_filter[c_name][f_name]
 
-           # 1.构建解析器
+           # 构建解析器
            ast_analyzer = FunctionAstAnalyzer(target_info, target_info_collector,log_level=LOG_LEVEL, is_modifier=is_modifier, save_png=save_png)
-           ast_analyzer.construct_cfg_for_function_sample(is_modifier=is_modifier)
-
-           # 2.构建 function-level AST
+           
+           # 构建 function-level AST/CFG
            ast_analyzer.construct_ast_for_function_sample()
-            
-           # 3.sbp normalize in ast
+           ast_analyzer.ast_slither_id_align()   # slither和AST的ID对齐
+           ast_analyzer.construct_cfg_for_function_sample(is_modifier=is_modifier)
+           
+           # sbp normalize in ast
            ast_analyzer.normalize_sbp_in_ast()
 
            # debug:保存AST图片
            ast_analyzer.save_ast_as_png(postfix="")
            ast_analyzer.save_ast_as_png(postfix="normalized")
 
-           # 4. AST 与 CFG 对齐
+           # AST 与 CFG 图对齐
            ast_analyzer.cfg_supplement_stmts_for_ast()
            ast_analyzer.get_function_entry_info()  # 在分割之前记录下函数入口信息
            ast_analyzer.split_function_ast_stmts()
            ast_analyzer.check_split_function_ast_stmts()
            
-           # 5. CFG 与 normalized_ast对齐
+           # CFG 与 normalized_ast对齐
            ast_analyzer.normalize_sbp_in_cfg()
            ast_analyzer.save_cfg_as_png(postfix="normalized")
           
-           # 6. 语句属性特征分析
+           # 语句属性特征分析
            ast_analyzer.get_stmts_types()
            ast_analyzer.set_stmts_types_in_cfg()
             
@@ -56,12 +57,12 @@ def _construct_all_stmts_ast_infos_wrapper(target_filter, target_info_collector,
            # 整合modifier和cfg
            ast_analyzer.concat_function_modifier_cfg()
             
-           # 5. 保存结果
+           # 保存结果
            ast_analyzer.save_statements_json_infos()
             
-           # 6. 清除不需要的中间结果
+           # 清除不需要的中间结果
            ast_analyzer.clean_up()
-
+        
            
 class AnalyzeWrapper:
     """
@@ -239,7 +240,7 @@ class AnalyzeWrapper:
         target_info_collector = TrgetInfoCollector(target_dir=target_dir)
         if target_info_collector.slither_error:
             return self.SLITHER_ERROR
-        
+            
         # Note: 此处发生异常的判断 ==> 依赖异常抛出
         if not target_info_collector.slither_error:
             
@@ -408,7 +409,7 @@ if __name__ == '__main__':
         elif clean_done:
             analyze_wrapper.clean_done_flag()
             print("=======>Do Clean Done Flag..........[DONE]<====================")
-
+        
         else:
             LOG_LEVEL = 30 # log warning
             analyze_wrapper.do_analyze_for_dataset()

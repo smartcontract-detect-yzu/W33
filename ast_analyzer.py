@@ -15,7 +15,7 @@ from slither.core.variables.variable import Variable as SVariable
 from slither.core.cfg.node import Node as SNode
 import networkx.drawing.nx_pydot as nx_dot
 
-def _get_function_call_info(node:SNode, debug=0):
+def _get_function_call_info(node:SNode, debug=None):
 
     external_call_flag = node.can_reenter()
     state_assign_flag = "False"
@@ -490,14 +490,24 @@ class FunctionAstAnalyzer:
         self.ast_file = self.sample_dir_with_path + self.ast_json_file_name
         self.sbp_file = self.sample_dir_with_path + "sbp_info.json"
 
+        # 语法相关
+        self.input_params = None
         self.ast_root  = None
         self.ast_graph = None
         self.normalized_ast_graph = None
         
+         # 语义相关
+        self.cfg_slither:SFunction = None
+        self.cfg_info = None
         self.cfg:nx.DiGraph = None
         self.normalized_cfg:nx.DiGraph = None
         self.final_cfg:nx.DiGraph = None
 
+        # 解决AST与CFG之间无法对齐的问题
+        self.cfg_astid_offset = 0 
+
+        # 函数本身特征
+        self.simple_key = None
         self.cfg_key = None
         self.c_name = None
         self.f_name = None
@@ -530,6 +540,8 @@ class FunctionAstAnalyzer:
         self.f_name = smaple_infos[1]
         self.ast_id = smaple_infos[2]
 
+        self.simple_key = "{}-{}".format(self.c_name, self.f_name)
+
         if self.is_modifier:
             self.cfg_key = "{}-{}-modifier".format(self.c_name, self.f_name)
         else:
@@ -537,14 +549,14 @@ class FunctionAstAnalyzer:
 
         self.logger.debug("\r\n================================\r\n")
         self.logger.debug("\r\nInit for :{}".format(self.cfg_key))
+        
         return self.cfg_key
     
     def get_function_entry_info(self):
-        self.entry_ast_info =  self.normalized_ast_graph.nodes[self.entry_ast_id]
+        self.entry_ast_info =  self.normalized_ast_graph.nodes[int(self.entry_ast_id)]
         self.logger.debug("\r\nentry_ast_info :{}".format(self.entry_ast_info))
     
     def set_stmts_types_in_cfg(self):
-        
         for cfg_node_id in self.normalized_cfg.nodes:
             old_lable = self.normalized_cfg.nodes[cfg_node_id]["label"]
             ast_id = self.normalized_cfg.nodes[cfg_node_id]["ASTID"]
@@ -774,6 +786,32 @@ class FunctionAstAnalyzer:
         self.ast_graph.graph["top_block"] = top_block_node  # ast的top_block就是cfg的entry_point
         self.ast_graph.graph["top_stmts"] = top_stmt_nodes
     
+    def _input_params_infos(self):
+
+        input_param_root = [subnode for subnode in self.ast_graph.successors(self.ast_root)][0]
+        if self.ast_graph.nodes[input_param_root]["ast_type"] != "ParameterList":
+            self.input_params = []
+        
+        else:
+            input_params_nodes = nx.dfs_tree(self.ast_graph, input_param_root)
+            input_params_sub_ast = nx.DiGraph(nx.subgraph(self.ast_graph, [node for node in input_params_nodes]))
+            if len(input_params_sub_ast.nodes) == 1:
+                self.input_params = []
+            else:
+                input_types_nodes = _get_all_leaf_nodes(input_params_sub_ast)
+                input_types = []
+                for input_type_node in input_types_nodes:
+                    _type = input_params_sub_ast.nodes[input_type_node]["expr"]
+
+                    # 特殊处理
+                    if str(_type).startswith("struct "):
+                        _type = str(_type).split("struct ")[1]
+                    
+                    input_types.append(_type)
+                    self.input_params = input_types
+        
+        self.logger.debug("入参类型:{}".format(self.input_params))
+    
     def normalize_sbp_in_ast(self):
         """
             Normalize the AST based on its sbp file
@@ -854,15 +892,11 @@ class FunctionAstAnalyzer:
         self.normalized_cfg.graph["leaves"] = _get_all_leaf_nodes(self.normalized_cfg)
 
 
-    def  cfg_supplement_stmts_for_ast(self):
+    def cfg_supplement_stmts_for_ast(self):
 
-        cfg_info = self.target_infos_collector.get_cfg_by_key(self.cfg_key, self.is_modifier)
-        
         cfg_supplement_stmts = []
-
         self.cfg_nodes_map.clear()
-        for cfg_node in cfg_info["nodes"]:
-            if cfg_node["node_type"] == "ENTRY_POINT": self.entry_ast_id = cfg_node["ast_id"] # 记录入口信息
+        for cfg_node in self.cfg_info["nodes"]:
             self.cfg_nodes_map[cfg_node["ast_id"]] = {"content":cfg_node["node_type"], "cfg_id":cfg_node["cfg_id"] ,"tag":""}
         
         ast_top_stmts = {}
@@ -902,6 +936,7 @@ class FunctionAstAnalyzer:
         self.logger.debug("construct ast for :{}".format(self.cfg_key))
         self._construct_ast_from_json_file()
         self._adjunction_ast_infos()
+        self._input_params_infos()
     
     def construct_up_buttom_cfg_for_modifier(self):
 
@@ -955,7 +990,6 @@ class FunctionAstAnalyzer:
         
         place_holder = None
 
-        cfg_slither:SFunction = self.target_infos_collector.get_slither_by_key(self.cfg_key, self.is_modifier)
         name_prefix = "{}-{}-{}".format(self.c_name, self.f_name, self.ast_id)
         if self.is_modifier is True:
             modifier_key = "{}-{}-{}".format(self.c_name, self.f_name, "modifier")
@@ -965,9 +999,9 @@ class FunctionAstAnalyzer:
         dot_name = self.sample_dir_with_path + "cfg_dot//" + "{}-{}.dot".format(name_prefix, postfix)
         with open(dot_name, "w", encoding="utf8") as f:
             f.write("digraph{\n")
-            for node in cfg_slither.nodes:
+            for node in self.cfg_slither.nodes:
                 
-                ext_call_flag, state_assign_flag = _get_function_call_info(node, debug=1026)
+                ext_call_flag, state_assign_flag = _get_function_call_info(node, debug=None)
 
                 self.cfg_id_to_ast_id[str(node.node_id)] = str(node.node_ast_id)
                 self.ast_id_to_cfg_id[str(node.node_ast_id)] = str(node.node_id)
@@ -976,28 +1010,29 @@ class FunctionAstAnalyzer:
                     place_holder = str(node.node_id)
                 
                 if node.expression is None:
-                    label_info = "NE:{}  @{} @{}".format(str(node), node.node_ast_id, node.node_id)
+                    label_info = "{}  @{} @{}".format(str(node), node.node_ast_id, node.node_id)
                 else:
                     label_info = "{}  @{} @{}".format(str(node.expression), node.node_ast_id, node.node_id)
-
+                
+                _ast_id = int(node.node_ast_id) + self.cfg_astid_offset # 对齐
                 f.write (
-                    f'{node.node_id}[label="{label_info}"][expr="{str(node)}"][ASTID="{str(node.node_ast_id)}"]\
+                    f'{node.node_id}[label="{label_info}"][expr="{str(node)}"][ASTID="{str(_ast_id)}"]\
                         [stmt_type="{str(node.type)}"]\
                         [state_assign="{str(state_assign_flag)}"]\
                         [ext_call="{str(ext_call_flag)}"]\
                         [mk="{str(modifier_key)}"];\n' # mk: modifier key的缩写，表明当前节点是否来自modifier
                 )
-
+                
                 for son in node.sons:
                     f.write(f"{node.node_id}->{son.node_id};\n")
-
+            
             f.write("}\n")
 
         self.cfg = nx.drawing.nx_agraph.read_dot(dot_name)
         self.cfg.graph["name"] = self.ast_json_file_name 
-        self.cfg.graph["entry_point_ast_id"] = self.cfg.nodes["0"]["ASTID"]
+        self.entry_ast_id = self.cfg.graph["entry_point_ast_id"] = self.cfg.nodes["0"]["ASTID"]
         self.cfg.graph["place_holder"] = place_holder
-
+        
         # 如果是modifier 必须记录下来 以方便后续分析
         if is_modifier is True:
             self.logger.debug("开始modifier控制流图分解阶段")
@@ -1009,7 +1044,6 @@ class FunctionAstAnalyzer:
         if not self.save_png: return
         png_name = self.sample_dir_with_path + "cfg_png//" + "{}-{}.png".format(name_prefix, postfix)
         subprocess.check_call(["dot", "-Tpng", dot_name, "-o", png_name])
-
     
     def concat_function_modifier_cfg(self):
         
@@ -1161,6 +1195,26 @@ class FunctionAstAnalyzer:
                 if cfg_node not in self.statements_ast:
                     self.logger.warning("!!! CFG:{} not in stmt".format(cfg_node))
 
+    def ast_slither_id_align(self):
+
+        cnt_key = len(self.input_params)
+        self.cfg_slither =  self.target_infos_collector.get_slither_cfg_info_before_align(self.cfg_key, self.simple_key, cnt_key, self.is_modifier, "slither")
+
+        ast_entry = int(self.ast_graph.graph["top_block"])
+        cfg_entry = int(self.cfg_slither.entry_point.node_ast_id)
+        self.cfg_astid_offset = ast_entry - cfg_entry
+        
+        self.cfg_info = self.target_infos_collector.get_slither_cfg_info_before_align(self.cfg_key, self.simple_key, cnt_key, self.is_modifier, "cfg_info")
+        if self.cfg_info["offset"] == 0: 
+            if self.cfg_astid_offset != 0:
+                for cfg_node in self.cfg_info ["nodes"]:
+                    cfg_node["ast_id"] = cfg_node["ast_id"] + self.cfg_astid_offset  # 对齐,加上offest
+            
+            self.cfg_info["offset"] = 1
+        
+        self.logger.debug("!! offset:{} ast_entry:{} cfg_entry:{}".format(self.cfg_astid_offset, ast_entry, cfg_entry))
+
+
     def save_ast_as_png(self, postfix="", _graph:nx.DiGraph=None):
 
         if not self.save_png:
@@ -1236,10 +1290,10 @@ class FunctionAstAnalyzer:
             stmt_ast:nx.DiGraph = self.statements_ast[stmt_root_ast_id]
 
             if str(stmt_root_ast_id) in self.stmts_type_map:
-              stmt_type = self.stmts_type_map[str(stmt_root_ast_id)]
+                stmt_type = self.stmts_type_map[str(stmt_root_ast_id)] 
             else:
                 stmt_type = "EXPRESSION" # 默认为一个语句 LUBU_Inu-setSwapAndLiquifyByLimitOnly-2163 @0x62ca828e17b9c3C36D3bCFe0bf6C474355f67C71
-            
+
             vul_label = 0
             vul_type = ""
             
