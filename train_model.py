@@ -17,16 +17,17 @@ from focal_loss import FocalLoss2d
 
 class MyDataset(DGLDataset):
     
-    def __init__(self, cfg_graphs, ast_graphs):
+    def __init__(self, cfg_graphs, ast_graphs, graph_idx_list):
         self.cfg_graphs = cfg_graphs  # [  cfg1,           cfg2, ...,              cfgn]
         self.ast_graphs = ast_graphs  # [[ast1_1, ast1_2], [ast2_1, ast2_2],..., [astn_1, astn_2, astn_3]]
+        self.graph_idx_list = graph_idx_list
         super().__init__(name='my Dataset')
 
     def process(self):
         pass
 
     def __getitem__(self, i):
-        return self.cfg_graphs[i], self.ast_graphs[i]
+        return self.cfg_graphs[i], self.ast_graphs[i], self.graph_idx_list[i]
 
     def __len__(self):
         return len(self.cfg_graphs)
@@ -75,6 +76,8 @@ def dgl_bin_process(dataset_name, c_type):
     cfg_graphs = []
     ast_graphs = []
 
+    no_vul_cnt = 0
+    total_cnt = 0
     # 抽取全部数据
     graphs, graphs_infos = dgl.load_graphs(dataset_name)
     for idx in range(0, len(graphs_infos["graph_cnts"])):
@@ -88,10 +91,14 @@ def dgl_bin_process(dataset_name, c_type):
 
             tmp_graph = graphs.pop(0)
             if graph_idx == 0:   # 第一个是CFG, 其它的是AST
+                
+                total_cnt += tmp_graph.num_nodes()
+                no_vul_cnt += th.sum(tmp_graph.ndata["label"].argmax(1).eq(th.zeros(tmp_graph.num_nodes())))
+
                 tmp_graph.ndata["feature"] = th.zeros(tmp_graph.num_nodes(), 64) # 为CFG开辟一个特征空间,大小为TREE_LSTM的输出
                 if c_type == "multi":
                     pass
-                        
+
                 elif c_type == "binary":
                     tmp_graph.ndata["label_b"] = tmp_graph.ndata["label"].argmax(1) # 建模为二分类任务, 不使用交叉熵
 
@@ -108,9 +115,12 @@ def dgl_bin_process(dataset_name, c_type):
     valid_size = int(0.1*len(idx_graphs))
     test_size  = len(idx_graphs) - train_size - valid_size
 
-    print("====统计信息: total:{} train_size:{}, valid_size:{}, test_size:{}".format(
+    print("====================统计信息===========================")
+    print("==数量信息: total:{} train_size:{}, valid_size:{}, test_size:{}".format(
         len(cfg_graphs), train_size, valid_size, test_size)
     )
+    print("==负标签分布: no_vul:{} {}".format(no_vul_cnt, no_vul_cnt/total_cnt))
+    print("==正标签分布: vul:{} {}".format(total_cnt - no_vul_cnt, (total_cnt - no_vul_cnt)/total_cnt))
 
     train_idx_list = idx_graphs[0:train_size]  # 80%
     valid_idx_list = idx_graphs[train_size + 1: train_size + valid_size]  # 10%
@@ -122,22 +132,22 @@ def dgl_bin_process(dataset_name, c_type):
     for tmp_id in train_idx_list:
         train_cfg_graphs.append(cfg_graphs[tmp_id])
         train_ast_graphs.append(ast_graphs[tmp_id])
-    train_dataset = MyDataset(train_cfg_graphs, train_ast_graphs)
+    train_dataset = MyDataset(train_cfg_graphs, train_ast_graphs, train_idx_list)
     
     valid_cfg_graphs = []
     valid_ast_graphs = []
     for tmp_id in valid_idx_list:
         valid_cfg_graphs.append(cfg_graphs[tmp_id])
         valid_ast_graphs.append(ast_graphs[tmp_id])
-    valid_dataset = MyDataset(valid_cfg_graphs, valid_ast_graphs)
+    valid_dataset = MyDataset(valid_cfg_graphs, valid_ast_graphs, valid_idx_list)
     
     test_cfg_graphs = []
     test_ast_graphs = []
     for tmp_id in test_idx_list:
         test_cfg_graphs.append(cfg_graphs[tmp_id])
         test_ast_graphs.append(ast_graphs[tmp_id])
-    test_dataset = MyDataset(test_cfg_graphs, test_ast_graphs)
-
+    test_dataset = MyDataset(test_cfg_graphs, test_ast_graphs, test_idx_list)
+        
     return train_dataset, valid_dataset, test_dataset
 
 
@@ -207,6 +217,18 @@ def argParse():
     args = parser.parse_args()
     return args.dataset
 
+def debug_model_infos():
+    print("=========模型情况打印:===========")
+    print("==batch_size:", batch_size)
+    print("==epoch:", epoch)
+    print("==x_size:", x_size)
+    print("==h_size:", h_size)
+    print("==attn_drop:", attn_drop)
+    print("==feat_drop:", feat_drop)
+    print("==warmup:", warmup)
+    print("==loss_type:", loss_type)
+    print("==classify_type:", classify_type)
+    print("==device:", device)
 
 if __name__ == '__main__':
 
@@ -214,13 +236,18 @@ if __name__ == '__main__':
 
     # 参数列表
     torch.manual_seed(3407)
-    dataset_name = "{}.bin".format(_dataset)
+    if str(_dataset).endswith(".bin"):
+        dataset_name = _dataset
+    else:
+        dataset_name = "{}.bin".format(_dataset)
     batch_size = 512
     epoch = 256
     x_size = 100 # ast node feature size
     h_size = 64  # tree_lstm learning feature or CFG node feature size
+    attn_drop = 0.05
+    feat_drop = 0.05
     warmup = 1
-    loss_type = "focal_loss" # focal_loss  cross_entropy
+    loss_type = "cross_entropy" # focal_loss  cross_entropy
     classify_type = "multi" # binary multi 
     
     if torch.cuda.is_available():
@@ -228,7 +255,8 @@ if __name__ == '__main__':
         th.cuda.set_device(device)
     else:
         device = torch.device("cpu")
-    print(device)
+
+    debug_model_infos()
     
     if loss_type == "focal_loss":
         focal_loss = FocalLoss2d().to(device)
@@ -240,7 +268,7 @@ if __name__ == '__main__':
     test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, collate_fn=batcher_v1(device, classify_type), shuffle=False, num_workers=0)
 
     # 模型
-    model = SAGNN(x_size, h_size, classify_type).to(device)
+    model = SAGNN(x_size, h_size, attn_drop, feat_drop, classify_type).to(device)
 
     # 学习率
     lr_scheduler = None
@@ -287,8 +315,7 @@ if __name__ == '__main__':
                 lr_scheduler.step()
             
         
-        training_loss /= total_nodes    
-        
+        training_loss /= total_nodes
         print("EPOCH:{} training_loss:{}".format(epoch, training_loss))
 
         ######################

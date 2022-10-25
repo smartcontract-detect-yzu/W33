@@ -54,6 +54,8 @@ def _construct_dgl_graph_v2(ast_json_file, infercode):
     """
 
     graphs_for_function = []
+    infos_for_function = {"path":ast_json_file}
+
     cfg_node_id = 0
     cfg_stmt_id_map = {} # from stmt ast id to cfg dgl id
     stmt_ast_id_to_dgl_idx = {}
@@ -68,7 +70,7 @@ def _construct_dgl_graph_v2(ast_json_file, infercode):
         cfg_edges = ast_json["cfg_edges"]
 
         if len(cfg_edges) == 0:
-            return graphs_for_function  # NOTE: 返回空, 需要在外部跳过, 不能保存
+            return graphs_for_function, infos_for_function  # NOTE: 返回空, 需要在外部跳过, 不能保存
 
         for cfg_edge_info in cfg_edges:
             from_id = str(cfg_edge_info["from"])
@@ -77,11 +79,13 @@ def _construct_dgl_graph_v2(ast_json_file, infercode):
             if from_id not in cfg_stmt_id_map:
                 cfg_stmt_id_map[from_id] = cfg_node_id
                 stmt_ast_id_to_dgl_idx[cfg_node_id] = from_id
+                infos_for_function[cfg_node_id] = {"ASTID":from_id}
                 cfg_node_id += 1
-
+            
             if to_id not in cfg_stmt_id_map:
                 cfg_stmt_id_map[to_id] = cfg_node_id
                 stmt_ast_id_to_dgl_idx[cfg_node_id] = to_id
+                infos_for_function[cfg_node_id] = {"ASTID":to_id}
                 cfg_node_id += 1
             
             cfg_src.append(cfg_stmt_id_map[from_id])
@@ -105,6 +109,10 @@ def _construct_dgl_graph_v2(ast_json_file, infercode):
             stmt_ast_nodes_maps = stmt_ast_json["nodes"]
             stmt_ast_edges = stmt_ast_json["edges"]
             stmt_ast_label = int(stmt_ast_json["vul"])
+            stmt_vul_type = stmt_ast_json["vul_type"]
+
+            infos_for_function[idx]["vul_tpye"] = stmt_vul_type
+            infos_for_function[idx]["label"] = stmt_ast_label
 
             if "stmt_type" in stmt_ast_json:
                 stmt_cfg_type  = stmt_ast_json["stmt_type"]
@@ -180,7 +188,7 @@ def _construct_dgl_graph_v2(ast_json_file, infercode):
         cfg.ndata["label"] = cfg_dgl_nodes_label
         cfg.ndata["type"] = cfg_dgl_nodes_types
 
-        return graphs_for_function
+        return graphs_for_function, infos_for_function
 
 
 def construct_dgl_graphs_for_sample(contract_sample_dir, infercode, check):
@@ -188,6 +196,7 @@ def construct_dgl_graphs_for_sample(contract_sample_dir, infercode, check):
     function_cnt = 0
     sample_graphs = []
     sample_graphs_cnt = []
+    smaple_infos = []
 
     all_samples = os.listdir(contract_sample_dir)
     for sample in all_samples:
@@ -203,12 +212,13 @@ def construct_dgl_graphs_for_sample(contract_sample_dir, infercode, check):
         
         else:
             try:
-                function_graphs = _construct_dgl_graph_v2(sample_ast_json, infercode)
+                function_graphs, function_infos = _construct_dgl_graph_v2(sample_ast_json, infercode)
+                # print(json.dumps(function_infos, indent=4,  separators=(",", ":")))
                 if len(function_graphs) != 0:
                     sample_graphs += function_graphs
                     sample_graphs_cnt.append(len(function_graphs))  # 1 + number_of_AST
+                    smaple_infos.append(function_infos)
                     function_cnt += 1
-
                 with open(sample_dgl_done_flag, "w+") as f:
                     f.write("dgl_done")
             except:
@@ -217,13 +227,14 @@ def construct_dgl_graphs_for_sample(contract_sample_dir, infercode, check):
                     raise RuntimeError("!!!!!!!!!!!!!!!!!")
                     
         
-    return sample_graphs, sample_graphs_cnt, function_cnt
+    return sample_graphs, sample_graphs_cnt, smaple_infos, function_cnt
 
 
 def construct_dgl_graphs_for_dataset(dataset_dir, infercode, check):
 
     graphs = []
     graphs_cnts = []
+    graph_infos = []
     total_function = 0
 
     print(">>>>>>>>>>>>>>开始构建数据集:{}<<<<<<<<<<<<<<<".format(dataset_dir))
@@ -231,14 +242,17 @@ def construct_dgl_graphs_for_dataset(dataset_dir, infercode, check):
     all_contracts = os.listdir(dataset_dir)
     with tqdm(total=len(all_contracts)) as pbar:
         for contract in all_contracts:
+ 
+            if str( contract).endswith(".json"): continue
             contract_sample_dir = dataset_dir + contract + "//sample//"
             
             # construct dgl graph and lables
-            sample_graphs, sample_graphs_cnt, function_cnt = construct_dgl_graphs_for_sample(contract_sample_dir, infercode, check)
+            sample_graphs, sample_graphs_cnt, smaple_infos, function_cnt = construct_dgl_graphs_for_sample(contract_sample_dir, infercode, check)
 
             # add to the list
             graphs += sample_graphs
             graphs_cnts += sample_graphs_cnt
+            graph_infos += smaple_infos
 
             total_function += function_cnt
             pbar.set_description('Processing:{} total:{}'.format(contract, total_function))
@@ -247,12 +261,19 @@ def construct_dgl_graphs_for_dataset(dataset_dir, infercode, check):
             if total_function > 10240:
                 print("!!!Already collect max function samples")
                 break
-    
+
     if check == 1:
         print("==total_function is :{}".format(total_function))
-        print("==total ast and cfg is:{}".format())
+        print("==total ast and cfg is:{}".format(len(graphs)))
 
     else:
+        content_file = dataset_dir + "table_of_contents.json"
+        with open(content_file, "w+") as f:
+            table_of_contents = {}
+            for idx, sample_name in enumerate(graph_infos):
+                table_of_contents[str(idx)] = sample_name
+            f.write(json.dumps(table_of_contents, indent=4,  separators=(",", ":")))
+
         # construct the dgl dataset bin file
         infos = {"graph_cnts": torch.tensor(graphs_cnts)}
         bin_file_name = "{}.bin".format(dataset_dir.split("//")[-2])

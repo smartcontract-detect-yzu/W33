@@ -193,6 +193,8 @@ class SAGNN(nn.Module):
     def __init__(self,
                  x_size,
                  h_size,
+                 attn_drop,
+                 feat_drop,
                  classify_type,
                  gnn_type="gcn"):
 
@@ -202,7 +204,7 @@ class SAGNN(nn.Module):
         self.x_size = x_size
         self.tree_lstm = ChildSumTreeLSTMCell(x_size, h_size)
         self.gcn = GraphConv(in_feats=h_size, out_feats=32, norm='both', weight=True, bias=True, allow_zero_in_degree=True)
-        self.tgat = TGATConv(in_feats=h_size, out_feats=32, num_heads=4, attn_drop=0.05, feat_drop=0.05, activation=nn.Softmax())
+        self.tgat = TGATConv(in_feats=h_size, out_feats=32, num_heads=4, attn_drop=attn_drop, feat_drop=feat_drop, activation=nn.Softmax())
         
         self.linner1 = nn.Linear(32, 16)
         if self.classify_type == "binary":
