@@ -184,7 +184,7 @@ def _do_save_stmt_ast_to_json(stmt_ast_graph:nx.DiGraph, stmt_ast_json, stmt_ast
 def _do_create_exit_point_to_json(stmt_ast_json):
     nodes = {}
     nodes["exit"] = {"id": "exit","label": "EXIT_POINT","content": "EXIT_POINT","ast_type": "EXIT_POINT","pid": None}
-    stmt_ast_info = {"vul":0, "vul_type":0, "nodes":nodes, "edges":[]}
+    stmt_ast_info = {"vul":0, "vul_type":0, "stmt_type": "EXIT_POINT", "nodes":nodes, "edges":[]}
     stmt_ast_json["exit"] = stmt_ast_info
     return stmt_ast_info
 
@@ -1183,7 +1183,7 @@ class FunctionAstAnalyzer:
 
         cnt_key = self.in_param_cnt
         self.cfg_slither =  self.target_infos_collector.get_slither_cfg_info_before_align(self.cfg_key, self.simple_key, cnt_key, self.is_modifier, "slither")
-        
+
         ast_entry = int(self.ast_graph.graph["top_block"])
         cfg_entry = int(self.cfg_slither.entry_point.node_ast_id)
         self.cfg_astid_offset = ast_entry - cfg_entry
@@ -1293,10 +1293,10 @@ class FunctionAstAnalyzer:
             if self.is_modifier is True:
                 self.target_infos_collector.set_modifier_stmts(stmt_root_ast_id, stmt_ast_info)
 
-        # 保存来自modifier的语句
+        # 只有function的cfg才有final cfg
         if self.is_modifier is False:
             for (u, v) in self.final_cfg.edges:
-
+                    
                 if self.final_cfg.nodes[u]["mk"] != "not-modifier":
                     from_ast_id = self.final_cfg.nodes[u]["ASTID"]
                     from_json_info = self.target_infos_collector.get_modifier_stmts(from_ast_id)
@@ -1322,6 +1322,7 @@ class FunctionAstAnalyzer:
             from_id = self.final_cfg.nodes[u]["ASTID"]
             to_id = self.final_cfg.nodes[v]["ASTID"]
             
+            # 自旋在dgl库中添加
             if from_id != to_id and str(from_id) in final_stmts_ast_json and str(to_id) in final_stmts_ast_json:
                 cfg_edge_info.append({"from": from_id, "to": to_id})
                 cfg_edge_map[str(from_id)] = 1

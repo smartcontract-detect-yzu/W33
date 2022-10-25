@@ -6,6 +6,7 @@ import collections
 import random
 import dgl
 from dgl.data import DGLDataset
+import numpy as np
 import torch
 import time
 import torch as th
@@ -14,6 +15,8 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from dgl.nn.pytorch.conv.graphconv import GraphConv
 from dgl.nn.pytorch.conv import GATConv
+from tgat import TGATConv
+
 class ChildSumTreeLSTMCell(nn.Module):
 
     def __init__(self, x_size, h_size):
@@ -42,17 +45,20 @@ class ChildSumTreeLSTMCell(nn.Module):
         return {'h': h, 'c': c}
 
 
-class SimpleTreeLSTM(nn.Module):
+class SAGnn(nn.Module):
     
     def __init__(self,
                  x_size,
-                 h_size):
+                 h_size,
+                 gnn_type="gcn"):
 
-        super(SimpleTreeLSTM, self).__init__()
+        super(SAGnn, self).__init__()
+        self.type = gnn_type
         self.x_size = x_size
         self.tree_lstm = ChildSumTreeLSTMCell(x_size, h_size)
-        self.gnn = GraphConv(64, 32, norm='both', weight=True, bias=True, allow_zero_in_degree=True)
-        
+        self.gcn = GraphConv(in_feats=h_size, out_feats=32, norm='both', weight=True, bias=True, allow_zero_in_degree=True)
+        self.tgat = TGATConv(in_feats=h_size, out_feats=32, num_heads=3, attn_drop=0.05, feat_drop=0.05, activation=nn.ReLU())
+
         self.linner1 = nn.Linear(32, 16)
         self.linner2 = nn.Linear(16, 2)
 
@@ -68,44 +74,127 @@ class SimpleTreeLSTM(nn.Module):
         
         # copy the learned feature to cfg
         for idx, stmt_ast in enumerate(dgl.unbatch(ast)):
-            cfg.ndata["s"][idx].copy_(stmt_ast.ndata['h'][0]) # NOTE: 每个ast.nodes[0]就是语句的根节点 --> 由dataset_construct.py保证
+            cfg.ndata["feature"][idx].copy_(stmt_ast.ndata['h'][0]) # NOTE: 每个ast.nodes[0]就是语句的根节点 --> 由dataset_construct.py保证
         
-        # GNN
-        res = self.gnn(cfg, cfg.ndata['s'])
-        res = self.linner1(res)
-        res = self.linner2(res)
+        
+        if self.type =="gcn": # GNN
+            res = self.gcn(cfg, cfg.ndata['feature'])
+            res = self.linner1(res)
+            res = self.linner2(res)
+        
+        elif self.type =="tgat": # TGAT
+            res = self.tgat(cfg, cfg.ndata['type'])
+            res = self.linner1(res)
+            res = self.linner2(res)
         
         return res
 
-
-class CfgDataset(DGLDataset):
-    def __init__(self):
-        self.cfg_graphs = []
-        self.ast_graphs = []
-        super().__init__(name='Cfg_Dataset')
-
-        
-    def process(self):
-        """
-            [cfg1, ast1_1, ast1_2, cfg2, ast2_1, cfg3, ast3_1, ast3_2, ...]
-        """
-        
-        graphs, graphs_infos = dgl.load_graphs("resumable_loop.bin")
+def dgl_bin_process():
+    
+    graph_idx = [] # 图索引
+        graphs, graphs_infos = dgl.load_graphs("test_1.bin")
         for idx in range(0, len(graphs_infos["graph_cnts"])):
             tmp_ast_graphs = []
-
+        
             graph_cnt = graphs_infos["graph_cnts"][idx].int()
             for graph_idx in range(0, graph_cnt):
-    
+
                 tmp_graph = graphs.pop(0)
                 if graph_idx == 0:   # 第一个是CFG, 其它的是AST
-                    tmp_graph.ndata["s"] = th.zeros(tmp_graph.num_nodes(), 64) # 为CFG开辟一个特征空间,大小为TREE_LSTM的输出
+                    tmp_graph.ndata["feature"] = th.zeros(tmp_graph.num_nodes(), 64) # 为CFG开辟一个特征空间,大小为TREE_LSTM的输出
                     self.cfg_graphs.append(tmp_graph)
                 else:
                     tmp_ast_graphs.append(tmp_graph)
             
             self.ast_graphs.append(tmp_ast_graphs)
-    
+
+            graph_idx.append(idx)
+        
+        # 划分train/test/valid数据集
+        random.shuffle(graph_idx)
+        train_size = int(0.8*len(graph_idx))
+        valid_size = int(0.1*len(graph_idx))
+
+        train_idx_list = graph_idx[0:train_size]
+        valid_idx_list = graph_idx[train_size + 1: train_size + valid_size]
+        test_idx_list  = graph_idx[train_size + valid_size + 1:]
+
+        train_cfg_graphs = []
+        train_ast_graphs = []
+        for tmp_id in train_idx_list:
+            train_cfg_graphs.append(self.cfg_graphs[tmp_id])
+            train_ast_graphs.append(self.ast_graphs[tmp_id])
+        
+        valid_cfg_graphs = []
+        valid_ast_graphs = []
+        for tmp_id in valid_idx_list:
+            valid_cfg_graphs.append(self.cfg_graphs[tmp_id])
+            valid_ast_graphs.append(self.ast_graphs[tmp_id])
+        
+        test_cfg_graphs = []
+        test_ast_graphs = []
+        for tmp_id in test_idx_list:
+            test_cfg_graphs.append(self.cfg_graphs[tmp_id])
+            test_ast_graphs.append(self.ast_graphs[tmp_id])
+
+
+class CfgDataset(DGLDataset):
+    def __init__(self):
+        self.cfg_graphs = []  # [  cfg1,           cfg2, ...,              cfgn]
+        self.ast_graphs = []  # [[ast1_1, ast1_2], [ast2_1, ast2_2],..., [astn_1, astn_2, astn_3]]
+        super().__init__(name='Cfg_Dataset')
+
+    def process(self):
+        """
+            [cfg1, ast1_1, ast1_2, cfg2, ast2_1, cfg3, ast3_1, ast3_2, ...]
+        """
+        graph_idx = [] # 图索引
+        graphs, graphs_infos = dgl.load_graphs("test_1.bin")
+        for idx in range(0, len(graphs_infos["graph_cnts"])):
+            tmp_ast_graphs = []
+        
+            graph_cnt = graphs_infos["graph_cnts"][idx].int()
+            for graph_idx in range(0, graph_cnt):
+
+                tmp_graph = graphs.pop(0)
+                if graph_idx == 0:   # 第一个是CFG, 其它的是AST
+                    tmp_graph.ndata["feature"] = th.zeros(tmp_graph.num_nodes(), 64) # 为CFG开辟一个特征空间,大小为TREE_LSTM的输出
+                    self.cfg_graphs.append(tmp_graph)
+                else:
+                    tmp_ast_graphs.append(tmp_graph)
+            
+            self.ast_graphs.append(tmp_ast_graphs)
+
+            graph_idx.append(idx)
+        
+        # 划分train/test/valid数据集
+        random.shuffle(graph_idx)
+        train_size = int(0.8*len(graph_idx))
+        valid_size = int(0.1*len(graph_idx))
+
+        train_idx_list = graph_idx[0:train_size]
+        valid_idx_list = graph_idx[train_size + 1: train_size + valid_size]
+        test_idx_list  = graph_idx[train_size + valid_size + 1:]
+
+        train_cfg_graphs = []
+        train_ast_graphs = []
+        for tmp_id in train_idx_list:
+            train_cfg_graphs.append(self.cfg_graphs[tmp_id])
+            train_ast_graphs.append(self.ast_graphs[tmp_id])
+        
+        valid_cfg_graphs = []
+        valid_ast_graphs = []
+        for tmp_id in valid_idx_list:
+            valid_cfg_graphs.append(self.cfg_graphs[tmp_id])
+            valid_ast_graphs.append(self.ast_graphs[tmp_id])
+        
+        test_cfg_graphs = []
+        test_ast_graphs = []
+        for tmp_id in test_idx_list:
+            test_cfg_graphs.append(self.cfg_graphs[tmp_id])
+            test_ast_graphs.append(self.ast_graphs[tmp_id])
+            
+
     def __getitem__(self, i):
         return self.cfg_graphs[i], self.ast_graphs[i]
 
@@ -163,16 +252,20 @@ def batcher_v1(device):
     def batcher_v1_dev(batch):
         cfgs = []
         asts = []
+
+        # [cfg_i], [ast_i_1, ast_i_2]
         for cfg_ast in batch:
 
-            cfgs.append(cfg_ast[0])
+            _cfg = cfg_ast[0]
+            _cfg = dgl.add_self_loop(_cfg) # 在CFG中添加self loop
+            cfgs.append(_cfg)
 
             for ast in cfg_ast[1]:
-                ast = dgl.remove_self_loop(ast)  # 在AST中删除self loop
+                ast = dgl.remove_self_loop(ast) # 在AST中删除self loop
                 asts.append(ast)
 
         cfg_batch = dgl.batch(cfgs)
-        ast_batch = dgl.batch(asts)
+        ast_batch = dgl.batch(asts) # batch:[[],[],[]] => []
 
         return my_batch(cfg_batch=cfg_batch,
                         ast_batch=ast_batch,
@@ -252,7 +345,18 @@ def do_test_model(model, dataset_loader, device):
         acc, recall, precision, f1, total_data_num = calculate_metrics(predicts, labels)
         return acc, recall, precision, f1, total_data_num
 
+def warmup_lr_scheduler(optimizer, warmup_iters, warmup_factor):
+    def f(x): # x是step次数
+        if x >= warmup_iters:
+            return 1
+        alpha = float(x) / warmup_iters # 当前进度 0-1
+        return warmup_factor * (1 - alpha) + alpha
+    return torch.optim.lr_scheduler.LambdaLR(optimizer, f)
+
+warmup = 1
 if __name__ == '__main__':
+
+    torch.manual.seed(3407)
 
     if torch.cuda.is_available():
         device = torch.device("cuda:0")
@@ -264,7 +368,7 @@ if __name__ == '__main__':
 
     train_dataset = CfgDataset()
 
-    batch_size = 128
+    batch_size = 256
     train_loader = DataLoader(dataset=train_dataset,
                         batch_size=batch_size,
                         collate_fn=batcher_v1(device),
@@ -276,11 +380,18 @@ if __name__ == '__main__':
     epoch = 256
     x_size = 100
     h_size = 64
-    model = SimpleTreeLSTM(x_size, h_size).to(device)
-    
+    model = SAGnn(x_size, h_size).to(device)
+
     print(model)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+
+    lr_scheduler = None
+    if warmup:
+        warmup_factor = 1. / 1000
+        warmup_iters = min(1000, len(train_loader) - 1)
+        lr_scheduler = warmup_lr_scheduler(optimizer, warmup_iters, warmup_factor)
+
 
     # 模型训练
     for epoch in range(epoch):
@@ -288,7 +399,7 @@ if __name__ == '__main__':
 
         training_loss = 0
         total_nodes = 0
-
+        
         for step, batch in enumerate(train_loader):
 
             batch_ast = batch.ast_batch.to(device)
@@ -299,14 +410,13 @@ if __name__ == '__main__':
             c = th.zeros((n, h_size)).to(device)
 
             logits = model(batch_cfg, batch_ast, h, c)
-
             # 计算训练中的结果
             # preds = logits.argmax(1)
             # labels = batch_labels.argmax(1)
             # calculate_metrics(preds, labels)
 
             # logits = F.log_softmax(logits, 1)  # log_softmax(logits, 1)
-            loss = F.cross_entropy(logits, batch_labels)
+            loss = F.cross_entropy(logits, batch_labels.long())
             # loss = F.nll_loss(logp, batch.label, reduction='sum')
             training_loss += loss.item() * batch_cfg.num_nodes()
             total_nodes += batch_cfg.num_nodes()
@@ -314,6 +424,9 @@ if __name__ == '__main__':
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+
+            if lr_scheduler is not None:
+                lr_scheduler.step()
             
         training_loss /= total_nodes
         print("EPOCH:{} training_loss:{}".format(epoch, training_loss))

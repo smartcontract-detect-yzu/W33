@@ -98,7 +98,7 @@ class AnalyzeWrapper:
             "safe cast": 0,
             "transaction order dependency": 0,
             "nonReentrant": 0,
-            "Permission": 0,
+            "onlyOwner": 0,
             "resumable_loop": 0
         }
 
@@ -378,7 +378,9 @@ if __name__ == '__main__':
 
         LOG_LEVEL = 10 # log debug
         analyze_wrapper = AnalyzeWrapper("dummy", save_png=1) # 创建假的
-        analyze_wrapper.do_analyze_for_target("dataset//resumable_loop//{}//".format(address))
+        # analyze_wrapper.do_analyze_for_target("dataset//resumable_loop_2//{}//".format(address))
+        analyze_wrapper.do_analyze_for_target("example//{}//".format(address))
+        
 
     elif test:
 

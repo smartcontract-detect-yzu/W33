@@ -1,3 +1,4 @@
+import argparse
 import json
 import dgl 
 import torch
@@ -43,48 +44,6 @@ def _map_ast_node_id(stmt_ast_nodes_maps, stmt_ast_label, infercode):
     return dgl_nodes_map, dgl_nodes_content, dgl_nodes_label
 
 
-def _construct_dgl_graph(ast_json_file, infercode):
-
-    dgl_graphs = []
-    graphs_labels = []
-
-    with open(ast_json_file) as f:
-        ast_json = json.load(f)
-        for stmt in ast_json:
-            stmt_ast_json = ast_json[stmt]
-            stmt_ast_nodes_maps = stmt_ast_json["nodes"]
-            stmt_ast_edges = stmt_ast_json["edges"]
-            stmt_ast_label = int(stmt_ast_json["vul"])
-
-            if len(stmt_ast_edges) == 0:
-                continue  # statement with only one node as return
-
-            dgl_nodes_map, dgl_nodes_content, dgl_nodes_label = _map_ast_node_id(stmt_ast_nodes_maps, stmt_ast_label, infercode)
-
-            src = []
-            dst = []
-            for edge in stmt_ast_edges:
-                
-                # NOTE: 边: 叶子节点->根节点（与原始AST边的方向相反）
-                to_id = edge["to"]
-                src.append(dgl_nodes_map[to_id])
-
-                from_id = edge["from"]
-                dst.append(dgl_nodes_map[from_id])
-            
-            # save the graph nodes and edges
-            u, v = torch.tensor(src), torch.tensor(dst)
-            g = dgl.graph((u, v))
-            g.ndata['feature'] = dgl_nodes_content
-            g.ndata['label'] = dgl_nodes_label  # 由于DGL不支持图级别特征，规避
-            dgl_graphs.append(g)
-
-            # save the graph lable
-            graphs_labels.append(int(stmt_ast_json["vul"]))
-
-        return dgl_graphs, graphs_labels
-
-
 def _construct_dgl_graph_v2(ast_json_file, infercode):
 
     """
@@ -98,18 +57,22 @@ def _construct_dgl_graph_v2(ast_json_file, infercode):
     cfg_node_id = 0
     cfg_stmt_id_map = {} # from stmt ast id to cfg dgl id
     stmt_ast_id_to_dgl_idx = {}
-   
+    
     with open(ast_json_file) as f:
         ast_json = json.load(f)
 
         cfg_src = []
         cfg_dst = []
 
-        # 首先根据CFG的顺序为AST分配ID
+        # 为CFG各节点分配ID
         cfg_edges = ast_json["cfg_edges"]
+
+        if len(cfg_edges) == 0:
+            return graphs_for_function  # NOTE: 返回空, 需要在外部跳过, 不能保存
+
         for cfg_edge_info in cfg_edges:
-            from_id = int(cfg_edge_info["from"])
-            to_id = int(cfg_edge_info["to"])
+            from_id = str(cfg_edge_info["from"])
+            to_id = str(cfg_edge_info["to"])
 
             if from_id not in cfg_stmt_id_map:
                 cfg_stmt_id_map[from_id] = cfg_node_id
@@ -127,11 +90,11 @@ def _construct_dgl_graph_v2(ast_json_file, infercode):
         u, v = torch.tensor(cfg_src), torch.tensor(cfg_dst)    
         cfg = dgl.graph((u, v))
         graphs_for_function.append(cfg) # 第一个永远是CFG
-        cfg_dgl_nodes_label = torch.zeros(len(cfg_stmt_id_map), 2)    
+        cfg_dgl_nodes_label = torch.zeros(len(cfg_stmt_id_map), 2, dtype=torch.float) 
+        cfg_dgl_nodes_types = torch.zeros(len(cfg_stmt_id_map), INFERCODE_FEATURE_SIZE)   
         
         
-        # 根据CFG的顺序创建各 语句粒度 AST
-        # NOTE: range 不包含cfg_node_id
+        # 保序: 根据CFG的顺序创建各 语句粒度 AST ==> CFG与AST保序压入数组
         for idx in range(0, cfg_node_id):
             
             self_loop_flag = 0
@@ -143,16 +106,24 @@ def _construct_dgl_graph_v2(ast_json_file, infercode):
             stmt_ast_edges = stmt_ast_json["edges"]
             stmt_ast_label = int(stmt_ast_json["vul"])
 
+            if "stmt_type" in stmt_ast_json:
+                stmt_cfg_type  = stmt_ast_json["stmt_type"]
+
+            elif stmt_ast_id == "exit":
+                stmt_cfg_type  = "EXIT_POINT"
+
+            else:
+                raise RuntimeError("没有stmt_type, 并且不是EXIT")
+
             # 构建 STMT AST  DGL GRAPH
-            # NOTE: 语句的AST的根节点ID必须是0
             stmt_ast_node_id_map = {}
-            stmt_ast_node_id_map[int(stmt_ast_id)] = 0    
+            stmt_ast_node_id_map[stmt_ast_id] = 0  # NOTE: 语句的AST的根节点ID必须是0
             
             # 特征向量初始化, 大小为 INFERCODE_FEATURE_SIZE = 100
             dgl_nodes_content = torch.zeros(len(stmt_ast_nodes_maps), INFERCODE_FEATURE_SIZE)
 
             # NOTE: 其它节点从1开始
-            dgl_node_id = 1 
+            dgl_node_id = 1
             for ast_node_id in stmt_ast_nodes_maps:
                 
                 content = stmt_ast_nodes_maps[ast_node_id]["content"]
@@ -160,19 +131,17 @@ def _construct_dgl_graph_v2(ast_json_file, infercode):
                     content = stmt_ast_nodes_maps[ast_node_id]["ast_type"]
                 v = infercode.encode([content])
 
-                if int(ast_node_id) not in stmt_ast_node_id_map:
-                   stmt_ast_node_id_map[int(ast_node_id)] = dgl_node_id
+                if ast_node_id not in stmt_ast_node_id_map:
+                   stmt_ast_node_id_map[ast_node_id] = dgl_node_id
                    dgl_nodes_content[dgl_node_id] = torch.from_numpy(v[0])
                    dgl_node_id += 1
                 
-                elif stmt_ast_node_id_map[int(ast_node_id)] == 0: 
+                elif stmt_ast_node_id_map[ast_node_id] == 0: 
                     dgl_nodes_content[0] = torch.from_numpy(v[0])
                 
                 else:
                     print("ERROR !!!!!")
             
-            # print(stmt_ast_node_id_map)
-
             # add self loop ==> 在进行LSTM训练前通过DGL接口删除
             if len(stmt_ast_edges) == 0:
                 self_loop_flag = 1
@@ -183,36 +152,38 @@ def _construct_dgl_graph_v2(ast_json_file, infercode):
             for edge in stmt_ast_edges:
 
                 # NOTE: 边: 叶子节点->根节点（与原始AST边的方向相反）
-                to_id = int(edge["to"])
-                src.append(stmt_ast_node_id_map[to_id])
-
-                from_id = int(edge["from"])
-                dst.append(stmt_ast_node_id_map[from_id])
+                src.append(stmt_ast_node_id_map[str(edge["to"])])
+                dst.append(stmt_ast_node_id_map[str(edge["from"])])
 
             # save the graph nodes and edges
             u, v = torch.tensor(src), torch.tensor(dst)
             stmt_g = dgl.graph((u, v))
             stmt_g.ndata['x'] = dgl_nodes_content
 
-            # NOTE: 0节点是否为根节点的检测
+            # NOTE: 0节点是否为根节点的检测, 反向AST, 计算out_degree
             if not (stmt_g.out_degrees(torch.tensor([0])) == 0):
                 if not self_loop_flag:
                     print("ERROR:!!!! ast的第一个节点必须是根节点")
+                    raise RuntimeError("ERROR:!!!! ast的第一个节点必须是根节点")
             
             # 根据顺序压入stmt ast
             graphs_for_function.append(stmt_g)
 
             if stmt_ast_label == 1:
-                cfg_dgl_nodes_label[idx] = torch.tensor([0,1], dtype=torch.float32) 
+                cfg_dgl_nodes_label[idx] = torch.tensor([0,1], dtype=torch.float) 
             else:
-                cfg_dgl_nodes_label[idx] = torch.tensor([1,0], dtype=torch.float32) 
+                cfg_dgl_nodes_label[idx] = torch.tensor([1,0], dtype=torch.float) 
+            
+            _type_v = infercode.encode([stmt_cfg_type])
+            cfg_dgl_nodes_types[idx] = torch.from_numpy(_type_v[0])
 
         cfg.ndata["label"] = cfg_dgl_nodes_label
+        cfg.ndata["type"] = cfg_dgl_nodes_types
 
         return graphs_for_function
 
 
-def construct_dgl_graphs_for_sample(contract_sample_dir, infercode):
+def construct_dgl_graphs_for_sample(contract_sample_dir, infercode, check):
 
     function_cnt = 0
     sample_graphs = []
@@ -221,27 +192,41 @@ def construct_dgl_graphs_for_sample(contract_sample_dir, infercode):
     all_samples = os.listdir(contract_sample_dir)
     for sample in all_samples:
         sample_ast_json = contract_sample_dir + sample + "//statement_ast_infos.json"
-        
+        sample_dgl_done_flag = contract_sample_dir + sample + "//dgl_done_flag.flag"
+
         if not os.path.exists(sample_ast_json):
             pass
+
+        elif check == 1 and os.path.exists(sample_dgl_done_flag):
+            function_cnt += 1
+            pass
+        
         else:
             try:
                 function_graphs = _construct_dgl_graph_v2(sample_ast_json, infercode)
-                sample_graphs += function_graphs
-                sample_graphs_cnt.append(len(function_graphs))
-                function_cnt += 1
+                if len(function_graphs) != 0:
+                    sample_graphs += function_graphs
+                    sample_graphs_cnt.append(len(function_graphs))  # 1 + number_of_AST
+                    function_cnt += 1
+
+                with open(sample_dgl_done_flag, "w+") as f:
+                    f.write("dgl_done")
             except:
-                pass
-                continue
-    
+                print("ERROR: !!!!!!!:", sample_ast_json)
+                if check != 1:  # 检测模式下不抛出异常
+                    raise RuntimeError("!!!!!!!!!!!!!!!!!")
+                    
+        
     return sample_graphs, sample_graphs_cnt, function_cnt
 
 
-def construct_dgl_graphs_for_dataset(dataset_dir, infercode):
+def construct_dgl_graphs_for_dataset(dataset_dir, infercode, check):
 
     graphs = []
     graphs_cnts = []
     total_function = 0
+
+    print(">>>>>>>>>>>>>>开始构建数据集:{}<<<<<<<<<<<<<<<".format(dataset_dir))
 
     all_contracts = os.listdir(dataset_dir)
     with tqdm(total=len(all_contracts)) as pbar:
@@ -249,7 +234,7 @@ def construct_dgl_graphs_for_dataset(dataset_dir, infercode):
             contract_sample_dir = dataset_dir + contract + "//sample//"
             
             # construct dgl graph and lables
-            sample_graphs, sample_graphs_cnt, function_cnt = construct_dgl_graphs_for_sample(contract_sample_dir, infercode)
+            sample_graphs, sample_graphs_cnt, function_cnt = construct_dgl_graphs_for_sample(contract_sample_dir, infercode, check)
 
             # add to the list
             graphs += sample_graphs
@@ -258,18 +243,34 @@ def construct_dgl_graphs_for_dataset(dataset_dir, infercode):
             total_function += function_cnt
             pbar.set_description('Processing:{} total:{}'.format(contract, total_function))
             pbar.update(1)
-          
+
             if total_function > 10240:
                 print("!!!Already collect max function samples")
                 break
-                
-    # construct the dgl dataset bin file
-    infos = {"graph_cnts": torch.tensor(graphs_cnts)}
-    bin_file_name = "{}.bin".format(dataset_dir.split("//")[-2])
-    print("!! Save the dataset into {}".format(bin_file_name))
-    dgl.save_graphs(bin_file_name, graphs, infos)
+    
+    if check == 1:
+        print("==total_function is :{}".format(total_function))
+        print("==total ast and cfg is:{}".format())
+
+    else:
+        # construct the dgl dataset bin file
+        infos = {"graph_cnts": torch.tensor(graphs_cnts)}
+        bin_file_name = "{}.bin".format(dataset_dir.split("//")[-2])
+        print("!! Save the dataset into {}, 图的总体数量为:{}".format(bin_file_name, total_function))
+        dgl.save_graphs(bin_file_name, graphs, infos)
+
+
+def argParse():
+    parser = argparse.ArgumentParser(description='manual to this script')
+    parser.add_argument('-dataset', type=str, default=None)
+    parser.add_argument('-check', type=int, default=0)
+
+    args = parser.parse_args()
+    return args.dataset, args.check
 
 if __name__ == '__main__':
+
+    data_set, check = argParse()
 
     infercode = infercode_init()
 
@@ -279,8 +280,8 @@ if __name__ == '__main__':
     # sample_dir = "dataset//reentrancy//0xffa3a0ff18078c0654b174cf6cb4c27699a4369e//sample//"
     # sample_graphs, sample_graph_lables = construct_dgl_graphs_for_sample(sample_dir, infercode)
 
-    dataset_dir = "dataset//resumable_loop//"
-    construct_dgl_graphs_for_dataset(dataset_dir, infercode)
+    dataset_dir = "dataset//{}//".format(data_set)
+    construct_dgl_graphs_for_dataset(dataset_dir, infercode, check)
 
     
     

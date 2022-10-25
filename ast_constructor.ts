@@ -1025,7 +1025,7 @@ if (TEST && 0) {
     )
 }
 
-if (TEST && 1) {
+if (TEST && 0) {
     
     // set the target functions
     // test_mode_function_filter_set(["_deposit", "test", "updateReward", "distribute"])
@@ -1037,9 +1037,9 @@ if (TEST && 1) {
     )
 }
 
-if (TEST && 0) {
+if (TEST && 1) {
 
-    analyze_target("example//0x41157559efE70bdF716f4c2C8857F122681B2a20//")
+    analyze_target("example//0x0a2bccfeec28459E4bf1Ff1cFb2deAA74126e63F//")
 }
 
 
