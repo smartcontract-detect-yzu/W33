@@ -1,5 +1,6 @@
 import argparse
 import collections
+import json
 import random
 import dgl
 from dgl.data import DGLDataset
@@ -14,6 +15,8 @@ from torch.utils.data import DataLoader
 from sagnn import SAGNN
 from focal_loss import FocalLoss2d
 
+def _do_pause():
+    raise RuntimeError("!!!!!!!!!!!!!!!!PAUSE")
 
 class MyDataset(DGLDataset):
     
@@ -33,11 +36,12 @@ class MyDataset(DGLDataset):
         return len(self.cfg_graphs)
 
 
-my_batch = collections.namedtuple('my_batch', ['cfg_batch', 'ast_batch', "node_lables"])
+my_batch = collections.namedtuple('my_batch', ['cfg_batch', 'ast_batch', "idx_batch", "node_lables"])
 def batcher_v1(device, classify_type):
     def batcher_v1_dev(batch):
         cfgs = []
         asts = []
+        gidx = []
 
         # [cfg_i], [ast_i_1, ast_i_2]
         for cfg_ast in batch:
@@ -46,9 +50,10 @@ def batcher_v1(device, classify_type):
             _cfg = dgl.add_self_loop(_cfg) # 在CFG中添加self loop
             cfgs.append(_cfg)
 
-            for ast in cfg_ast[1]:
+            for idx, ast in enumerate(cfg_ast[1]): 
                 ast = dgl.remove_self_loop(ast) # 在AST中删除self loop
                 asts.append(ast)
+                gidx.append("{}-{}".format(cfg_ast[2], idx))
 
         cfg_batch = dgl.batch(cfgs) # batch:[1_2n    ,2_3n,     3_2n] 
         ast_batch = dgl.batch(asts) # batch:[[1,2],  [1,2,3],  [1,2]] => [1,2,3,4,5,6,7]
@@ -64,6 +69,7 @@ def batcher_v1(device, classify_type):
 
         return my_batch(cfg_batch=cfg_batch,
                         ast_batch=ast_batch,
+                        idx_batch=gidx,
                         node_lables=_node_lables)
                         
 
@@ -115,7 +121,7 @@ def dgl_bin_process(dataset_name, c_type):
     valid_size = int(0.1*len(idx_graphs))
     test_size  = len(idx_graphs) - train_size - valid_size
 
-    print("====================统计信息===========================")
+    print("\r\n====================统计信息===========================")
     print("==数量信息: total:{} train_size:{}, valid_size:{}, test_size:{}".format(
         len(cfg_graphs), train_size, valid_size, test_size)
     )
@@ -150,16 +156,16 @@ def dgl_bin_process(dataset_name, c_type):
         
     return train_dataset, valid_dataset, test_dataset
 
-
-def calculate_metrics(preds, labels, prefix, vul_label_is=1):
+def calculate_metrics(preds, labels, idxs, dataset_db:dict, prefix, vul_label_is=1):
 
     useless_flag = 0
     TP = FP = TN = FN = 0
-    vul_cnt = no_vul_cnt = 0
+    save_flag = vul_cnt = no_vul_cnt = 0
+    fn_samples = []
 
-    print("{} preds:{}, laels:{}".format(prefix, len(preds), len(labels)))
-
-    for pred, label in zip(preds, labels):
+    print("{} preds:{}, laels:{} idx:{}".format(prefix, len(preds), len(labels), len(idxs)))
+    
+    for pred, label, idx in zip(preds, labels, idxs):
         if label == vul_label_is:
             vul_cnt += 1
             if pred == label:
@@ -172,6 +178,7 @@ def calculate_metrics(preds, labels, prefix, vul_label_is=1):
                 TN += 1
             else:
                 FN += 1
+                fn_samples.append(idx)
 
     total_data_num = TP + TN + FP + FN
 
@@ -201,7 +208,16 @@ def calculate_metrics(preds, labels, prefix, vul_label_is=1):
     
     # 9999代码表结果不可用
     print("USE:[{}]   ACC:{}, RE:{}, P:{}, F1:{}, TOTAL:{}".format(useless_flag, acc, recall, precision, f1, total_data_num))
-    return acc, recall, precision, f1, total_data_num
+
+    if useless_flag == 0 and recall >= 0.68 and precision >= 0.9 and f1 >= 0.77:
+        save_flag = 1
+        print("\r\n==============fn_sample:start===================")
+        for cfgid_astid in fn_samples:
+            cfg_id, ast_id = str(cfgid_astid).split('-')    
+            print("FN: path:{} type:{}".format(dataset_db[cfg_id]["path"], dataset_db[cfg_id][ast_id]["vul_tpye"]))
+        print("==============fn_sample:end===================")
+
+    return save_flag, acc, recall, precision, f1
 
 def warmup_lr_scheduler(optimizer, warmup_iters, warmup_factor):
     def f(x): # x是step次数
@@ -218,7 +234,7 @@ def argParse():
     return args.dataset
 
 def debug_model_infos():
-    print("=========模型情况打印:===========")
+    print("\r\n=========模型情况打印:===========")
     print("==batch_size:", batch_size)
     print("==epoch:", epoch)
     print("==x_size:", x_size)
@@ -233,13 +249,17 @@ def debug_model_infos():
 if __name__ == '__main__':
 
     _dataset = argParse()
-
-    # 参数列表
-    torch.manual_seed(3407)
     if str(_dataset).endswith(".bin"):
-        dataset_name = _dataset
+        dataset_name = "dataset//" + _dataset
+        dataset_db_file = "dataset//" + str(_dataset).split(".bin")[0] + "_db.json"
     else:
-        dataset_name = "{}.bin".format(_dataset)
+        dataset_name = "dataset//" + "{}.bin".format(_dataset)
+        dataset_db_file = "dataset//" + _dataset + "_db.json"
+    f = open(dataset_db_file, "r")
+    dataset_db = json.load(f)
+
+     # 参数列表
+    torch.manual_seed(3407)
     batch_size = 512
     epoch = 256
     x_size = 100 # ast node feature size
@@ -269,6 +289,8 @@ if __name__ == '__main__':
 
     # 模型
     model = SAGNN(x_size, h_size, attn_drop, feat_drop, classify_type).to(device)
+    print("\r\n========模型结构==========")
+    print(model)
 
     # 学习率
     lr_scheduler = None
@@ -279,6 +301,7 @@ if __name__ == '__main__':
         lr_scheduler = warmup_lr_scheduler(optimizer, warmup_iters, warmup_factor)
     
     # 模型训练
+    print("\r\n=============开始训练模型==================")
     for epoch in range(epoch):
         training_loss = 0
         total_nodes = 0
@@ -288,8 +311,10 @@ if __name__ == '__main__':
         ######################
         model.train()
         train_losses = []
+        train_idxs = []
         for step, batch in enumerate(train_loader):
 
+            train_idxs += batch.idx_batch
             batch_ast = batch.ast_batch.to(device)
             batch_cfg = batch.cfg_batch.to(device)
             batch_labels = batch.node_lables.to(device) # torch.Size([402, 2])
@@ -324,9 +349,11 @@ if __name__ == '__main__':
         model.eval()
         _preds = []
         _labels = []
+        _idxs = []
         for step, batch in enumerate(valid_loader):
             with torch.no_grad():
-
+                
+                _idxs += batch.idx_batch
                 batch_ast = batch.ast_batch.to(device)
                 batch_cfg = batch.cfg_batch.to(device)
                 batch_labels = batch.node_lables.to(device)
@@ -340,7 +367,7 @@ if __name__ == '__main__':
                 _preds += logits.argmax(1)
                 _labels += batch_labels.argmax(1)
         
-        calculate_metrics(_preds, _labels, "VALIDATE")
+        calculate_metrics(_preds, _labels, _idxs, dataset_db, "VALIDATE")
 
         ######################
         # test the model #
@@ -348,9 +375,11 @@ if __name__ == '__main__':
         model.eval()
         __preds = []
         __labels = []
+        __idxs = []
         for step, batch in enumerate(test_loader):
             with torch.no_grad():
-
+                
+                __idxs += batch.idx_batch
                 batch_ast = batch.ast_batch.to(device)
                 batch_cfg = batch.cfg_batch.to(device)
                 batch_labels = batch.node_lables.to(device)
@@ -364,5 +393,9 @@ if __name__ == '__main__':
                 __preds += logits.argmax(1)
                 __labels += batch_labels.argmax(1)
         
-        calculate_metrics(__preds, __labels, "TEST")
+        save_flag, acc, recall, precision, f1 = calculate_metrics(__preds, __labels, __idxs, dataset_db, "TEST")
+        if save_flag == 1:
+            _pt_name = "model//{}_{}_{}_{}.pt".format(epoch, recall, precision, f1)
+            torch.save(model.state_dict(), _pt_name)
+        
     
