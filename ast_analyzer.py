@@ -1,3 +1,4 @@
+from enum import Flag
 import itertools
 import json
 import os
@@ -17,13 +18,20 @@ import networkx.drawing.nx_pydot as nx_dot
 
 def _get_function_call_info(node:SNode, debug=None):
 
-    external_call_flag = node.can_reenter()
     state_assign_flag = "False"
     if len(node.state_variables_written) > 0:
         state_assign_flag = "True"
-
+    
+    # 只要有一个是 True, 则返回 True
+    external_call_flag = node.can_reenter()
+    for in_call in node.internal_calls:
+        if isinstance(in_call, SFunction):
+            if in_call.can_reenter() == True: external_call_flag = True
+            if in_call.can_send_eth() == True: external_call_flag = True
+    
     if node.node_ast_id == debug:
 
+        print("当前语句的特征打印: {} @{}".format(str(node), node.node_ast_id))
         print("\r\n===================variables:START=======================")
         print("state_variables_written:{} {}".format(len(node.state_variables_written), 
             [wsv.name for wsv in node.state_variables_written]))
@@ -32,10 +40,11 @@ def _get_function_call_info(node:SNode, debug=None):
         print("===================variables:END=======================")
 
         print("\r\n===============CALL_INFO:START===============")
-        print("---can_reenter:{} can_send_eth:{}".format(node.can_reenter, node.can_send_eth))
+        print("---can_reenter:{} can_send_eth:{}".format(node.can_reenter(), node.can_send_eth()))
+
         for in_call in node.internal_calls:
             if isinstance(in_call, SFunction):
-                print("----【 internal_calls:Function】", in_call.name, in_call.id)
+                print("----【 internal_calls:Function】", in_call.name, in_call.id, in_call.can_reenter(), in_call.can_send_eth())
 
             if isinstance(in_call, SolidityFunction):
                 print("----【 internal_calls:SolidityFunction】", in_call.name, in_call.name)
@@ -588,7 +597,10 @@ class FunctionAstAnalyzer:
                 final_stmt_type = ast_info["ast_type"]
                 
             elif cfg_info["stmt_type"] == "IF":
-                final_stmt_type = ast_info["ast_type"]
+                if cfg_info["ext_call"] == "True":
+                    final_stmt_type = "External FunctionCall" # if(call_another_function) --> 在if条件内部进行了外部调用
+                else:
+                    final_stmt_type = ast_info["ast_type"]
 
             elif cfg_info["stmt_type"] == "NEW VARIABLE":
                 final_stmt_type = ast_info["ast_type"]
@@ -986,7 +998,6 @@ class FunctionAstAnalyzer:
             for node in self.cfg_slither.nodes:
                 
                 ext_call_flag, state_assign_flag = _get_function_call_info(node, debug=None)
-
                 self.cfg_id_to_ast_id[str(node.node_id)] = str(node.node_ast_id)
                 self.ast_id_to_cfg_id[str(node.node_ast_id)] = str(node.node_id)
 
@@ -1028,6 +1039,31 @@ class FunctionAstAnalyzer:
         if not self.save_png: return
         png_name = self.sample_dir_with_path + "cfg_png//" + "{}-{}.png".format(name_prefix, postfix)
         subprocess.check_call(["dot", "-Tpng", dot_name, "-o", png_name])
+
+    def construct_virtual_nodes(self):
+        # 所有节点连接到modifier invocate节点
+        
+
+        # for\while\do_while连接到 loop block节点
+        self.final_cfg.graph["loop_blocks"] = {}
+        for _node_id in self.final_cfg.nodes:
+            if "expr" in self.final_cfg.nodes[_node_id] and self.final_cfg.nodes[_node_id]["expr"] == "BEGIN_LOOP":
+                loop_block_nodes = []
+                _loop_entry_id = [subnode for subnode in self.final_cfg.successors(_node_id)][0]
+                for __node_id in self.final_cfg.predecessors(_loop_entry_id):
+                    if __node_id != _node_id:
+                        _loop_exit_id = __node_id
+                        paths = nx.all_simple_paths(self.final_cfg, _loop_entry_id,  _loop_exit_id)
+                        duplicat = {}
+                        for path in paths:
+                            for node in path:
+                                if node not in duplicat:
+                                    duplicat[node] = 1
+                                    loop_block_nodes.append(node)
+            if len(loop_block_nodes) > 0:
+                self.final_cfg.graph["loop_blocks"][_node_id] = loop_block_nodes
+                
+
 
     def concat_function_modifier_cfg(self):
         
@@ -1080,7 +1116,8 @@ class FunctionAstAnalyzer:
                 new_cfg = _do_remove_node(new_cfg, up_place_holder)
                 new_cfg = _do_remove_node(new_cfg, bu_place_holder)
                 new_cfg.graph["name"] = self.normalized_cfg.graph["name"]
-                
+
+            # TODO: 目前只支持连接1个modifier
             if self.save_png:
                 self.save_cfg_as_png(postfix="final", _graph=new_cfg)
 
@@ -1293,7 +1330,7 @@ class FunctionAstAnalyzer:
             if self.is_modifier is True:
                 self.target_infos_collector.set_modifier_stmts(stmt_root_ast_id, stmt_ast_info)
 
-        # 只有function的cfg才有final cfg
+        # 只有function的cfg才有final cfg, modifier为normalized_cfg
         if self.is_modifier is False:
             for (u, v) in self.final_cfg.edges:
                     
@@ -1347,7 +1384,7 @@ class FunctionAstAnalyzer:
         """
             避免文件夹过多, 删除所有的dot文件夹和无内容的png文件夹
         """
-        if not self.save_png:
+        if self.save_png:
             return
         
         shutil.rmtree(self.sample_dir_with_path + "ast_dot//")

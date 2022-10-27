@@ -56,7 +56,10 @@ def _construct_all_stmts_ast_infos_wrapper(target_filter, target_info_collector,
            
            # 整合modifier和cfg
            ast_analyzer.concat_function_modifier_cfg()
-            
+
+           # 启用虚拟节点
+           ast_analyzer.construct_virtual_nodes() 
+
            # 保存结果
            ast_analyzer.save_statements_json_infos()
             

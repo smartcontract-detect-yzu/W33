@@ -919,14 +919,14 @@ function create_ast_for_dataset_async(analyze_objects:Map<string, {[key:string]:
 }
 
 function analyze_target(target_dir:string) {
-
+    
      /*get the sol file name and sol version*/
      let info = JSON.parse(fs.readFileSync(target_dir + "download_done.txt", "utf8"));
      if (info["compile"] == "ok") {
 
         let sol_file_path:string = target_dir + info["name"]
         let sol_version:string = info["ver"]
-
+        
         create_ast_for_sol_sync(
             sol_file_path, 
             sol_version, 
@@ -1038,8 +1038,7 @@ if (TEST && 0) {
 }
 
 if (TEST && 1) {
-
-    analyze_target("example//0x0a2bccfeec28459E4bf1Ff1cFb2deAA74126e63F//")
+    analyze_target("example//0x06a566e7812413bc66215b48d6f26321ddf653a9//")
 }
 
 
