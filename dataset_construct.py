@@ -247,7 +247,7 @@ def construct_dgl_graphs_for_dataset(dataset_dir, infercode, check):
                 pbar.set_description('Processing:{} total:{}'.format(contract, total_function))
                 pbar.update(1)
                 continue
-                    
+
             # construct dgl graph and lables
             contract_sample_dir = dataset_dir + contract + "//sample//"
             sample_graphs, sample_graphs_cnt, smaple_infos, function_cnt = construct_dgl_graphs_for_sample(contract_sample_dir, infercode, check)
@@ -357,7 +357,7 @@ def static_dgl_graphs_for_dataset(dataset_dir):
     graph_infos = []
     total_function = 0
 
-    print(">>>>>>>>>>>>>>开始统计数据集:{}<<<<<<<<<<<<<<<".format(dataset_dir))
+    print(">>>>>>>>>>>>>>构建数据集database文件:{}<<<<<<<<<<<<<<<".format(dataset_dir))
     all_contracts = os.listdir(dataset_dir)
     with tqdm(total=len(all_contracts)) as pbar:
         for contract in all_contracts:
@@ -379,11 +379,7 @@ def static_dgl_graphs_for_dataset(dataset_dir):
             total_function += function_cnt
             pbar.set_description('Processing:{} total:{}'.format(contract, total_function))
             pbar.update(1)
-            
-            if total_function > 10240:
-                print("!!!Already collect max function samples")
-                break
-                
+        
         content_file = dataset_dir + "{}_db.json".format(dataset_dir.split("//")[-2])
         with open(content_file, "w+") as f:
             table_of_contents = {}

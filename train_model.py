@@ -122,6 +122,7 @@ def dgl_bin_process(dataset_name, c_type):
     test_size  = len(idx_graphs) - train_size - valid_size
 
     print("\r\n====================统计信息===========================")
+    print("==数据集:{}".format(dataset_name))
     print("==数量信息: total:{} train_size:{}, valid_size:{}, test_size:{}".format(
         len(cfg_graphs), train_size, valid_size, test_size)
     )
@@ -156,27 +157,52 @@ def dgl_bin_process(dataset_name, c_type):
         
     return train_dataset, valid_dataset, test_dataset
 
-def calculate_metrics(preds, labels, idxs, dataset_db:dict, prefix, vul_label_is=1):
 
-    useless_flag = 0
+def wrong_sample_log(fn_samples, fp_samples):
+
+    if len(fn_samples) > 0:
+        print("\r\n==============fn_sample:start===================")
+        for cfgid_astid in fn_samples:
+            cfg_id, ast_id = str(cfgid_astid).split('-')    
+            print("FN: path:{} STMTID:{} type:{}".format(
+                DATASET_DB[cfg_id]["path"], 
+                ast_id, 
+                DATASET_DB[cfg_id][ast_id]["vul_tpye"]))
+        print("==============fn_sample:end===================")
+    
+
+    if len(fp_samples) > 0:
+        print("\r\n==============fp_samples:start===================")
+        for cfgid_astid in fp_samples:
+            cfg_id, ast_id = str(cfgid_astid).split('-')    
+            print("FN: path:{} STMTID:{} type:{}".format(
+                DATASET_DB[cfg_id]["path"], 
+                ast_id, 
+                DATASET_DB[cfg_id][ast_id]["vul_tpye"]))
+        print("==============fp_samples:end===================")
+
+
+def calculate_metrics(preds, labels, idxs, prefix, epoch, postive=1):
+
+    save_flag = useless_flag = 0
     TP = FP = TN = FN = 0
-    save_flag = vul_cnt = no_vul_cnt = 0
     fn_samples = []
+    fp_samples = []
 
-    print("{} preds:{}, laels:{} idx:{}".format(prefix, len(preds), len(labels), len(idxs)))
+    # print("{} preds:{}, laels:{} idx:{}".format(prefix, len(preds), len(labels), len(idxs)))
     
     for pred, label, idx in zip(preds, labels, idxs):
-        if label == vul_label_is:
-            vul_cnt += 1
-            if pred == label:
+        if pred == postive: # 预测为正样本:postive
+            if pred == label: # 预测正确: TRUE
                 TP += 1
-            else:
+            else: # 预测错误：FALSE
                 FP += 1
-        else:
-            no_vul_cnt += 1
-            if pred == label:
+                fp_samples.append(idx)
+                
+        else: # 预测为负样本: negtive
+            if pred == label: # 预测正确: TRUE
                 TN += 1
-            else:
+            else: # 预测错误：FALSE
                 FN += 1
                 fn_samples.append(idx)
 
@@ -206,16 +232,28 @@ def calculate_metrics(preds, labels, idxs, dataset_db:dict, prefix, vul_label_is
         useless_flag = 1
         f1 = 9999
     
-    # 9999代码表结果不可用
-    print("USE:[{}]   ACC:{}, RE:{}, P:{}, F1:{}, TOTAL:{}".format(useless_flag, acc, recall, precision, f1, total_data_num))
+    # 计算 TPR FNR
+    if(TP + FN) != 0:
+        TPR = TP / (TP + FN)
+        FNR = FN / (TP + FN)
+    else:
+        TPR = TPR = 9999
 
-    if useless_flag == 0 and recall >= 0.68 and precision >= 0.9 and f1 >= 0.77:
+    # 计算 FPR TNR
+    if(FP + TN) != 0:
+        FPR = FP / (FP + TN)
+        TNR = TN / (FP + TN)
+    else:
+        FPR = TNR = 9999
+    
+    print("{}:{}: EPOCH:{} ACC:{}, RE:{}, P:{},  F1:{}, TOTAL:{}".format(
+            prefix, useless_flag, epoch, acc, recall, precision, f1, total_data_num)
+        )
+    
+    if useless_flag == 0 and recall >= 0.90 and precision >= 0.70 and f1 >= 0.80:
         save_flag = 1
-        print("\r\n==============fn_sample:start===================")
-        for cfgid_astid in fn_samples:
-            cfg_id, ast_id = str(cfgid_astid).split('-')    
-            print("FN: path:{} type:{}".format(dataset_db[cfg_id]["path"], dataset_db[cfg_id][ast_id]["vul_tpye"]))
-        print("==============fn_sample:end===================")
+        wrong_sample_log(fn_samples, fp_samples)
+        print("==TPR:{}, FNR:{}, FPR:{}, TNR:{}".format(TPR, FNR, FPR, TNR))
 
     return save_flag, acc, recall, precision, f1
 
@@ -256,18 +294,18 @@ if __name__ == '__main__':
         dataset_name = "dataset//" + "{}.bin".format(_dataset)
         dataset_db_file = "dataset//" + _dataset + "_db.json"
     f = open(dataset_db_file, "r")
-    dataset_db = json.load(f)
+    DATASET_DB = json.load(f)
 
      # 参数列表
     torch.manual_seed(3407)
-    batch_size = 512
+    batch_size = 1024
     epoch = 256
     x_size = 100 # ast node feature size
     h_size = 64  # tree_lstm learning feature or CFG node feature size
     attn_drop = 0.05
     feat_drop = 0.05
     warmup = 1
-    loss_type = "cross_entropy" # focal_loss  cross_entropy
+    loss_type = "focal_loss" # focal_loss  cross_entropy
     classify_type = "multi" # binary multi 
     
     if torch.cuda.is_available():
@@ -341,7 +379,7 @@ if __name__ == '__main__':
             
         
         training_loss /= total_nodes
-        print("EPOCH:{} training_loss:{}".format(epoch, training_loss))
+        print("\r\nEPOCH:{} training_loss:{}".format(epoch, training_loss))
 
         ######################
         # validate the model #
@@ -367,7 +405,7 @@ if __name__ == '__main__':
                 _preds += logits.argmax(1)
                 _labels += batch_labels.argmax(1)
         
-        calculate_metrics(_preds, _labels, _idxs, dataset_db, "VALIDATE")
+        calculate_metrics(_preds, _labels, _idxs, "VALIDATE", epoch)
 
         ######################
         # test the model #
@@ -393,7 +431,7 @@ if __name__ == '__main__':
                 __preds += logits.argmax(1)
                 __labels += batch_labels.argmax(1)
         
-        save_flag, acc, recall, precision, f1 = calculate_metrics(__preds, __labels, __idxs, dataset_db, "TEST")
+        save_flag, acc, recall, precision, f1 = calculate_metrics(__preds, __labels, __idxs, "TEST", epoch)
         if save_flag == 1:
             _pt_name = "model//{}_{}_{}_{}.pt".format(epoch, recall, precision, f1)
             torch.save(model.state_dict(), _pt_name)
