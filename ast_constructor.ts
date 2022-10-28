@@ -267,7 +267,7 @@ function _check_already_done(work_dir:string) {
     if (fs.existsSync(work_dir + COMPILE_ERROR_FLAG)){
         return 2 // solcjs 无法编译成功, 跳过
     }
-
+    
     /*如果是test模式*/
     if (TEST || TEST_DIR) {
 

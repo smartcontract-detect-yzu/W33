@@ -184,8 +184,11 @@ class TrgetInfoCollector:
         self.modifier_stmt_infos[str(ast_id)] = info
 
     def get_modifier_stmts(self, ast_id):
-        # print(json.dumps(self.modifier_stmt_infos, indent=4, separators=(",", ":")))
+
+        # 格式为: {"vul":0, "vul_type":0, "stmt_type": "EXIT_POINT", "nodes":nodes, "edges":[]}
         if str(ast_id) not in self.modifier_stmt_infos:
+            # print("======{}=======".format(str(ast_id)))
+            # print(json.dumps(self.modifier_stmt_infos, indent=4, separators=(",", ":")))
             return None
         
         return self.modifier_stmt_infos[str(ast_id)]

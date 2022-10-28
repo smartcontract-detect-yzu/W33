@@ -54,14 +54,18 @@ def _construct_all_stmts_ast_infos_wrapper(target_filter, target_info_collector,
            ast_analyzer.save_cfg_as_png(postfix="")
            ast_analyzer.save_cfg_as_png(postfix="typed_normalized")
            
-           # 整合modifier和cfg
+           # 整合 modifier和 cfg
            ast_analyzer.concat_function_modifier_cfg()
 
            # 启用虚拟节点
            ast_analyzer.construct_virtual_nodes() 
-
+           ast_analyzer.save_cfg_as_png(postfix="final")
+            
            # 保存结果
            ast_analyzer.save_statements_json_infos()
+
+           # 根据保存的cfg生成一个png 调试用的
+           ast_analyzer.get_cfg_from_json()
             
            # 清除不需要的中间结果
            ast_analyzer.clean_up()
@@ -381,8 +385,8 @@ if __name__ == '__main__':
 
         LOG_LEVEL = 10 # log debug
         analyze_wrapper = AnalyzeWrapper("dummy", save_png=1) # 创建假的
-        # analyze_wrapper.do_analyze_for_target("dataset//resumable_loop_2//{}//".format(address))
-        analyze_wrapper.do_analyze_for_target("example//{}//".format(address))
+        analyze_wrapper.do_analyze_for_target("dataset//resumable_loop//{}//".format(address))
+        # analyze_wrapper.do_analyze_for_target("example//{}//".format(address))
         
 
     elif test:

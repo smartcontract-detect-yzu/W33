@@ -1,4 +1,3 @@
-from enum import Flag
 import itertools
 import json
 import os
@@ -16,7 +15,7 @@ from slither.core.variables.variable import Variable as SVariable
 from slither.core.cfg.node import Node as SNode
 import networkx.drawing.nx_pydot as nx_dot
 
-def _get_function_call_info(node:SNode, debug=None):
+def _get_function_call_info(node:SNode, debug=[]):
 
     state_assign_flag = "False"
     if len(node.state_variables_written) > 0:
@@ -29,17 +28,21 @@ def _get_function_call_info(node:SNode, debug=None):
             if in_call.can_reenter() == True: external_call_flag = True
             if in_call.can_send_eth() == True: external_call_flag = True
     
-    if node.node_ast_id == debug:
+    solidity_call = "False"
+    if len(node.solidity_calls) > 0:
+        solidity_call = "True"
 
-        print("当前语句的特征打印: {} @{}".format(str(node), node.node_ast_id))
-        print("\r\n===================variables:START=======================")
+    if node.node_ast_id in debug or len(debug) == 1 and debug[0]== "all":
+
+        print("\r\n当前语句的特征打印: {} @{}".format(str(node), node.node_ast_id))
+        print("===================variables:START=======================")
         print("state_variables_written:{} {}".format(len(node.state_variables_written), 
             [wsv.name for wsv in node.state_variables_written]))
         print("variables_written:{} {}".format(len(node.variables_written), 
             [ws.name for ws in node.variables_written]))
-        print("===================variables:END=======================")
+        
 
-        print("\r\n===============CALL_INFO:START===============")
+        print("===============CALL_INFO:START===============")
         print("---can_reenter:{} can_send_eth:{}".format(node.can_reenter(), node.can_send_eth()))
 
         for in_call in node.internal_calls:
@@ -81,10 +84,10 @@ def _get_function_call_info(node:SNode, debug=None):
         
         for ext_call in node.external_calls_as_expressions:
             print("^^^^【ext_call】", ext_call)
-        
-        print("===============CALL_INFO:END=================\r\n")
 
-    return external_call_flag, state_assign_flag
+        print("===============END===============\r\n")
+
+    return external_call_flag, state_assign_flag, solidity_call
 
 
 def _get_all_leaf_nodes(graph:nx.DiGraph):
@@ -206,6 +209,48 @@ def _get_stmt_label_info(lable_infos):
     else:
         return lable_infos
 
+def _cfg_end_if_filter(cfg:nx.DiGraph):
+    """
+        END_IF 和 END_LOOP 只有一个子节点
+        删除 END_IF 和 END_LOOP 节点, 并且添加边
+        stmt1 -> end_if -> end_if -> stmt2
+         |                           |
+          ---------new edge---------->
+    """
+    new_edges = []
+    node_to_removes = []
+    for _node_id in cfg.nodes:
+        if cfg.nodes[_node_id]["expr"] in ["END_IF", "END_LOOP"]:
+            node_to_removes.append(_node_id)
+        else:
+            sub_nodes = [subnode for subnode in cfg.successors(_node_id)]
+            for _endif_id in sub_nodes:
+                if cfg.nodes[_endif_id]["expr"] in ["END_IF", "END_LOOP"]:
+                    end_content = cfg.nodes[_endif_id]["expr"]
+
+                    _endif_subs = [subnode for subnode in cfg.successors(_endif_id)]
+                    if len(_endif_subs) == 1 and cfg.nodes[_endif_subs[0]]["expr"] == end_content:
+
+                        stop = False
+                        _sub_node = _endif_subs[0]
+                        while stop != True:  # 遍历子节点，直到找到第一个非end_content的节点
+                            _sub_nodes = [subnode for subnode in cfg.successors(_sub_node)]
+                            if len(_sub_nodes) == 1:
+                                if cfg.nodes[_sub_nodes[0]]["expr"] == end_content:
+                                    _sub_node = _sub_nodes[0]
+                                else:
+                                    stop = True 
+                                    new_edges.append((_node_id, _sub_nodes[0]))
+                            else:
+                                stop = True
+                    
+                    elif len(_endif_subs) == 1:
+                        new_edges.append((_node_id, _endif_subs[0]))
+                    
+                    else:  # end_if --> exit 其 len(_endif_subs) == 0
+                        pass
+    
+    return new_edges, node_to_removes
 
 def _split_function_stmts(function_ast_graph: nx.DiGraph):
     """
@@ -489,7 +534,7 @@ class FunctionAstAnalyzer:
         
         self.target_infos_collector = target_infos_collector
         self.sbp_normalizer = SbpNormalizer()
-        self.logger = self.logger_init(log_level)
+        self.logger = None
 
         self.save_png = save_png
         self.is_modifier = is_modifier
@@ -511,6 +556,7 @@ class FunctionAstAnalyzer:
         self.cfg:nx.DiGraph = None
         self.normalized_cfg:nx.DiGraph = None
         self.final_cfg:nx.DiGraph = None
+        self.key_stmt_type = None
 
         # 解决AST与CFG之间无法对齐的问题
         self.cfg_astid_offset = 0 
@@ -532,7 +578,7 @@ class FunctionAstAnalyzer:
         self.entry_ast_info = {}
         self.statements_ast = None
 
-        self.get_cfg_key()
+        self.analyzer_init(log_level)
     
     def logger_init(self, log_level):
         logger = logging.getLogger('FA')
@@ -542,8 +588,8 @@ class FunctionAstAnalyzer:
         logger.setLevel(log_level)
         return logger
 
-    def get_cfg_key(self):
-
+    def analyzer_init(self, log_level):
+        
         smaple_infos = str(self.ast_json_file_name).split(".json")[0].split("-")
         self.c_name = smaple_infos[0]
         self.f_name = smaple_infos[1]
@@ -556,23 +602,25 @@ class FunctionAstAnalyzer:
         else:
             self.cfg_key = "{}-{}-{}".format(self.c_name, self.f_name, self.ast_id)
 
-        self.logger.debug("\r\n================================\r\n")
+        self.key_stmt_type =  ["Storage Assignment", "External FunctionCall", "Internal FunctionCall", "Solidity FunctionCall"]
+        self.logger = self.logger_init(log_level)
+
+        self.logger.debug("\r\n=============开始分析===================\r\n")
         self.logger.debug("\r\nInit for :{}".format(self.cfg_key))
         
-        return self.cfg_key
     
     def get_function_entry_info(self):
         self.entry_ast_info =  self.normalized_ast_graph.nodes[int(self.entry_ast_id)]
         self.logger.debug("\r\nentry_ast_info :{}".format(self.entry_ast_info))
     
     def set_stmts_types_in_cfg(self):
+
         for cfg_node_id in self.normalized_cfg.nodes:
             old_lable = self.normalized_cfg.nodes[cfg_node_id]["label"]
             ast_id = self.normalized_cfg.nodes[cfg_node_id]["ASTID"]
             if str(ast_id) in self.stmts_type_map:
                 stmt_type = self.stmts_type_map[str(ast_id)]
                 self.normalized_cfg.nodes[cfg_node_id]["label"] = old_lable + " @{}".format(stmt_type)
-
 
     def get_stmts_types(self):
         
@@ -597,10 +645,7 @@ class FunctionAstAnalyzer:
                 final_stmt_type = ast_info["ast_type"]
                 
             elif cfg_info["stmt_type"] == "IF":
-                if cfg_info["ext_call"] == "True":
-                    final_stmt_type = "External FunctionCall" # if(call_another_function) --> 在if条件内部进行了外部调用
-                else:
-                    final_stmt_type = ast_info["ast_type"]
+                final_stmt_type = ast_info["ast_type"]
 
             elif cfg_info["stmt_type"] == "NEW VARIABLE":
                 final_stmt_type = ast_info["ast_type"]
@@ -631,11 +676,11 @@ class FunctionAstAnalyzer:
 
             elif cfg_info["stmt_type"] == "BEGIN_LOOP":  # 循环开始: ForStatement; WhileStatement
                 final_stmt_type = ast_info["ast_type"]
-                self.logger.debug("BEGIN_LOOP---->{}".format(final_stmt_type))
 
             elif cfg_info["stmt_type"] == "EXPRESSION":
                 if ast_info["ast_type"] == "EmitStatement":
                     final_stmt_type = "EmitStatement"
+
                 else:
                     expr_sub_nodes = [subnode for subnode in tmp_ast.successors(ast_node_id)]
                     if len(expr_sub_nodes) == 1:
@@ -687,10 +732,15 @@ class FunctionAstAnalyzer:
                         self.logger.error("发现了无子节点的EXPRESSION: {}".format(ast_node_id))
             
             elif cfg_info["stmt_type"] in ["END_IF", "END_LOOP", "OTHER_ENTRYPOINT"]:
-                # 不分析: 原因是END_IF和condition是同一个AST节点, 避免覆盖
-                final_stmt_type = "pass_tag"
-           
-            
+                final_stmt_type = "pass_tag" # 不分析: 原因是END_IF和condition是同一个AST节点, 避免覆盖
+
+
+            if cfg_info["ext_call"] == "True":  # if (ext_fun) 或者 (bool _, ) = ext_fun
+                final_stmt_type = "External FunctionCall"
+
+            elif cfg_info["sol_call"] == "True": # (bool _, ) = sol_fun
+                final_stmt_type = "Solidity FunctionCall" 
+
             # 非pass的，需要记录类型
             if final_stmt_type != "pass_tag":
                 self.stmts_type_map[str(ast_node_id)] = final_stmt_type
@@ -808,6 +858,8 @@ class FunctionAstAnalyzer:
         
         self.logger.debug("入参数量:{}".format(self.in_param_cnt))
     
+    
+
     def normalize_sbp_in_ast(self):
         """
             Normalize the AST based on its sbp file
@@ -818,7 +870,6 @@ class FunctionAstAnalyzer:
         
         if not os.path.exists(self.sbp_file):
             if self.is_modifier:
-                self.logger.warn("NO SBP FOR modifier? {}".format(self.is_modifier))
                 self.normalized_ast_graph = _to_normal_ast_graph
                 return
             else:
@@ -886,7 +937,6 @@ class FunctionAstAnalyzer:
         
         self.normalized_cfg = normalized_cfg 
         self.normalized_cfg.graph["leaves"] = _get_all_leaf_nodes(self.normalized_cfg)
-
 
     def cfg_supplement_stmts_for_ast(self):
 
@@ -997,7 +1047,11 @@ class FunctionAstAnalyzer:
             f.write("digraph{\n")
             for node in self.cfg_slither.nodes:
                 
-                ext_call_flag, state_assign_flag = _get_function_call_info(node, debug=None)
+                if self.cfg_key == "Gauge-test-1166":
+                    ext_call_flag, state_assign_flag, sol_call_flag = _get_function_call_info(node, debug=["all"])
+                else:
+                    ext_call_flag, state_assign_flag, sol_call_flag = _get_function_call_info(node, debug=[])
+                
                 self.cfg_id_to_ast_id[str(node.node_id)] = str(node.node_ast_id)
                 self.ast_id_to_cfg_id[str(node.node_ast_id)] = str(node.node_id)
 
@@ -1015,6 +1069,7 @@ class FunctionAstAnalyzer:
                         [stmt_type="{str(node.type)}"]\
                         [state_assign="{str(state_assign_flag)}"]\
                         [ext_call="{str(ext_call_flag)}"]\
+                        [sol_call="{str(sol_call_flag)}"]\
                         [mk="{str(modifier_key)}"];\n' # mk: modifier key的缩写，表明当前节点是否来自modifier
                 )
                 
@@ -1028,6 +1083,11 @@ class FunctionAstAnalyzer:
         self.entry_ast_id = self.cfg.graph["entry_point_ast_id"] = self.cfg.nodes["0"]["ASTID"]
         self.cfg.graph["place_holder"] = place_holder
         
+        # 删除end_if节点
+        new_edges, node_to_removes = _cfg_end_if_filter(self.cfg)
+        self.cfg.add_edges_from(new_edges)
+        self.cfg.remove_nodes_from(node_to_removes)
+
         # 如果是modifier 必须记录下来 以方便后续分析
         if is_modifier is True:
             self.logger.debug("开始modifier控制流图分解阶段")
@@ -1041,8 +1101,21 @@ class FunctionAstAnalyzer:
         subprocess.check_call(["dot", "-Tpng", dot_name, "-o", png_name])
 
     def construct_virtual_nodes(self):
-        # 所有节点连接到modifier invocate节点
         
+        # 所有节点连接到modifier invocate节点
+        _to_vnode = []
+        _to_vnode_edges = []
+        for _node_id in self.final_cfg.nodes:
+            _ast_id =  self.final_cfg.nodes[_node_id]["ASTID"]
+            if self.stmts_type_map[str(_ast_id)] in self.key_stmt_type:
+                _to_vnode.append((_node_id, _ast_id))
+                _to_vnode_edges.append((_node_id, "v_modifier"))
+        self.final_cfg.graph["to_vnode"] = _to_vnode
+        
+        # 在cfg中创建虚拟节点 Modifier
+        # [ASTID=1124, expr="IF ret", ext_call=False, label="ret  @1124 @6 @IfStatement @IfStatement", mk="not-modifier", sol_call=False, state_assign=False, stmt_type=IF] 
+        self.final_cfg.add_node("v_modifier", ASTID="v_modifier", expr="v_modifier", label="v_modifier", mk="not-modifier")
+        self.final_cfg.add_edges_from(_to_vnode_edges)
 
         # for\while\do_while连接到 loop block节点
         self.final_cfg.graph["loop_blocks"] = {}
@@ -1060,10 +1133,9 @@ class FunctionAstAnalyzer:
                                 if node not in duplicat:
                                     duplicat[node] = 1
                                     loop_block_nodes.append(node)
-            if len(loop_block_nodes) > 0:
-                self.final_cfg.graph["loop_blocks"][_node_id] = loop_block_nodes
                 
-
+                if len(loop_block_nodes) > 0:
+                    self.final_cfg.graph["loop_blocks"][_node_id] = loop_block_nodes
 
     def concat_function_modifier_cfg(self):
         
@@ -1084,7 +1156,6 @@ class FunctionAstAnalyzer:
 
         # 开始链接操作
         self.logger.debug("=====>开始CFG连接操作....<=======")
-
         function_cfg:nx.DiGraph = self.normalized_cfg
 
         # 获得当前使用的modifier
@@ -1097,6 +1168,15 @@ class FunctionAstAnalyzer:
 
                 modifier_up_cfg = modifier_cfgs_map["up"]
                 modifier_buttom_cfg = modifier_cfgs_map["buttom"]
+                
+                # 在连接前需要为modifier的cfg补充type信息, 为了方便显示
+                for _cfg in [modifier_up_cfg, modifier_buttom_cfg]:
+                    for _node_id in _cfg.nodes:
+                        if _node_id != "exit":
+                            _mod_stmt_type = self.target_infos_collector.get_modifier_stmts(_cfg.nodes[_node_id]["ASTID"])["stmt_type"]
+                            self.stmts_type_map[str(_cfg.nodes[_node_id]["ASTID"])] = _mod_stmt_type
+                        else:
+                            self.stmts_type_map[str(_cfg.nodes[_node_id]["ASTID"])] = "EXIT_POINT"
 
                 # 连接 up fun buttom
                 new_cfg:nx.DiGraph = nx.union_all((modifier_up_cfg, function_cfg, modifier_buttom_cfg), rename=("up-", "f-", "bu-"))
@@ -1116,10 +1196,10 @@ class FunctionAstAnalyzer:
                 new_cfg = _do_remove_node(new_cfg, up_place_holder)
                 new_cfg = _do_remove_node(new_cfg, bu_place_holder)
                 new_cfg.graph["name"] = self.normalized_cfg.graph["name"]
-
+                
             # TODO: 目前只支持连接1个modifier
             if self.save_png:
-                self.save_cfg_as_png(postfix="final", _graph=new_cfg)
+                self.save_cfg_as_png(postfix="_final", _graph=new_cfg)
 
             self.final_cfg = new_cfg
             return
@@ -1274,6 +1354,9 @@ class FunctionAstAnalyzer:
         elif postfix == "normalized":
             graph = self.normalized_cfg
 
+        elif postfix == "final":
+            graph = self.final_cfg
+
         elif postfix == "typed_normalized":
             graph = nx.DiGraph(self.normalized_cfg)
             for cfg_node_id in graph.nodes:
@@ -1355,6 +1438,7 @@ class FunctionAstAnalyzer:
                     else:
                         print("error:!!!! 缺失AST:{}".format(to_ast_id))        
 
+        # 添加CFG边
         for (u, v) in self.final_cfg.edges:
             from_id = self.final_cfg.nodes[u]["ASTID"]
             to_id = self.final_cfg.nodes[v]["ASTID"]
@@ -1380,6 +1464,37 @@ class FunctionAstAnalyzer:
         with open(json_file, "w+") as f:
             f.write(json.dumps(final_stmts_ast_json, indent=4, separators=(",", ":")))
     
+    def get_cfg_from_json(self):
+        
+        if not self.save_png: return
+        
+        _debug_graph = nx.DiGraph()
+        json_file = self.sample_dir_with_path + "statement_ast_infos.json"
+        with open(json_file) as f:
+            ast_json = json.load(f)
+            
+            edges = []
+            for cfg_edge_info in ast_json["cfg_edges"]:
+
+                from_id = str(cfg_edge_info["from"])
+                if not _debug_graph.has_node(from_id):
+                    _debug_graph.add_node(from_id, label=from_id)
+
+                to_id = str(cfg_edge_info["to"])
+                if not _debug_graph.has_node(to_id):
+                    _debug_graph.add_node(to_id, label=to_id)
+                
+                edges.append((from_id, to_id))
+            
+            _debug_graph.add_edges_from(edges)
+            _debug_graph.graph["name"] = self.cfg_key
+
+        self.save_cfg_as_png(postfix="fromj", _graph=_debug_graph)
+                
+  
+
+        
+
     def clean_up(self):
         """
             避免文件夹过多, 删除所有的dot文件夹和无内容的png文件夹
