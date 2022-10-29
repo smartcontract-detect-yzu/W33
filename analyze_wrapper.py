@@ -28,9 +28,8 @@ def _construct_all_stmts_ast_infos_wrapper(target_filter, target_info_collector,
            ast_analyzer.construct_ast_for_function_sample()
            
            # 不支持asm
-           if ast_analyzer.check_function_asm_info():
-             continue
-                
+           if ast_analyzer.check_function_asm_info(): continue
+           
            ast_analyzer.ast_slither_id_align()   # slither和AST的ID对齐
            ast_analyzer.construct_cfg_for_function_sample(is_modifier=is_modifier)
            
@@ -390,9 +389,8 @@ if __name__ == '__main__':
 
         LOG_LEVEL = 10 # log debug
         analyze_wrapper = AnalyzeWrapper("dummy", save_png=1) # 创建假的
-        analyze_wrapper.do_analyze_for_target("dataset//resumable_loop//{}//".format(address))
+        analyze_wrapper.do_analyze_for_target("dataset//resumable_loop_2//{}//".format(address))
         # analyze_wrapper.do_analyze_for_target("example//{}//".format(address))
-        
 
     elif test:
 

@@ -193,6 +193,15 @@ def _do_save_stmt_ast_to_json(stmt_ast_graph:nx.DiGraph, stmt_ast_json, stmt_ast
 
     return stmt_ast_info
 
+def _do_create_vmodifier_to_json(stmt_ast_json):
+
+    nodes = {}
+    nodes["v_modifier"] = {"id": "v_modifier","label": "EXIT_POINT","content": "EXIT_POINT","ast_type": "EXIT_POINT","pid": None}
+    stmt_ast_info = {"vul":0, "vul_type":0, "stmt_type": "EXIT_POINT", "nodes":nodes, "edges":[]}
+    stmt_ast_json["v_modifier"] = stmt_ast_info
+    return stmt_ast_info
+
+
 def _do_create_exit_point_to_json(stmt_ast_json):
     nodes = {}
     nodes["exit"] = {"id": "exit","label": "EXIT_POINT","content": "EXIT_POINT","ast_type": "EXIT_POINT","pid": None}
@@ -1116,7 +1125,7 @@ class FunctionAstAnalyzer:
         # [ASTID=1124, expr="IF ret", ext_call=False, label="ret  @1124 @6 @IfStatement @IfStatement", mk="not-modifier", sol_call=False, state_assign=False, stmt_type=IF] 
         self.final_cfg.add_node("v_modifier", ASTID="v_modifier", expr="v_modifier", label="v_modifier", mk="not-modifier")
         self.final_cfg.add_edges_from(_to_vnode_edges)
-
+        
         # for\while\do_while连接到 loop block节点
         self.final_cfg.graph["loop_blocks"] = {}
         for _node_id in self.final_cfg.nodes:
@@ -1464,7 +1473,7 @@ class FunctionAstAnalyzer:
         orphan_nodes = []
         for ast_id in final_stmts_ast_json:
             if str(ast_id) not in cfg_edge_map:
-                self.logger.error("ERROR: the ast:{} {}是一个孤儿节点".format(ast_id, final_stmts_ast_json[str(ast_id)]["label"]))
+                self.logger.error("ERROR: the ast:{} {}是一个孤儿节点".format(ast_id, final_stmts_ast_json[str(ast_id)]["stmt_type"]))
                 orphan_nodes.append(ast_id)
         for orphan_node_id in orphan_nodes:
             final_stmts_ast_json.pop(orphan_node_id) # 删除孤儿节点
