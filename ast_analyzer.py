@@ -1295,6 +1295,17 @@ class FunctionAstAnalyzer:
             if self.cfg_nodes_map[cfg_node]["tag"] == "recored":
                 if cfg_node not in self.statements_ast:
                     self.logger.warning("!!! CFG:{} not in stmt".format(cfg_node))
+    
+    def check_function_asm_info(self):
+        cnt_key = self.in_param_cnt
+        self.cfg_slither:SFunction =  self.target_infos_collector.get_slither_cfg_info_before_align(self.cfg_key, self.simple_key, cnt_key, self.is_modifier, "slither")
+        
+        for stmt in self.cfg_slither.nodes:
+            if str(stmt) == "INLINE ASM":
+                self.logger.warning("当前函数存在内联函数,无法进行AST分析,跳过")
+                return True
+
+        return False
 
     def ast_slither_id_align(self):
 
@@ -1453,7 +1464,7 @@ class FunctionAstAnalyzer:
         orphan_nodes = []
         for ast_id in final_stmts_ast_json:
             if str(ast_id) not in cfg_edge_map:
-                self.logger.error("ERROR: the ast:{} 是一个孤儿节点".format(ast_id))
+                self.logger.error("ERROR: the ast:{} {}是一个孤儿节点".format(ast_id, final_stmts_ast_json[str(ast_id)]["label"]))
                 orphan_nodes.append(ast_id)
         for orphan_node_id in orphan_nodes:
             final_stmts_ast_json.pop(orphan_node_id) # 删除孤儿节点

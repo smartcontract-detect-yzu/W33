@@ -26,6 +26,11 @@ def _construct_all_stmts_ast_infos_wrapper(target_filter, target_info_collector,
            
            # 构建 function-level AST/CFG
            ast_analyzer.construct_ast_for_function_sample()
+           
+           # 不支持asm
+           if ast_analyzer.check_function_asm_info():
+             continue
+                
            ast_analyzer.ast_slither_id_align()   # slither和AST的ID对齐
            ast_analyzer.construct_cfg_for_function_sample(is_modifier=is_modifier)
            
