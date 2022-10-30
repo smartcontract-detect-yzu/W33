@@ -1,0 +1,289 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 1286,
+    "pid": 1474,
+    "fname": "getReward",
+    "cname": "Gauge"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1244,
+    "pid": 1286
+  },
+  {
+    "content": "ModifierInvocation",
+    "type": "ModifierInvocation",
+    "cid": 1246,
+    "pid": 1286
+  },
+  {
+    "content": "nonReentrant",
+    "type": "Identifier",
+    "idtype": "modifier ()",
+    "cid": 1245,
+    "pid": 1246
+  },
+  {
+    "content": "ModifierInvocation",
+    "type": "ModifierInvocation",
+    "cid": 1250,
+    "pid": 1286,
+    "info": {
+      "contract_name": "Gauge",
+      "modifier_name": "updateReward",
+      "ref_id": 1451
+    }
+  },
+  {
+    "content": "updateReward",
+    "type": "Identifier",
+    "idtype": "modifier (address)",
+    "cid": 1247,
+    "pid": 1250
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1249,
+    "pid": 1250
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 1248,
+    "pid": 1249
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1251,
+    "pid": 1286
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1285,
+    "pid": 1286
+  },
+  {
+    "content": "VariableDeclarationStatement",
+    "type": "VariableDeclarationStatement",
+    "cid": 1258,
+    "pid": 1285
+  },
+  {
+    "content": "reward",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1253,
+    "pid": 1258
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1252,
+    "pid": 1253
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1257,
+    "pid": 1258
+  },
+  {
+    "content": "rewards",
+    "type": "Identifier",
+    "idtype": "mapping(address => uint256)",
+    "cid": 1254,
+    "pid": 1257
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1256,
+    "pid": 1257
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 1255,
+    "pid": 1256
+  },
+  {
+    "content": "IfStatement",
+    "type": "IfStatement",
+    "cid": 1284,
+    "pid": 1285
+  },
+  {
+    "content": ">",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 1261,
+    "pid": 1284
+  },
+  {
+    "content": "reward",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1259,
+    "pid": 1261
+  },
+  {
+    "content": "0",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 1260,
+    "pid": 1261
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1283,
+    "pid": 1284
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1268,
+    "pid": 1283
+  },
+  {
+    "content": "=",
+    "type": "Assignment",
+    "idtype": "Null",
+    "cid": 1267,
+    "pid": 1268
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1265,
+    "pid": 1267
+  },
+  {
+    "content": "rewards",
+    "type": "Identifier",
+    "idtype": "mapping(address => uint256)",
+    "cid": 1262,
+    "pid": 1265
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1264,
+    "pid": 1265
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 1263,
+    "pid": 1264
+  },
+  {
+    "content": "0",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 1266,
+    "pid": 1267
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1276,
+    "pid": 1283
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1275,
+    "pid": 1276
+  },
+  {
+    "content": "safeTransfer",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1271,
+    "pid": 1275
+  },
+  {
+    "content": "PICKLE",
+    "type": "Identifier",
+    "idtype": "contract IERC20",
+    "cid": 1269,
+    "pid": 1271
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1273,
+    "pid": 1275
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 1272,
+    "pid": 1273
+  },
+  {
+    "content": "reward",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1274,
+    "pid": 1275
+  },
+  {
+    "content": "EmitStatement",
+    "type": "EmitStatement",
+    "cid": 1282,
+    "pid": 1283
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1281,
+    "pid": 1282
+  },
+  {
+    "content": "RewardPaid",
+    "type": "Identifier",
+    "idtype": "function (address,uint256)",
+    "cid": 1277,
+    "pid": 1281
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1279,
+    "pid": 1281
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 1278,
+    "pid": 1279
+  },
+  {
+    "content": "reward",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1280,
+    "pid": 1281
+  }
+]

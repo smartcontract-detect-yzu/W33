@@ -1,0 +1,199 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 940,
+    "pid": 1474,
+    "fname": "earned",
+    "cname": "Gauge"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 914,
+    "pid": 940
+  },
+  {
+    "content": "account",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 913,
+    "pid": 914
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 912,
+    "pid": 913
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 917,
+    "pid": 940
+  },
+  {
+    "content": "",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 916,
+    "pid": 917
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 915,
+    "pid": 916
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 939,
+    "pid": 940
+  },
+  {
+    "content": "Return",
+    "type": "Return",
+    "cid": 938,
+    "pid": 939
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 937,
+    "pid": 938
+  },
+  {
+    "content": "add",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 933,
+    "pid": 937
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 932,
+    "pid": 933
+  },
+  {
+    "content": "div",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 930,
+    "pid": 932
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 929,
+    "pid": 930
+  },
+  {
+    "content": "mul",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 921,
+    "pid": 929
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 920,
+    "pid": 921
+  },
+  {
+    "content": "derivedBalances",
+    "type": "Identifier",
+    "idtype": "mapping(address => uint256)",
+    "cid": 918,
+    "pid": 920
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 919,
+    "pid": 920
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 928,
+    "pid": 929
+  },
+  {
+    "content": "sub",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 924,
+    "pid": 928
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 923,
+    "pid": 924
+  },
+  {
+    "content": "rewardPerToken",
+    "type": "Identifier",
+    "idtype": "function () view returns (uint256)",
+    "cid": 922,
+    "pid": 923
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 927,
+    "pid": 928
+  },
+  {
+    "content": "userRewardPerTokenPaid",
+    "type": "Identifier",
+    "idtype": "mapping(address => uint256)",
+    "cid": 925,
+    "pid": 927
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 926,
+    "pid": 927
+  },
+  {
+    "content": "1e18",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 931,
+    "pid": 932
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 936,
+    "pid": 937
+  },
+  {
+    "content": "rewards",
+    "type": "Identifier",
+    "idtype": "mapping(address => uint256)",
+    "cid": 934,
+    "pid": 936
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 935,
+    "pid": 936
+  }
+]

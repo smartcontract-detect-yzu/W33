@@ -1,0 +1,124 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 1523,
+    "pid": 1541,
+    "fname": "setGovernance",
+    "cname": "ProtocolGovernance"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1508,
+    "pid": 1523
+  },
+  {
+    "content": "_governance",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1507,
+    "pid": 1508
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1506,
+    "pid": 1507
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1509,
+    "pid": 1523
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1522,
+    "pid": 1523
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1517,
+    "pid": 1522
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1516,
+    "pid": 1517
+  },
+  {
+    "content": "require",
+    "type": "Identifier",
+    "idtype": "function (bool,string memory) pure",
+    "cid": 1510,
+    "pid": 1516
+  },
+  {
+    "content": "==",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 1514,
+    "pid": 1516
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1512,
+    "pid": 1514
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 1511,
+    "pid": 1512
+  },
+  {
+    "content": "governance",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1513,
+    "pid": 1514
+  },
+  {
+    "content": "setGovernance: !gov",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 1515,
+    "pid": 1516
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1521,
+    "pid": 1522
+  },
+  {
+    "content": "=",
+    "type": "Assignment",
+    "idtype": "Null",
+    "cid": 1520,
+    "pid": 1521
+  },
+  {
+    "content": "pendingGovernance",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1518,
+    "pid": 1520
+  },
+  {
+    "content": "_governance",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1519,
+    "pid": 1520
+  }
+]

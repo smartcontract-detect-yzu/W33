@@ -1,0 +1,83 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 977,
+    "pid": 1474,
+    "fname": "deposit",
+    "cname": "Gauge"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 968,
+    "pid": 977
+  },
+  {
+    "content": "amount",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 967,
+    "pid": 968
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 966,
+    "pid": 967
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 969,
+    "pid": 977
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 976,
+    "pid": 977
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 975,
+    "pid": 976
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 974,
+    "pid": 975
+  },
+  {
+    "content": "_deposit",
+    "type": "Identifier",
+    "idtype": "function (uint256,address)",
+    "cid": 970,
+    "pid": 974
+  },
+  {
+    "content": "amount",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 971,
+    "pid": 974
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 973,
+    "pid": 974
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 972,
+    "pid": 973
+  }
+]

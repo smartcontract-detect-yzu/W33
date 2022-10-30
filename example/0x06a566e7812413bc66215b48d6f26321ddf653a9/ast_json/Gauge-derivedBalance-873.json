@@ -1,0 +1,379 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 873,
+    "pid": 1474,
+    "fname": "derivedBalance",
+    "cname": "Gauge"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 821,
+    "pid": 873
+  },
+  {
+    "content": "account",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 820,
+    "pid": 821
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 819,
+    "pid": 820
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 824,
+    "pid": 873
+  },
+  {
+    "content": "",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 823,
+    "pid": 824
+  },
+  {
+    "content": "uint",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 822,
+    "pid": 823
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 872,
+    "pid": 873
+  },
+  {
+    "content": "VariableDeclarationStatement",
+    "type": "VariableDeclarationStatement",
+    "cid": 830,
+    "pid": 872
+  },
+  {
+    "content": "_balance",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 826,
+    "pid": 830
+  },
+  {
+    "content": "uint",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 825,
+    "pid": 826
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 829,
+    "pid": 830
+  },
+  {
+    "content": "_balances",
+    "type": "Identifier",
+    "idtype": "mapping(address => uint256)",
+    "cid": 827,
+    "pid": 829
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 828,
+    "pid": 829
+  },
+  {
+    "content": "VariableDeclarationStatement",
+    "type": "VariableDeclarationStatement",
+    "cid": 840,
+    "pid": 872
+  },
+  {
+    "content": "_derived",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 832,
+    "pid": 840
+  },
+  {
+    "content": "uint",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 831,
+    "pid": 832
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 839,
+    "pid": 840
+  },
+  {
+    "content": "div",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 837,
+    "pid": 839
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 836,
+    "pid": 837
+  },
+  {
+    "content": "mul",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 834,
+    "pid": 836
+  },
+  {
+    "content": "_balance",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 833,
+    "pid": 834
+  },
+  {
+    "content": "40",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 835,
+    "pid": 836
+  },
+  {
+    "content": "100",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 838,
+    "pid": 839
+  },
+  {
+    "content": "VariableDeclarationStatement",
+    "type": "VariableDeclarationStatement",
+    "cid": 862,
+    "pid": 872
+  },
+  {
+    "content": "_adjusted",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 842,
+    "pid": 862
+  },
+  {
+    "content": "uint",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 841,
+    "pid": 842
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 861,
+    "pid": 862
+  },
+  {
+    "content": "div",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 859,
+    "pid": 861
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 858,
+    "pid": 859
+  },
+  {
+    "content": "mul",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 856,
+    "pid": 858
+  },
+  {
+    "content": "TupleExpression",
+    "type": "TupleExpression",
+    "cid": 855,
+    "pid": 856
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 854,
+    "pid": 855
+  },
+  {
+    "content": "div",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 850,
+    "pid": 854
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 849,
+    "pid": 850
+  },
+  {
+    "content": "mul",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 844,
+    "pid": 849
+  },
+  {
+    "content": "_totalSupply",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 843,
+    "pid": 844
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 848,
+    "pid": 849
+  },
+  {
+    "content": "balanceOf",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 846,
+    "pid": 848
+  },
+  {
+    "content": "DILL",
+    "type": "Identifier",
+    "idtype": "contract IERC20",
+    "cid": 845,
+    "pid": 846
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 847,
+    "pid": 848
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 853,
+    "pid": 854
+  },
+  {
+    "content": "totalSupply",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 852,
+    "pid": 853
+  },
+  {
+    "content": "DILL",
+    "type": "Identifier",
+    "idtype": "contract IERC20",
+    "cid": 851,
+    "pid": 852
+  },
+  {
+    "content": "60",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 857,
+    "pid": 858
+  },
+  {
+    "content": "100",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 860,
+    "pid": 861
+  },
+  {
+    "content": "Return",
+    "type": "Return",
+    "cid": 871,
+    "pid": 872
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 870,
+    "pid": 871
+  },
+  {
+    "content": "min",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 864,
+    "pid": 870
+  },
+  {
+    "content": "Math",
+    "type": "Identifier",
+    "idtype": "type(library Math)",
+    "cid": 863,
+    "pid": 864
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 868,
+    "pid": 870
+  },
+  {
+    "content": "add",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 866,
+    "pid": 868
+  },
+  {
+    "content": "_derived",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 865,
+    "pid": 866
+  },
+  {
+    "content": "_adjusted",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 867,
+    "pid": 868
+  },
+  {
+    "content": "_balance",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 869,
+    "pid": 870
+  }
+]

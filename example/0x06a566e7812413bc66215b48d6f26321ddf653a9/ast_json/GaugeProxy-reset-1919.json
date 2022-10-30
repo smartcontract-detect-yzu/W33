@@ -1,0 +1,62 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 1919,
+    "pid": 2499,
+    "fname": "reset",
+    "cname": "GaugeProxy"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1911,
+    "pid": 1919
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1912,
+    "pid": 1919
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1918,
+    "pid": 1919
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1917,
+    "pid": 1918
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1916,
+    "pid": 1917
+  },
+  {
+    "content": "_reset",
+    "type": "Identifier",
+    "idtype": "function (address)",
+    "cid": 1913,
+    "pid": 1916
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1915,
+    "pid": 1916
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 1914,
+    "pid": 1915
+  }
+]

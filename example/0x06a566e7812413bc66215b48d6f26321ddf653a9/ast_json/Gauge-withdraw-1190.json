@@ -1,0 +1,69 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 1190,
+    "pid": 1474,
+    "fname": "withdraw",
+    "cname": "Gauge"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1183,
+    "pid": 1190
+  },
+  {
+    "content": "amount",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1182,
+    "pid": 1183
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1181,
+    "pid": 1182
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1184,
+    "pid": 1190
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1189,
+    "pid": 1190
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1188,
+    "pid": 1189
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1187,
+    "pid": 1188
+  },
+  {
+    "content": "_withdraw",
+    "type": "Identifier",
+    "idtype": "function (uint256)",
+    "cid": 1185,
+    "pid": 1187
+  },
+  {
+    "content": "amount",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1186,
+    "pid": 1187
+  }
+]

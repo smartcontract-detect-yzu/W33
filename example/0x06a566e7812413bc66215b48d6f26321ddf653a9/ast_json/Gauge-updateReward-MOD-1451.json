@@ -1,0 +1,339 @@
+[
+  {
+    "content": "ModifierDefinition",
+    "type": "ModifierDefinition",
+    "cid": 1451,
+    "pid": 1474,
+    "fname": "updateReward",
+    "cname": "Gauge"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1404,
+    "pid": 1451
+  },
+  {
+    "content": "account",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1403,
+    "pid": 1404
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1402,
+    "pid": 1403
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1450,
+    "pid": 1451
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1409,
+    "pid": 1450
+  },
+  {
+    "content": "=",
+    "type": "Assignment",
+    "idtype": "Null",
+    "cid": 1408,
+    "pid": 1409
+  },
+  {
+    "content": "rewardPerTokenStored",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1405,
+    "pid": 1408
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1407,
+    "pid": 1408
+  },
+  {
+    "content": "rewardPerToken",
+    "type": "Identifier",
+    "idtype": "function () view returns (uint256)",
+    "cid": 1406,
+    "pid": 1407
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1414,
+    "pid": 1450
+  },
+  {
+    "content": "=",
+    "type": "Assignment",
+    "idtype": "Null",
+    "cid": 1413,
+    "pid": 1414
+  },
+  {
+    "content": "lastUpdateTime",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1410,
+    "pid": 1413
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1412,
+    "pid": 1413
+  },
+  {
+    "content": "lastTimeRewardApplicable",
+    "type": "Identifier",
+    "idtype": "function () view returns (uint256)",
+    "cid": 1411,
+    "pid": 1412
+  },
+  {
+    "content": "IfStatement",
+    "type": "IfStatement",
+    "cid": 1436,
+    "pid": 1450
+  },
+  {
+    "content": "!=",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 1420,
+    "pid": 1436
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1415,
+    "pid": 1420
+  },
+  {
+    "content": "typeConversion",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1419,
+    "pid": 1420
+  },
+  {
+    "content": "type(address)",
+    "type": "ElementaryTypeNameExpression",
+    "idtype": "Null",
+    "cid": 1417,
+    "pid": 1419
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1416,
+    "pid": 1417
+  },
+  {
+    "content": "0",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 1418,
+    "pid": 1419
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1435,
+    "pid": 1436
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1428,
+    "pid": 1435
+  },
+  {
+    "content": "=",
+    "type": "Assignment",
+    "idtype": "Null",
+    "cid": 1427,
+    "pid": 1428
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1423,
+    "pid": 1427
+  },
+  {
+    "content": "rewards",
+    "type": "Identifier",
+    "idtype": "mapping(address => uint256)",
+    "cid": 1421,
+    "pid": 1423
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1422,
+    "pid": 1423
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1426,
+    "pid": 1427
+  },
+  {
+    "content": "earned",
+    "type": "Identifier",
+    "idtype": "function (address) view returns (uint256)",
+    "cid": 1424,
+    "pid": 1426
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1425,
+    "pid": 1426
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1434,
+    "pid": 1435
+  },
+  {
+    "content": "=",
+    "type": "Assignment",
+    "idtype": "Null",
+    "cid": 1433,
+    "pid": 1434
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1431,
+    "pid": 1433
+  },
+  {
+    "content": "userRewardPerTokenPaid",
+    "type": "Identifier",
+    "idtype": "mapping(address => uint256)",
+    "cid": 1429,
+    "pid": 1431
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1430,
+    "pid": 1431
+  },
+  {
+    "content": "rewardPerTokenStored",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1432,
+    "pid": 1433
+  },
+  {
+    "content": "PlaceholderStatement",
+    "type": "PlaceholderStatement",
+    "cid": 1437,
+    "pid": 1450
+  },
+  {
+    "content": "IfStatement",
+    "type": "IfStatement",
+    "cid": 1449,
+    "pid": 1450
+  },
+  {
+    "content": "!=",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 1443,
+    "pid": 1449
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1438,
+    "pid": 1443
+  },
+  {
+    "content": "typeConversion",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1442,
+    "pid": 1443
+  },
+  {
+    "content": "type(address)",
+    "type": "ElementaryTypeNameExpression",
+    "idtype": "Null",
+    "cid": 1440,
+    "pid": 1442
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1439,
+    "pid": 1440
+  },
+  {
+    "content": "0",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 1441,
+    "pid": 1442
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1448,
+    "pid": 1449
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1447,
+    "pid": 1448
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1446,
+    "pid": 1447
+  },
+  {
+    "content": "kick",
+    "type": "Identifier",
+    "idtype": "function (address)",
+    "cid": 1444,
+    "pid": 1446
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1445,
+    "pid": 1446
+  }
+]

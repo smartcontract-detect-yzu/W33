@@ -1,0 +1,41 @@
+{
+  "sol_file_path": "example//0x06a566e7812413bc66215b48d6f26321ddf653a9//Gauge.sol",
+  "contract_name": "Gauge",
+  "contract_id": 1474,
+  "function_name": "earned",
+  "function_id": 940,
+  "function_sbp_infos": [
+    {
+      "expr_id": 937,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "add"
+      }
+    },
+    {
+      "expr_id": 932,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "div"
+      }
+    },
+    {
+      "expr_id": 929,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "mul"
+      }
+    },
+    {
+      "expr_id": 928,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "sub"
+      }
+    }
+  ]
+}

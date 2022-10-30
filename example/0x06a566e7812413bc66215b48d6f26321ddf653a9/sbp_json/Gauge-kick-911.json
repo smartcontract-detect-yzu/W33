@@ -1,0 +1,25 @@
+{
+  "sol_file_path": "example//0x06a566e7812413bc66215b48d6f26321ddf653a9//Gauge.sol",
+  "contract_name": "Gauge",
+  "contract_id": 1474,
+  "function_name": "kick",
+  "function_id": 911,
+  "function_sbp_infos": [
+    {
+      "expr_id": 888,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "sub"
+      }
+    },
+    {
+      "expr_id": 907,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "add"
+      }
+    }
+  ]
+}

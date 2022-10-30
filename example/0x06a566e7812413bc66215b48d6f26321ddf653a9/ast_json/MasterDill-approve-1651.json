@@ -1,0 +1,191 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 1651,
+    "pid": 1814,
+    "fname": "approve",
+    "cname": "MasterDill"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1628,
+    "pid": 1651
+  },
+  {
+    "content": "spender",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1625,
+    "pid": 1628
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1624,
+    "pid": 1625
+  },
+  {
+    "content": "amount",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1627,
+    "pid": 1628
+  },
+  {
+    "content": "uint",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1626,
+    "pid": 1627
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1631,
+    "pid": 1651
+  },
+  {
+    "content": "",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1630,
+    "pid": 1631
+  },
+  {
+    "content": "bool",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1629,
+    "pid": 1630
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1650,
+    "pid": 1651
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1640,
+    "pid": 1650
+  },
+  {
+    "content": "=",
+    "type": "Assignment",
+    "idtype": "Null",
+    "cid": 1639,
+    "pid": 1640
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1637,
+    "pid": 1639
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1636,
+    "pid": 1637
+  },
+  {
+    "content": "allowances",
+    "type": "Identifier",
+    "idtype": "mapping(address => mapping(address => uint256))",
+    "cid": 1632,
+    "pid": 1636
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1634,
+    "pid": 1636
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 1633,
+    "pid": 1634
+  },
+  {
+    "content": "spender",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1635,
+    "pid": 1637
+  },
+  {
+    "content": "amount",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1638,
+    "pid": 1639
+  },
+  {
+    "content": "EmitStatement",
+    "type": "EmitStatement",
+    "cid": 1647,
+    "pid": 1650
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1646,
+    "pid": 1647
+  },
+  {
+    "content": "Approval",
+    "type": "Identifier",
+    "idtype": "function (address,address,uint256)",
+    "cid": 1641,
+    "pid": 1646
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1643,
+    "pid": 1646
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 1642,
+    "pid": 1643
+  },
+  {
+    "content": "spender",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1644,
+    "pid": 1646
+  },
+  {
+    "content": "amount",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1645,
+    "pid": 1646
+  },
+  {
+    "content": "Return",
+    "type": "Return",
+    "cid": 1649,
+    "pid": 1650
+  },
+  {
+    "content": "true",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 1648,
+    "pid": 1649
+  }
+]

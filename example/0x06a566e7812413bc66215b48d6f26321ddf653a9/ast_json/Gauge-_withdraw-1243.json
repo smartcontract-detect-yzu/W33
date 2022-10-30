@@ -1,0 +1,360 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 1243,
+    "pid": 1474,
+    "fname": "_withdraw",
+    "cname": "Gauge"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1193,
+    "pid": 1243
+  },
+  {
+    "content": "amount",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1192,
+    "pid": 1193
+  },
+  {
+    "content": "uint",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1191,
+    "pid": 1192
+  },
+  {
+    "content": "ModifierInvocation",
+    "type": "ModifierInvocation",
+    "cid": 1195,
+    "pid": 1243
+  },
+  {
+    "content": "nonReentrant",
+    "type": "Identifier",
+    "idtype": "modifier ()",
+    "cid": 1194,
+    "pid": 1195
+  },
+  {
+    "content": "ModifierInvocation",
+    "type": "ModifierInvocation",
+    "cid": 1199,
+    "pid": 1243,
+    "info": {
+      "contract_name": "Gauge",
+      "modifier_name": "updateReward",
+      "ref_id": 1451
+    }
+  },
+  {
+    "content": "updateReward",
+    "type": "Identifier",
+    "idtype": "modifier (address)",
+    "cid": 1196,
+    "pid": 1199
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1198,
+    "pid": 1199
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 1197,
+    "pid": 1198
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1200,
+    "pid": 1243
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1242,
+    "pid": 1243
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1207,
+    "pid": 1242
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1206,
+    "pid": 1207
+  },
+  {
+    "content": "require",
+    "type": "Identifier",
+    "idtype": "function (bool,string memory) pure",
+    "cid": 1201,
+    "pid": 1206
+  },
+  {
+    "content": ">",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 1204,
+    "pid": 1206
+  },
+  {
+    "content": "amount",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1202,
+    "pid": 1204
+  },
+  {
+    "content": "0",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 1203,
+    "pid": 1204
+  },
+  {
+    "content": "Cannot withdraw 0",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 1205,
+    "pid": 1206
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1214,
+    "pid": 1242
+  },
+  {
+    "content": "=",
+    "type": "Assignment",
+    "idtype": "Null",
+    "cid": 1213,
+    "pid": 1214
+  },
+  {
+    "content": "_totalSupply",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1208,
+    "pid": 1213
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1212,
+    "pid": 1213
+  },
+  {
+    "content": "sub",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1210,
+    "pid": 1212
+  },
+  {
+    "content": "_totalSupply",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1209,
+    "pid": 1210
+  },
+  {
+    "content": "amount",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1211,
+    "pid": 1212
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1227,
+    "pid": 1242
+  },
+  {
+    "content": "=",
+    "type": "Assignment",
+    "idtype": "Null",
+    "cid": 1226,
+    "pid": 1227
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1218,
+    "pid": 1226
+  },
+  {
+    "content": "_balances",
+    "type": "Identifier",
+    "idtype": "mapping(address => uint256)",
+    "cid": 1215,
+    "pid": 1218
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1217,
+    "pid": 1218
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 1216,
+    "pid": 1217
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1225,
+    "pid": 1226
+  },
+  {
+    "content": "sub",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1223,
+    "pid": 1225
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1222,
+    "pid": 1223
+  },
+  {
+    "content": "_balances",
+    "type": "Identifier",
+    "idtype": "mapping(address => uint256)",
+    "cid": 1219,
+    "pid": 1222
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1221,
+    "pid": 1222
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 1220,
+    "pid": 1221
+  },
+  {
+    "content": "amount",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1224,
+    "pid": 1225
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1235,
+    "pid": 1242
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1234,
+    "pid": 1235
+  },
+  {
+    "content": "safeTransfer",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1230,
+    "pid": 1234
+  },
+  {
+    "content": "TOKEN",
+    "type": "Identifier",
+    "idtype": "contract IERC20",
+    "cid": 1228,
+    "pid": 1230
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1232,
+    "pid": 1234
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 1231,
+    "pid": 1232
+  },
+  {
+    "content": "amount",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1233,
+    "pid": 1234
+  },
+  {
+    "content": "EmitStatement",
+    "type": "EmitStatement",
+    "cid": 1241,
+    "pid": 1242
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1240,
+    "pid": 1241
+  },
+  {
+    "content": "Withdrawn",
+    "type": "Identifier",
+    "idtype": "function (address,uint256)",
+    "cid": 1236,
+    "pid": 1240
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1238,
+    "pid": 1240
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 1237,
+    "pid": 1238
+  },
+  {
+    "content": "amount",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1239,
+    "pid": 1240
+  }
+]

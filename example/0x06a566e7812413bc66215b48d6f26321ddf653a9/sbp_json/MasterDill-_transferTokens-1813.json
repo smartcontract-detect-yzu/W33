@@ -1,0 +1,25 @@
+{
+  "sol_file_path": "example//0x06a566e7812413bc66215b48d6f26321ddf653a9//Gauge.sol",
+  "contract_name": "MasterDill",
+  "contract_id": 1814,
+  "function_name": "_transferTokens",
+  "function_id": 1813,
+  "function_sbp_infos": [
+    {
+      "expr_id": 1791,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "sub"
+      }
+    },
+    {
+      "expr_id": 1803,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "add"
+      }
+    }
+  ]
+}

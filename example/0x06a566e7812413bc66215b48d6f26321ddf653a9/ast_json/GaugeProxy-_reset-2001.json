@@ -1,0 +1,537 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 2001,
+    "pid": 2499,
+    "fname": "_reset",
+    "cname": "GaugeProxy"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1922,
+    "pid": 2001
+  },
+  {
+    "content": "_owner",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1921,
+    "pid": 1922
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1920,
+    "pid": 1921
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1923,
+    "pid": 2001
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 2000,
+    "pid": 2001
+  },
+  {
+    "content": "VariableDeclarationStatement",
+    "type": "VariableDeclarationStatement",
+    "cid": 1932,
+    "pid": 2000
+  },
+  {
+    "content": "_tokenVote",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1928,
+    "pid": 1932
+  },
+  {
+    "content": "address[]",
+    "type": "ArrayTypeName",
+    "idtype": "Null",
+    "cid": 1927,
+    "pid": 1928
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1926,
+    "pid": 1927
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1931,
+    "pid": 1932
+  },
+  {
+    "content": "tokenVote",
+    "type": "Identifier",
+    "idtype": "mapping(address => address[] storage ref)",
+    "cid": 1929,
+    "pid": 1931
+  },
+  {
+    "content": "_owner",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1930,
+    "pid": 1931
+  },
+  {
+    "content": "VariableDeclarationStatement",
+    "type": "VariableDeclarationStatement",
+    "cid": 1937,
+    "pid": 2000
+  },
+  {
+    "content": "_tokenVoteCnt",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1934,
+    "pid": 1937
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1933,
+    "pid": 1934
+  },
+  {
+    "content": "length",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1936,
+    "pid": 1937
+  },
+  {
+    "content": "_tokenVote",
+    "type": "Identifier",
+    "idtype": "address[] storage pointer",
+    "cid": 1935,
+    "pid": 1936
+  },
+  {
+    "content": "ForStatement",
+    "type": "ForStatement",
+    "cid": 1994,
+    "pid": 2000
+  },
+  {
+    "content": "VariableDeclarationStatement",
+    "type": "VariableDeclarationStatement",
+    "cid": 1941,
+    "pid": 1994
+  },
+  {
+    "content": "i",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1939,
+    "pid": 1941
+  },
+  {
+    "content": "uint",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1938,
+    "pid": 1939
+  },
+  {
+    "content": "0",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 1940,
+    "pid": 1941
+  },
+  {
+    "content": "<",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 1944,
+    "pid": 1994
+  },
+  {
+    "content": "i",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1942,
+    "pid": 1944
+  },
+  {
+    "content": "_tokenVoteCnt",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1943,
+    "pid": 1944
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1947,
+    "pid": 1994
+  },
+  {
+    "content": "++",
+    "type": "UnaryOperation",
+    "idtype": "Null",
+    "cid": 1946,
+    "pid": 1947
+  },
+  {
+    "content": "i",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1945,
+    "pid": 1946
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1993,
+    "pid": 1994
+  },
+  {
+    "content": "VariableDeclarationStatement",
+    "type": "VariableDeclarationStatement",
+    "cid": 1953,
+    "pid": 1993
+  },
+  {
+    "content": "_token",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1949,
+    "pid": 1953
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1948,
+    "pid": 1949
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1952,
+    "pid": 1953
+  },
+  {
+    "content": "_tokenVote",
+    "type": "Identifier",
+    "idtype": "address[] storage pointer",
+    "cid": 1950,
+    "pid": 1952
+  },
+  {
+    "content": "i",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1951,
+    "pid": 1952
+  },
+  {
+    "content": "VariableDeclarationStatement",
+    "type": "VariableDeclarationStatement",
+    "cid": 1961,
+    "pid": 1993
+  },
+  {
+    "content": "_votes",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1955,
+    "pid": 1961
+  },
+  {
+    "content": "uint",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1954,
+    "pid": 1955
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1960,
+    "pid": 1961
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1958,
+    "pid": 1960
+  },
+  {
+    "content": "votes",
+    "type": "Identifier",
+    "idtype": "mapping(address => mapping(address => uint256))",
+    "cid": 1956,
+    "pid": 1958
+  },
+  {
+    "content": "_owner",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1957,
+    "pid": 1958
+  },
+  {
+    "content": "_token",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1959,
+    "pid": 1960
+  },
+  {
+    "content": "IfStatement",
+    "type": "IfStatement",
+    "cid": 1992,
+    "pid": 1993
+  },
+  {
+    "content": ">",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 1964,
+    "pid": 1992
+  },
+  {
+    "content": "_votes",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1962,
+    "pid": 1964
+  },
+  {
+    "content": "0",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 1963,
+    "pid": 1964
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1991,
+    "pid": 1992
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1971,
+    "pid": 1991
+  },
+  {
+    "content": "=",
+    "type": "Assignment",
+    "idtype": "Null",
+    "cid": 1970,
+    "pid": 1971
+  },
+  {
+    "content": "totalWeight",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1965,
+    "pid": 1970
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1969,
+    "pid": 1970
+  },
+  {
+    "content": "sub",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1967,
+    "pid": 1969
+  },
+  {
+    "content": "totalWeight",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1966,
+    "pid": 1967
+  },
+  {
+    "content": "_votes",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1968,
+    "pid": 1969
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1982,
+    "pid": 1991
+  },
+  {
+    "content": "=",
+    "type": "Assignment",
+    "idtype": "Null",
+    "cid": 1981,
+    "pid": 1982
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1974,
+    "pid": 1981
+  },
+  {
+    "content": "weights",
+    "type": "Identifier",
+    "idtype": "mapping(address => uint256)",
+    "cid": 1972,
+    "pid": 1974
+  },
+  {
+    "content": "_token",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1973,
+    "pid": 1974
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1980,
+    "pid": 1981
+  },
+  {
+    "content": "sub",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1978,
+    "pid": 1980
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1977,
+    "pid": 1978
+  },
+  {
+    "content": "weights",
+    "type": "Identifier",
+    "idtype": "mapping(address => uint256)",
+    "cid": 1975,
+    "pid": 1977
+  },
+  {
+    "content": "_token",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1976,
+    "pid": 1977
+  },
+  {
+    "content": "_votes",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1979,
+    "pid": 1980
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1990,
+    "pid": 1991
+  },
+  {
+    "content": "=",
+    "type": "Assignment",
+    "idtype": "Null",
+    "cid": 1989,
+    "pid": 1990
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1987,
+    "pid": 1989
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1986,
+    "pid": 1987
+  },
+  {
+    "content": "votes",
+    "type": "Identifier",
+    "idtype": "mapping(address => mapping(address => uint256))",
+    "cid": 1983,
+    "pid": 1986
+  },
+  {
+    "content": "_owner",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1984,
+    "pid": 1986
+  },
+  {
+    "content": "_token",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1985,
+    "pid": 1987
+  },
+  {
+    "content": "0",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 1988,
+    "pid": 1989
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1999,
+    "pid": 2000
+  },
+  {
+    "content": "delete",
+    "type": "UnaryOperation",
+    "idtype": "Null",
+    "cid": 1998,
+    "pid": 1999
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1997,
+    "pid": 1998
+  },
+  {
+    "content": "tokenVote",
+    "type": "Identifier",
+    "idtype": "mapping(address => address[] storage ref)",
+    "cid": 1995,
+    "pid": 1997
+  },
+  {
+    "content": "_owner",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1996,
+    "pid": 1997
+  }
+]

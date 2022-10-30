@@ -1,0 +1,259 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 911,
+    "pid": 1474,
+    "fname": "kick",
+    "cname": "Gauge"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 876,
+    "pid": 911
+  },
+  {
+    "content": "account",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 875,
+    "pid": 876
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 874,
+    "pid": 875
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 877,
+    "pid": 911
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 910,
+    "pid": 911
+  },
+  {
+    "content": "VariableDeclarationStatement",
+    "type": "VariableDeclarationStatement",
+    "cid": 883,
+    "pid": 910
+  },
+  {
+    "content": "_derivedBalance",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 879,
+    "pid": 883
+  },
+  {
+    "content": "uint",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 878,
+    "pid": 879
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 882,
+    "pid": 883
+  },
+  {
+    "content": "derivedBalances",
+    "type": "Identifier",
+    "idtype": "mapping(address => uint256)",
+    "cid": 880,
+    "pid": 882
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 881,
+    "pid": 882
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 890,
+    "pid": 910
+  },
+  {
+    "content": "=",
+    "type": "Assignment",
+    "idtype": "Null",
+    "cid": 889,
+    "pid": 890
+  },
+  {
+    "content": "derivedSupply",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 884,
+    "pid": 889
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 888,
+    "pid": 889
+  },
+  {
+    "content": "sub",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 886,
+    "pid": 888
+  },
+  {
+    "content": "derivedSupply",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 885,
+    "pid": 886
+  },
+  {
+    "content": "_derivedBalance",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 887,
+    "pid": 888
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 896,
+    "pid": 910
+  },
+  {
+    "content": "=",
+    "type": "Assignment",
+    "idtype": "Null",
+    "cid": 895,
+    "pid": 896
+  },
+  {
+    "content": "_derivedBalance",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 891,
+    "pid": 895
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 894,
+    "pid": 895
+  },
+  {
+    "content": "derivedBalance",
+    "type": "Identifier",
+    "idtype": "function (address) view returns (uint256)",
+    "cid": 892,
+    "pid": 894
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 893,
+    "pid": 894
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 902,
+    "pid": 910
+  },
+  {
+    "content": "=",
+    "type": "Assignment",
+    "idtype": "Null",
+    "cid": 901,
+    "pid": 902
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 899,
+    "pid": 901
+  },
+  {
+    "content": "derivedBalances",
+    "type": "Identifier",
+    "idtype": "mapping(address => uint256)",
+    "cid": 897,
+    "pid": 899
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 898,
+    "pid": 899
+  },
+  {
+    "content": "_derivedBalance",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 900,
+    "pid": 901
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 909,
+    "pid": 910
+  },
+  {
+    "content": "=",
+    "type": "Assignment",
+    "idtype": "Null",
+    "cid": 908,
+    "pid": 909
+  },
+  {
+    "content": "derivedSupply",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 903,
+    "pid": 908
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 907,
+    "pid": 908
+  },
+  {
+    "content": "add",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 905,
+    "pid": 907
+  },
+  {
+    "content": "derivedSupply",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 904,
+    "pid": 905
+  },
+  {
+    "content": "_derivedBalance",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 906,
+    "pid": 907
+  }
+]

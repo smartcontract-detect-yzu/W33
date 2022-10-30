@@ -1,0 +1,104 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 2400,
+    "pid": 2499,
+    "fname": "collect",
+    "cname": "GaugeProxy"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 2386,
+    "pid": 2400
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 2387,
+    "pid": 2400
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 2399,
+    "pid": 2400
+  },
+  {
+    "content": "VariableDeclarationStatement",
+    "type": "VariableDeclarationStatement",
+    "cid": 2398,
+    "pid": 2399
+  },
+  {
+    "content": "_locked",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 2389,
+    "pid": 2398
+  },
+  {
+    "content": "uint",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 2388,
+    "pid": 2389
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 2397,
+    "pid": 2398
+  },
+  {
+    "content": "userInfo",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 2391,
+    "pid": 2397
+  },
+  {
+    "content": "MASTER",
+    "type": "Identifier",
+    "idtype": "contract MasterChef",
+    "cid": 2390,
+    "pid": 2391
+  },
+  {
+    "content": "pid",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 2392,
+    "pid": 2397
+  },
+  {
+    "content": "typeConversion",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 2396,
+    "pid": 2397
+  },
+  {
+    "content": "type(address)",
+    "type": "ElementaryTypeNameExpression",
+    "idtype": "Null",
+    "cid": 2394,
+    "pid": 2396
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 2393,
+    "pid": 2394
+  },
+  {
+    "content": "this",
+    "type": "Identifier",
+    "idtype": "contract GaugeProxy",
+    "cid": 2395,
+    "pid": 2396
+  }
+]

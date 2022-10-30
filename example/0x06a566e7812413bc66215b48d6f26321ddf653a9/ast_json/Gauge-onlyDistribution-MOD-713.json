@@ -1,0 +1,83 @@
+[
+  {
+    "content": "ModifierDefinition",
+    "type": "ModifierDefinition",
+    "cid": 713,
+    "pid": 1474,
+    "fname": "onlyDistribution",
+    "cname": "Gauge"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 702,
+    "pid": 713
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 712,
+    "pid": 713
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 710,
+    "pid": 712
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 709,
+    "pid": 710
+  },
+  {
+    "content": "require",
+    "type": "Identifier",
+    "idtype": "function (bool,string memory) pure",
+    "cid": 703,
+    "pid": 709
+  },
+  {
+    "content": "==",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 707,
+    "pid": 709
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 705,
+    "pid": 707
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 704,
+    "pid": 705
+  },
+  {
+    "content": "DISTRIBUTION",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 706,
+    "pid": 707
+  },
+  {
+    "content": "Caller is not RewardsDistribution contract",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 708,
+    "pid": 709
+  },
+  {
+    "content": "PlaceholderStatement",
+    "type": "PlaceholderStatement",
+    "cid": 711,
+    "pid": 712
+  }
+]

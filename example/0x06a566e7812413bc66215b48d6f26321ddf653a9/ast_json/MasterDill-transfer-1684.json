@@ -1,0 +1,131 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 1684,
+    "pid": 1814,
+    "fname": "transfer",
+    "cname": "MasterDill"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1670,
+    "pid": 1684
+  },
+  {
+    "content": "dst",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1667,
+    "pid": 1670
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1666,
+    "pid": 1667
+  },
+  {
+    "content": "amount",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1669,
+    "pid": 1670
+  },
+  {
+    "content": "uint",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1668,
+    "pid": 1669
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1673,
+    "pid": 1684
+  },
+  {
+    "content": "",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1672,
+    "pid": 1673
+  },
+  {
+    "content": "bool",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1671,
+    "pid": 1672
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1683,
+    "pid": 1684
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1680,
+    "pid": 1683
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1679,
+    "pid": 1680
+  },
+  {
+    "content": "_transferTokens",
+    "type": "Identifier",
+    "idtype": "function (address,address,uint256)",
+    "cid": 1674,
+    "pid": 1679
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1676,
+    "pid": 1679
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 1675,
+    "pid": 1676
+  },
+  {
+    "content": "dst",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1677,
+    "pid": 1679
+  },
+  {
+    "content": "amount",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1678,
+    "pid": 1679
+  },
+  {
+    "content": "Return",
+    "type": "Return",
+    "cid": 1682,
+    "pid": 1683
+  },
+  {
+    "content": "true",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 1681,
+    "pid": 1682
+  }
+]

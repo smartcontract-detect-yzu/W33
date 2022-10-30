@@ -1,0 +1,5 @@
+{
+    "name":"Gauge.sol",
+    "ver":"0.6.7",
+    "compile":"ok"
+}

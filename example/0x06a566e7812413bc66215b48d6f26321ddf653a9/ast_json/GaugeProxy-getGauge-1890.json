@@ -1,0 +1,82 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 1890,
+    "pid": 2499,
+    "fname": "getGauge",
+    "cname": "GaugeProxy"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1881,
+    "pid": 1890
+  },
+  {
+    "content": "_token",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1880,
+    "pid": 1881
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1879,
+    "pid": 1880
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1884,
+    "pid": 1890
+  },
+  {
+    "content": "",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1883,
+    "pid": 1884
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1882,
+    "pid": 1883
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1889,
+    "pid": 1890
+  },
+  {
+    "content": "Return",
+    "type": "Return",
+    "cid": 1888,
+    "pid": 1889
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1887,
+    "pid": 1888
+  },
+  {
+    "content": "gauges",
+    "type": "Identifier",
+    "idtype": "mapping(address => address)",
+    "cid": 1885,
+    "pid": 1887
+  },
+  {
+    "content": "_token",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1886,
+    "pid": 1887
+  }
+]

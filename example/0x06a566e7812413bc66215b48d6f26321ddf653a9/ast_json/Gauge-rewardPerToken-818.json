@@ -1,0 +1,213 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 818,
+    "pid": 1474,
+    "fname": "rewardPerToken",
+    "cname": "Gauge"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 788,
+    "pid": 818
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 791,
+    "pid": 818
+  },
+  {
+    "content": "",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 790,
+    "pid": 791
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 789,
+    "pid": 790
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 817,
+    "pid": 818
+  },
+  {
+    "content": "IfStatement",
+    "type": "IfStatement",
+    "cid": 798,
+    "pid": 817
+  },
+  {
+    "content": "==",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 794,
+    "pid": 798
+  },
+  {
+    "content": "_totalSupply",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 792,
+    "pid": 794
+  },
+  {
+    "content": "0",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 793,
+    "pid": 794
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 797,
+    "pid": 798
+  },
+  {
+    "content": "Return",
+    "type": "Return",
+    "cid": 796,
+    "pid": 797
+  },
+  {
+    "content": "rewardPerTokenStored",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 795,
+    "pid": 796
+  },
+  {
+    "content": "Return",
+    "type": "Return",
+    "cid": 816,
+    "pid": 817
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 815,
+    "pid": 816
+  },
+  {
+    "content": "add",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 800,
+    "pid": 815
+  },
+  {
+    "content": "rewardPerTokenStored",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 799,
+    "pid": 800
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 814,
+    "pid": 815
+  },
+  {
+    "content": "div",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 812,
+    "pid": 814
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 811,
+    "pid": 812
+  },
+  {
+    "content": "mul",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 809,
+    "pid": 811
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 808,
+    "pid": 809
+  },
+  {
+    "content": "mul",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 806,
+    "pid": 808
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 805,
+    "pid": 806
+  },
+  {
+    "content": "sub",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 803,
+    "pid": 805
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 802,
+    "pid": 803
+  },
+  {
+    "content": "lastTimeRewardApplicable",
+    "type": "Identifier",
+    "idtype": "function () view returns (uint256)",
+    "cid": 801,
+    "pid": 802
+  },
+  {
+    "content": "lastUpdateTime",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 804,
+    "pid": 805
+  },
+  {
+    "content": "rewardRate",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 807,
+    "pid": 808
+  },
+  {
+    "content": "1e18",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 810,
+    "pid": 811
+  },
+  {
+    "content": "derivedSupply",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 813,
+    "pid": 814
+  }
+]

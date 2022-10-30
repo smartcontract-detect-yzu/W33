@@ -1,0 +1,57 @@
+{
+  "sol_file_path": "example//0x06a566e7812413bc66215b48d6f26321ddf653a9//Gauge.sol",
+  "contract_name": "GaugeProxy",
+  "contract_id": 2499,
+  "function_name": "_vote",
+  "function_id": 2232,
+  "function_sbp_infos": [
+    {
+      "expr_id": 2136,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "add"
+      }
+    },
+    {
+      "expr_id": 2173,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "div"
+      }
+    },
+    {
+      "expr_id": 2170,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "mul"
+      }
+    },
+    {
+      "expr_id": 2185,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "add"
+      }
+    },
+    {
+      "expr_id": 2192,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "add"
+      }
+    },
+    {
+      "expr_id": 2203,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "add"
+      }
+    }
+  ]
+}

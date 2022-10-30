@@ -1,0 +1,82 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 774,
+    "pid": 1474,
+    "fname": "balanceOf",
+    "cname": "Gauge"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 765,
+    "pid": 774
+  },
+  {
+    "content": "account",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 764,
+    "pid": 765
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 763,
+    "pid": 764
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 768,
+    "pid": 774
+  },
+  {
+    "content": "",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 767,
+    "pid": 768
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 766,
+    "pid": 767
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 773,
+    "pid": 774
+  },
+  {
+    "content": "Return",
+    "type": "Return",
+    "cid": 772,
+    "pid": 773
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 771,
+    "pid": 772
+  },
+  {
+    "content": "_balances",
+    "type": "Identifier",
+    "idtype": "mapping(address => uint256)",
+    "cid": 769,
+    "pid": 771
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 770,
+    "pid": 771
+  }
+]

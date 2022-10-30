@@ -1,0 +1,173 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 2257,
+    "pid": 2499,
+    "fname": "vote",
+    "cname": "GaugeProxy"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 2239,
+    "pid": 2257
+  },
+  {
+    "content": "_tokenVote",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 2235,
+    "pid": 2239
+  },
+  {
+    "content": "address[]",
+    "type": "ArrayTypeName",
+    "idtype": "Null",
+    "cid": 2234,
+    "pid": 2235
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 2233,
+    "pid": 2234
+  },
+  {
+    "content": "_weights",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 2238,
+    "pid": 2239
+  },
+  {
+    "content": "uint256[]",
+    "type": "ArrayTypeName",
+    "idtype": "Null",
+    "cid": 2237,
+    "pid": 2238
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 2236,
+    "pid": 2237
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 2240,
+    "pid": 2257
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 2256,
+    "pid": 2257
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 2248,
+    "pid": 2256
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 2247,
+    "pid": 2248
+  },
+  {
+    "content": "require",
+    "type": "Identifier",
+    "idtype": "function (bool) pure",
+    "cid": 2241,
+    "pid": 2247
+  },
+  {
+    "content": "==",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 2246,
+    "pid": 2247
+  },
+  {
+    "content": "length",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 2243,
+    "pid": 2246
+  },
+  {
+    "content": "_tokenVote",
+    "type": "Identifier",
+    "idtype": "address[] calldata",
+    "cid": 2242,
+    "pid": 2243
+  },
+  {
+    "content": "length",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 2245,
+    "pid": 2246
+  },
+  {
+    "content": "_weights",
+    "type": "Identifier",
+    "idtype": "uint256[] calldata",
+    "cid": 2244,
+    "pid": 2245
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 2255,
+    "pid": 2256
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 2254,
+    "pid": 2255
+  },
+  {
+    "content": "_vote",
+    "type": "Identifier",
+    "idtype": "function (address,address[] memory,uint256[] memory)",
+    "cid": 2249,
+    "pid": 2254
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 2251,
+    "pid": 2254
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 2250,
+    "pid": 2251
+  },
+  {
+    "content": "_tokenVote",
+    "type": "Identifier",
+    "idtype": "address[] calldata",
+    "cid": 2252,
+    "pid": 2254
+  },
+  {
+    "content": "_weights",
+    "type": "Identifier",
+    "idtype": "uint256[] calldata",
+    "cid": 2253,
+    "pid": 2254
+  }
+]

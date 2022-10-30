@@ -1,0 +1,87 @@
+[
+    {
+        "cname": "Gauge",
+        "fname": "test",
+        "id": "1140"
+    },
+    {
+        "cname": "GaugeProxy",
+        "fname": "_vote",
+        "id": "2203"
+    },
+    {
+        "cname": "Gauge",
+        "fname": "_withdraw",
+        "id": "1214"
+    },
+    {
+        "cname": "Gauge",
+        "fname": "getReward",
+        "id": "1257"
+    },
+    {
+        "cname": "GaugeProxy",
+        "fname": "deposit",
+        "id": "2356"
+    },
+    {
+        "cname": "Gauge",
+        "fname": "earned",
+        "id": "940"
+    },
+    {
+        "cname": "Gauge",
+        "fname": "notifyRewardAmount",
+        "id": "1372"
+    },
+    {
+        "cname": "MasterDill",
+        "fname": "_transferTokens",
+        "id": "1784"
+    },
+    {
+        "cname": "Gauge",
+        "fname": "derivedBalance",
+        "id": "873"
+    },
+    {
+        "cname": "Gauge",
+        "fname": "kick",
+        "id": "911"
+    },
+    {
+        "cname": "Gauge",
+        "fname": "_deposit",
+        "id": "1044"
+    },
+    {
+        "cname": "MasterDill",
+        "fname": "transferFrom",
+        "id": "1724"
+    },
+    {
+        "cname": "Gauge",
+        "fname": "rewardPerToken",
+        "id": "818"
+    },
+    {
+        "cname": "GaugeProxy",
+        "fname": "poke",
+        "id": "2056"
+    },
+    {
+        "cname": "Gauge",
+        "fname": "getRewardForDuration",
+        "id": "951"
+    },
+    {
+        "cname": "GaugeProxy",
+        "fname": "_reset",
+        "id": "1972"
+    },
+    {
+        "cname": "GaugeProxy",
+        "fname": "distribute",
+        "id": "2469"
+    }
+]

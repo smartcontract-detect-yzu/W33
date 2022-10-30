@@ -1,0 +1,73 @@
+{
+  "sol_file_path": "example//0x06a566e7812413bc66215b48d6f26321ddf653a9//Gauge.sol",
+  "contract_name": "Gauge",
+  "contract_id": 1474,
+  "function_name": "notifyRewardAmount",
+  "function_id": 1401,
+  "function_sbp_infos": [
+    {
+      "expr_id": 1322,
+      "lable_infos": {
+        "label": "low-level call",
+        "sbp_lib": "SafeERC20",
+        "sbp_api": "safeTransferFrom"
+      }
+    },
+    {
+      "expr_id": 1332,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "div"
+      }
+    },
+    {
+      "expr_id": 1342,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "sub"
+      }
+    },
+    {
+      "expr_id": 1349,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "mul"
+      }
+    },
+    {
+      "expr_id": 1358,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "div"
+      }
+    },
+    {
+      "expr_id": 1355,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "add"
+      }
+    },
+    {
+      "expr_id": 1378,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "div"
+      }
+    },
+    {
+      "expr_id": 1393,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "add"
+      }
+    }
+  ]
+}

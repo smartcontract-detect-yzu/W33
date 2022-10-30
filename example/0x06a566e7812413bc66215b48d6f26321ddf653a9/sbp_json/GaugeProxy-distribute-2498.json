@@ -1,0 +1,41 @@
+{
+  "sol_file_path": "example//0x06a566e7812413bc66215b48d6f26321ddf653a9//Gauge.sol",
+  "contract_name": "GaugeProxy",
+  "contract_id": 2499,
+  "function_name": "distribute",
+  "function_id": 2498,
+  "function_sbp_infos": [
+    {
+      "expr_id": 2465,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "div"
+      }
+    },
+    {
+      "expr_id": 2462,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "mul"
+      }
+    },
+    {
+      "expr_id": 2475,
+      "lable_infos": {
+        "label": "transaction order dependency",
+        "sbp_lib": "SafeERC20",
+        "sbp_api": "safeApprove"
+      }
+    },
+    {
+      "expr_id": 2482,
+      "lable_infos": {
+        "label": "transaction order dependency",
+        "sbp_lib": "SafeERC20",
+        "sbp_api": "safeApprove"
+      }
+    }
+  ]
+}

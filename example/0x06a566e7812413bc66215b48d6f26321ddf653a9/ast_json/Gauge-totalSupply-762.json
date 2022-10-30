@@ -1,0 +1,55 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 762,
+    "pid": 1474,
+    "fname": "totalSupply",
+    "cname": "Gauge"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 755,
+    "pid": 762
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 758,
+    "pid": 762
+  },
+  {
+    "content": "",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 757,
+    "pid": 758
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 756,
+    "pid": 757
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 761,
+    "pid": 762
+  },
+  {
+    "content": "Return",
+    "type": "Return",
+    "cid": 760,
+    "pid": 761
+  },
+  {
+    "content": "_totalSupply",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 759,
+    "pid": 760
+  }
+]

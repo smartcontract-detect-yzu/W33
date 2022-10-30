@@ -1,0 +1,90 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 990,
+    "pid": 1474,
+    "fname": "depositFor",
+    "cname": "Gauge"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 982,
+    "pid": 990
+  },
+  {
+    "content": "amount",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 979,
+    "pid": 982
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 978,
+    "pid": 979
+  },
+  {
+    "content": "account",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 981,
+    "pid": 982
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 980,
+    "pid": 981
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 983,
+    "pid": 990
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 989,
+    "pid": 990
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 988,
+    "pid": 989
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 987,
+    "pid": 988
+  },
+  {
+    "content": "_deposit",
+    "type": "Identifier",
+    "idtype": "function (uint256,address)",
+    "cid": 984,
+    "pid": 987
+  },
+  {
+    "content": "amount",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 985,
+    "pid": 987
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 986,
+    "pid": 987
+  }
+]

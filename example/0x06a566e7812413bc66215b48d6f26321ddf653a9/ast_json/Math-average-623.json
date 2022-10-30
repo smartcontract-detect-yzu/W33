@@ -1,0 +1,219 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 623,
+    "pid": 624,
+    "fname": "average",
+    "cname": "Math"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 596,
+    "pid": 623
+  },
+  {
+    "content": "a",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 593,
+    "pid": 596
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 592,
+    "pid": 593
+  },
+  {
+    "content": "b",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 595,
+    "pid": 596
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 594,
+    "pid": 595
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 599,
+    "pid": 623
+  },
+  {
+    "content": "",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 598,
+    "pid": 599
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 597,
+    "pid": 598
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 622,
+    "pid": 623
+  },
+  {
+    "content": "Return",
+    "type": "Return",
+    "cid": 621,
+    "pid": 622
+  },
+  {
+    "content": "+",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 620,
+    "pid": 621
+  },
+  {
+    "content": "+",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 608,
+    "pid": 620
+  },
+  {
+    "content": "TupleExpression",
+    "type": "TupleExpression",
+    "cid": 603,
+    "pid": 608
+  },
+  {
+    "content": "/",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 602,
+    "pid": 603
+  },
+  {
+    "content": "a",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 600,
+    "pid": 602
+  },
+  {
+    "content": "2",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 601,
+    "pid": 602
+  },
+  {
+    "content": "TupleExpression",
+    "type": "TupleExpression",
+    "cid": 607,
+    "pid": 608
+  },
+  {
+    "content": "/",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 606,
+    "pid": 607
+  },
+  {
+    "content": "b",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 604,
+    "pid": 606
+  },
+  {
+    "content": "2",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 605,
+    "pid": 606
+  },
+  {
+    "content": "TupleExpression",
+    "type": "TupleExpression",
+    "cid": 619,
+    "pid": 620
+  },
+  {
+    "content": "/",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 618,
+    "pid": 619
+  },
+  {
+    "content": "TupleExpression",
+    "type": "TupleExpression",
+    "cid": 616,
+    "pid": 618
+  },
+  {
+    "content": "+",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 615,
+    "pid": 616
+  },
+  {
+    "content": "%",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 611,
+    "pid": 615
+  },
+  {
+    "content": "a",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 609,
+    "pid": 611
+  },
+  {
+    "content": "2",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 610,
+    "pid": 611
+  },
+  {
+    "content": "%",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 614,
+    "pid": 615
+  },
+  {
+    "content": "b",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 612,
+    "pid": 614
+  },
+  {
+    "content": "2",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 613,
+    "pid": 614
+  },
+  {
+    "content": "2",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 617,
+    "pid": 618
+  }
+]

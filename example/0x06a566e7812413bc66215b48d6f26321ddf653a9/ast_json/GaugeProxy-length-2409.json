@@ -1,0 +1,62 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 2409,
+    "pid": 2499,
+    "fname": "length",
+    "cname": "GaugeProxy"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 2401,
+    "pid": 2409
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 2404,
+    "pid": 2409
+  },
+  {
+    "content": "",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 2403,
+    "pid": 2404
+  },
+  {
+    "content": "uint",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 2402,
+    "pid": 2403
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 2408,
+    "pid": 2409
+  },
+  {
+    "content": "Return",
+    "type": "Return",
+    "cid": 2407,
+    "pid": 2408
+  },
+  {
+    "content": "length",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 2406,
+    "pid": 2407
+  },
+  {
+    "content": "_tokens",
+    "type": "Identifier",
+    "idtype": "address[] storage ref",
+    "cid": 2405,
+    "pid": 2406
+  }
+]

@@ -1,0 +1,95 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 1300,
+    "pid": 1474,
+    "fname": "exit",
+    "cname": "Gauge"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1287,
+    "pid": 1300
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1288,
+    "pid": 1300
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1299,
+    "pid": 1300
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1295,
+    "pid": 1299
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1294,
+    "pid": 1295
+  },
+  {
+    "content": "_withdraw",
+    "type": "Identifier",
+    "idtype": "function (uint256)",
+    "cid": 1289,
+    "pid": 1294
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1293,
+    "pid": 1294
+  },
+  {
+    "content": "_balances",
+    "type": "Identifier",
+    "idtype": "mapping(address => uint256)",
+    "cid": 1290,
+    "pid": 1293
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1292,
+    "pid": 1293
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 1291,
+    "pid": 1292
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1298,
+    "pid": 1299
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1297,
+    "pid": 1298
+  },
+  {
+    "content": "getReward",
+    "type": "Identifier",
+    "idtype": "function ()",
+    "cid": 1296,
+    "pid": 1297
+  }
+]

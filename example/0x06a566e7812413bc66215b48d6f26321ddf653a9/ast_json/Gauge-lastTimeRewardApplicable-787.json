@@ -1,0 +1,90 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 787,
+    "pid": 1474,
+    "fname": "lastTimeRewardApplicable",
+    "cname": "Gauge"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 775,
+    "pid": 787
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 778,
+    "pid": 787
+  },
+  {
+    "content": "",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 777,
+    "pid": 778
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 776,
+    "pid": 777
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 786,
+    "pid": 787
+  },
+  {
+    "content": "Return",
+    "type": "Return",
+    "cid": 785,
+    "pid": 786
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 784,
+    "pid": 785
+  },
+  {
+    "content": "min",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 780,
+    "pid": 784
+  },
+  {
+    "content": "Math",
+    "type": "Identifier",
+    "idtype": "type(library Math)",
+    "cid": 779,
+    "pid": 780
+  },
+  {
+    "content": "timestamp",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 782,
+    "pid": 784
+  },
+  {
+    "content": "block",
+    "type": "Identifier",
+    "idtype": "block",
+    "cid": 781,
+    "pid": 782
+  },
+  {
+    "content": "periodFinish",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 783,
+    "pid": 784
+  }
+]

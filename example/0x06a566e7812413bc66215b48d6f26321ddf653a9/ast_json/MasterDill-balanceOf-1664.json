@@ -1,0 +1,82 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 1664,
+    "pid": 1814,
+    "fname": "balanceOf",
+    "cname": "MasterDill"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1655,
+    "pid": 1664
+  },
+  {
+    "content": "account",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1654,
+    "pid": 1655
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1653,
+    "pid": 1654
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1658,
+    "pid": 1664
+  },
+  {
+    "content": "",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1657,
+    "pid": 1658
+  },
+  {
+    "content": "uint",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1656,
+    "pid": 1657
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1663,
+    "pid": 1664
+  },
+  {
+    "content": "Return",
+    "type": "Return",
+    "cid": 1662,
+    "pid": 1663
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1661,
+    "pid": 1662
+  },
+  {
+    "content": "balances",
+    "type": "Identifier",
+    "idtype": "mapping(address => uint256)",
+    "cid": 1659,
+    "pid": 1661
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1660,
+    "pid": 1661
+  }
+]

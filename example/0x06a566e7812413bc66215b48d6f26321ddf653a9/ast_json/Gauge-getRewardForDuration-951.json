@@ -1,0 +1,76 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 951,
+    "pid": 1474,
+    "fname": "getRewardForDuration",
+    "cname": "Gauge"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 941,
+    "pid": 951
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 944,
+    "pid": 951
+  },
+  {
+    "content": "",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 943,
+    "pid": 944
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 942,
+    "pid": 943
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 950,
+    "pid": 951
+  },
+  {
+    "content": "Return",
+    "type": "Return",
+    "cid": 949,
+    "pid": 950
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 948,
+    "pid": 949
+  },
+  {
+    "content": "mul",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 946,
+    "pid": 948
+  },
+  {
+    "content": "rewardRate",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 945,
+    "pid": 946
+  },
+  {
+    "content": "DURATION",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 947,
+    "pid": 948
+  }
+]

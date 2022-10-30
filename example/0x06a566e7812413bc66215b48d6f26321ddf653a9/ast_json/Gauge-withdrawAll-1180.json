@@ -1,0 +1,75 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 1180,
+    "pid": 1474,
+    "fname": "withdrawAll",
+    "cname": "Gauge"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1170,
+    "pid": 1180
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1171,
+    "pid": 1180
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1179,
+    "pid": 1180
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1178,
+    "pid": 1179
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1177,
+    "pid": 1178
+  },
+  {
+    "content": "_withdraw",
+    "type": "Identifier",
+    "idtype": "function (uint256)",
+    "cid": 1172,
+    "pid": 1177
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1176,
+    "pid": 1177
+  },
+  {
+    "content": "_balances",
+    "type": "Identifier",
+    "idtype": "mapping(address => uint256)",
+    "cid": 1173,
+    "pid": 1176
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1175,
+    "pid": 1176
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 1174,
+    "pid": 1175
+  }
+]

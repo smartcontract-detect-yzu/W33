@@ -1,0 +1,117 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 591,
+    "pid": 624,
+    "fname": "min",
+    "cname": "Math"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 579,
+    "pid": 591
+  },
+  {
+    "content": "a",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 576,
+    "pid": 579
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 575,
+    "pid": 576
+  },
+  {
+    "content": "b",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 578,
+    "pid": 579
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 577,
+    "pid": 578
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 582,
+    "pid": 591
+  },
+  {
+    "content": "",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 581,
+    "pid": 582
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 580,
+    "pid": 581
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 590,
+    "pid": 591
+  },
+  {
+    "content": "Return",
+    "type": "Return",
+    "cid": 589,
+    "pid": 590
+  },
+  {
+    "content": "Conditional",
+    "type": "Conditional",
+    "cid": 588,
+    "pid": 589
+  },
+  {
+    "content": "<",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 585,
+    "pid": 588
+  },
+  {
+    "content": "a",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 583,
+    "pid": 585
+  },
+  {
+    "content": "b",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 584,
+    "pid": 585
+  },
+  {
+    "content": "a",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 586,
+    "pid": 588
+  },
+  {
+    "content": "b",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 587,
+    "pid": 588
+  }
+]

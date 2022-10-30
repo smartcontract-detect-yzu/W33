@@ -1,0 +1,294 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 2301,
+    "pid": 2499,
+    "fname": "addGauge",
+    "cname": "GaugeProxy"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 2260,
+    "pid": 2301
+  },
+  {
+    "content": "_token",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 2259,
+    "pid": 2260
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 2258,
+    "pid": 2259
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 2261,
+    "pid": 2301
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 2300,
+    "pid": 2301
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 2269,
+    "pid": 2300
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 2268,
+    "pid": 2269
+  },
+  {
+    "content": "require",
+    "type": "Identifier",
+    "idtype": "function (bool,string memory) pure",
+    "cid": 2262,
+    "pid": 2268
+  },
+  {
+    "content": "==",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 2266,
+    "pid": 2268
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 2264,
+    "pid": 2266
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 2263,
+    "pid": 2264
+  },
+  {
+    "content": "governance",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 2265,
+    "pid": 2266
+  },
+  {
+    "content": "!gov",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 2267,
+    "pid": 2268
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 2281,
+    "pid": 2300
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 2280,
+    "pid": 2281
+  },
+  {
+    "content": "require",
+    "type": "Identifier",
+    "idtype": "function (bool,string memory) pure",
+    "cid": 2270,
+    "pid": 2280
+  },
+  {
+    "content": "==",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 2278,
+    "pid": 2280
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 2273,
+    "pid": 2278
+  },
+  {
+    "content": "gauges",
+    "type": "Identifier",
+    "idtype": "mapping(address => address)",
+    "cid": 2271,
+    "pid": 2273
+  },
+  {
+    "content": "_token",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 2272,
+    "pid": 2273
+  },
+  {
+    "content": "typeConversion",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 2277,
+    "pid": 2278
+  },
+  {
+    "content": "type(address)",
+    "type": "ElementaryTypeNameExpression",
+    "idtype": "Null",
+    "cid": 2275,
+    "pid": 2277
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 2274,
+    "pid": 2275
+  },
+  {
+    "content": "0x0",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 2276,
+    "pid": 2277
+  },
+  {
+    "content": "exists",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 2279,
+    "pid": 2280
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 2293,
+    "pid": 2300
+  },
+  {
+    "content": "=",
+    "type": "Assignment",
+    "idtype": "Null",
+    "cid": 2292,
+    "pid": 2293
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 2284,
+    "pid": 2292
+  },
+  {
+    "content": "gauges",
+    "type": "Identifier",
+    "idtype": "mapping(address => address)",
+    "cid": 2282,
+    "pid": 2284
+  },
+  {
+    "content": "_token",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 2283,
+    "pid": 2284
+  },
+  {
+    "content": "typeConversion",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 2291,
+    "pid": 2292
+  },
+  {
+    "content": "type(address)",
+    "type": "ElementaryTypeNameExpression",
+    "idtype": "Null",
+    "cid": 2286,
+    "pid": 2291
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 2285,
+    "pid": 2286
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 2290,
+    "pid": 2291
+  },
+  {
+    "content": "NewExpression",
+    "type": "NewExpression",
+    "cid": 2288,
+    "pid": 2290
+  },
+  {
+    "content": "contract Gauge",
+    "type": "UserDefinedTypeName",
+    "idtype": "Null",
+    "cid": 2287,
+    "pid": 2288
+  },
+  {
+    "content": "_token",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 2289,
+    "pid": 2290
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 2299,
+    "pid": 2300
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 2298,
+    "pid": 2299
+  },
+  {
+    "content": "push",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 2296,
+    "pid": 2298
+  },
+  {
+    "content": "_tokens",
+    "type": "Identifier",
+    "idtype": "address[] storage ref",
+    "cid": 2294,
+    "pid": 2296
+  },
+  {
+    "content": "_token",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 2297,
+    "pid": 2298
+  }
+]

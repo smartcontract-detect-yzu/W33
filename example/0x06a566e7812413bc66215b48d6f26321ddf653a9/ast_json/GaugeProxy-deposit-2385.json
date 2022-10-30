@@ -1,0 +1,337 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 2385,
+    "pid": 2499,
+    "fname": "deposit",
+    "cname": "GaugeProxy"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 2334,
+    "pid": 2385
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 2335,
+    "pid": 2385
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 2384,
+    "pid": 2385
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 2342,
+    "pid": 2384
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 2341,
+    "pid": 2342
+  },
+  {
+    "content": "require",
+    "type": "Identifier",
+    "idtype": "function (bool,string memory) pure",
+    "cid": 2336,
+    "pid": 2341
+  },
+  {
+    "content": ">",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 2339,
+    "pid": 2341
+  },
+  {
+    "content": "pid",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 2337,
+    "pid": 2339
+  },
+  {
+    "content": "0",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 2338,
+    "pid": 2339
+  },
+  {
+    "content": "pid not initialized",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 2340,
+    "pid": 2341
+  },
+  {
+    "content": "VariableDeclarationStatement",
+    "type": "VariableDeclarationStatement",
+    "cid": 2346,
+    "pid": 2384
+  },
+  {
+    "content": "_token",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 2344,
+    "pid": 2346
+  },
+  {
+    "content": "contract IERC20",
+    "type": "UserDefinedTypeName",
+    "idtype": "Null",
+    "cid": 2343,
+    "pid": 2344
+  },
+  {
+    "content": "TOKEN",
+    "type": "Identifier",
+    "idtype": "contract IERC20",
+    "cid": 2345,
+    "pid": 2346
+  },
+  {
+    "content": "VariableDeclarationStatement",
+    "type": "VariableDeclarationStatement",
+    "cid": 2356,
+    "pid": 2384
+  },
+  {
+    "content": "_balance",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 2348,
+    "pid": 2356
+  },
+  {
+    "content": "uint",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 2347,
+    "pid": 2348
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 2355,
+    "pid": 2356
+  },
+  {
+    "content": "balanceOf",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 2350,
+    "pid": 2355
+  },
+  {
+    "content": "_token",
+    "type": "Identifier",
+    "idtype": "contract IERC20",
+    "cid": 2349,
+    "pid": 2350
+  },
+  {
+    "content": "typeConversion",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 2354,
+    "pid": 2355
+  },
+  {
+    "content": "type(address)",
+    "type": "ElementaryTypeNameExpression",
+    "idtype": "Null",
+    "cid": 2352,
+    "pid": 2354
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 2351,
+    "pid": 2352
+  },
+  {
+    "content": "this",
+    "type": "Identifier",
+    "idtype": "contract GaugeProxy",
+    "cid": 2353,
+    "pid": 2354
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 2366,
+    "pid": 2384
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 2365,
+    "pid": 2366
+  },
+  {
+    "content": "safeApprove",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 2359,
+    "pid": 2365
+  },
+  {
+    "content": "_token",
+    "type": "Identifier",
+    "idtype": "contract IERC20",
+    "cid": 2357,
+    "pid": 2359
+  },
+  {
+    "content": "typeConversion",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 2363,
+    "pid": 2365
+  },
+  {
+    "content": "type(address)",
+    "type": "ElementaryTypeNameExpression",
+    "idtype": "Null",
+    "cid": 2361,
+    "pid": 2363
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 2360,
+    "pid": 2361
+  },
+  {
+    "content": "MASTER",
+    "type": "Identifier",
+    "idtype": "contract MasterChef",
+    "cid": 2362,
+    "pid": 2363
+  },
+  {
+    "content": "0",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 2364,
+    "pid": 2365
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 2376,
+    "pid": 2384
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 2375,
+    "pid": 2376
+  },
+  {
+    "content": "safeApprove",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 2369,
+    "pid": 2375
+  },
+  {
+    "content": "_token",
+    "type": "Identifier",
+    "idtype": "contract IERC20",
+    "cid": 2367,
+    "pid": 2369
+  },
+  {
+    "content": "typeConversion",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 2373,
+    "pid": 2375
+  },
+  {
+    "content": "type(address)",
+    "type": "ElementaryTypeNameExpression",
+    "idtype": "Null",
+    "cid": 2371,
+    "pid": 2373
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 2370,
+    "pid": 2371
+  },
+  {
+    "content": "MASTER",
+    "type": "Identifier",
+    "idtype": "contract MasterChef",
+    "cid": 2372,
+    "pid": 2373
+  },
+  {
+    "content": "_balance",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 2374,
+    "pid": 2375
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 2383,
+    "pid": 2384
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 2382,
+    "pid": 2383
+  },
+  {
+    "content": "deposit",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 2379,
+    "pid": 2382
+  },
+  {
+    "content": "MASTER",
+    "type": "Identifier",
+    "idtype": "contract MasterChef",
+    "cid": 2377,
+    "pid": 2379
+  },
+  {
+    "content": "pid",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 2380,
+    "pid": 2382
+  },
+  {
+    "content": "_balance",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 2381,
+    "pid": 2382
+  }
+]

@@ -1,0 +1,835 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 1169,
+    "pid": 1474,
+    "fname": "test",
+    "cname": "Gauge"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1051,
+    "pid": 1169
+  },
+  {
+    "content": "amount",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1046,
+    "pid": 1051
+  },
+  {
+    "content": "uint",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1045,
+    "pid": 1046
+  },
+  {
+    "content": "value",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1048,
+    "pid": 1051
+  },
+  {
+    "content": "uint",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1047,
+    "pid": 1048
+  },
+  {
+    "content": "account",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1050,
+    "pid": 1051
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1049,
+    "pid": 1050
+  },
+  {
+    "content": "ModifierInvocation",
+    "type": "ModifierInvocation",
+    "cid": 1053,
+    "pid": 1169
+  },
+  {
+    "content": "nonReentrant",
+    "type": "Identifier",
+    "idtype": "modifier ()",
+    "cid": 1052,
+    "pid": 1053
+  },
+  {
+    "content": "ModifierInvocation",
+    "type": "ModifierInvocation",
+    "cid": 1056,
+    "pid": 1169,
+    "info": {
+      "contract_name": "Gauge",
+      "modifier_name": "updateReward",
+      "ref_id": 1451
+    }
+  },
+  {
+    "content": "updateReward",
+    "type": "Identifier",
+    "idtype": "modifier (address)",
+    "cid": 1054,
+    "pid": 1056
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1055,
+    "pid": 1056
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1057,
+    "pid": 1169
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1168,
+    "pid": 1169
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1070,
+    "pid": 1168
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1069,
+    "pid": 1070
+  },
+  {
+    "content": "div",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1067,
+    "pid": 1069
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1066,
+    "pid": 1067
+  },
+  {
+    "content": "mul",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1060,
+    "pid": 1066
+  },
+  {
+    "content": "_totalSupply",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1058,
+    "pid": 1060
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1065,
+    "pid": 1066
+  },
+  {
+    "content": "sub",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1063,
+    "pid": 1065
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1062,
+    "pid": 1063
+  },
+  {
+    "content": "rewardPerToken",
+    "type": "Identifier",
+    "idtype": "function () view returns (uint256)",
+    "cid": 1061,
+    "pid": 1062
+  },
+  {
+    "content": "value",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1064,
+    "pid": 1065
+  },
+  {
+    "content": "1e18",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 1068,
+    "pid": 1069
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1081,
+    "pid": 1168
+  },
+  {
+    "content": "=",
+    "type": "Assignment",
+    "idtype": "Null",
+    "cid": 1080,
+    "pid": 1081
+  },
+  {
+    "content": "_totalSupply",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1071,
+    "pid": 1080
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1079,
+    "pid": 1080
+  },
+  {
+    "content": "sub",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1076,
+    "pid": 1079
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1075,
+    "pid": 1076
+  },
+  {
+    "content": "add",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1073,
+    "pid": 1075
+  },
+  {
+    "content": "_totalSupply",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1072,
+    "pid": 1073
+  },
+  {
+    "content": "amount",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1074,
+    "pid": 1075
+  },
+  {
+    "content": "amount",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1077,
+    "pid": 1079
+  },
+  {
+    "content": "SafeERC20: decreased allowance below zero",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 1078,
+    "pid": 1079
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1092,
+    "pid": 1168
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1091,
+    "pid": 1092
+  },
+  {
+    "content": "safeTransferFrom",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1084,
+    "pid": 1091
+  },
+  {
+    "content": "TOKEN",
+    "type": "Identifier",
+    "idtype": "contract IERC20",
+    "cid": 1082,
+    "pid": 1084
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1085,
+    "pid": 1091
+  },
+  {
+    "content": "typeConversion",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1089,
+    "pid": 1091
+  },
+  {
+    "content": "type(address)",
+    "type": "ElementaryTypeNameExpression",
+    "idtype": "Null",
+    "cid": 1087,
+    "pid": 1089
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1086,
+    "pid": 1087
+  },
+  {
+    "content": "this",
+    "type": "Identifier",
+    "idtype": "contract Gauge",
+    "cid": 1088,
+    "pid": 1089
+  },
+  {
+    "content": "amount",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1090,
+    "pid": 1091
+  },
+  {
+    "content": "VariableDeclarationStatement",
+    "type": "VariableDeclarationStatement",
+    "cid": 1102,
+    "pid": 1168
+  },
+  {
+    "content": "ret",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1094,
+    "pid": 1102
+  },
+  {
+    "content": "bool",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1093,
+    "pid": 1094
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1101,
+    "pid": 1102
+  },
+  {
+    "content": "call",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1099,
+    "pid": 1101
+  },
+  {
+    "content": "typeConversion",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1098,
+    "pid": 1099
+  },
+  {
+    "content": "type(address)",
+    "type": "ElementaryTypeNameExpression",
+    "idtype": "Null",
+    "cid": 1096,
+    "pid": 1098
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1095,
+    "pid": 1096
+  },
+  {
+    "content": "TOKEN",
+    "type": "Identifier",
+    "idtype": "contract IERC20",
+    "cid": 1097,
+    "pid": 1098
+  },
+  {
+    "content": "trasnfrom",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 1100,
+    "pid": 1101
+  },
+  {
+    "content": "IfStatement",
+    "type": "IfStatement",
+    "cid": 1124,
+    "pid": 1168
+  },
+  {
+    "content": "ret",
+    "type": "Identifier",
+    "idtype": "bool",
+    "cid": 1103,
+    "pid": 1124
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1123,
+    "pid": 1124
+  },
+  {
+    "content": "IfStatement",
+    "type": "IfStatement",
+    "cid": 1117,
+    "pid": 1123
+  },
+  {
+    "content": "ret",
+    "type": "Identifier",
+    "idtype": "bool",
+    "cid": 1104,
+    "pid": 1117
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1116,
+    "pid": 1117
+  },
+  {
+    "content": "IfStatement",
+    "type": "IfStatement",
+    "cid": 1115,
+    "pid": 1116
+  },
+  {
+    "content": "ret",
+    "type": "Identifier",
+    "idtype": "bool",
+    "cid": 1105,
+    "pid": 1115
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1114,
+    "pid": 1115
+  },
+  {
+    "content": "IfStatement",
+    "type": "IfStatement",
+    "cid": 1113,
+    "pid": 1114
+  },
+  {
+    "content": "ret",
+    "type": "Identifier",
+    "idtype": "bool",
+    "cid": 1106,
+    "pid": 1113
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1112,
+    "pid": 1113
+  },
+  {
+    "content": "EmitStatement",
+    "type": "EmitStatement",
+    "cid": 1111,
+    "pid": 1112
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1110,
+    "pid": 1111
+  },
+  {
+    "content": "Staked",
+    "type": "Identifier",
+    "idtype": "function (address,uint256)",
+    "cid": 1107,
+    "pid": 1110
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1108,
+    "pid": 1110
+  },
+  {
+    "content": "amount",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1109,
+    "pid": 1110
+  },
+  {
+    "content": "EmitStatement",
+    "type": "EmitStatement",
+    "cid": 1122,
+    "pid": 1123
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1121,
+    "pid": 1122
+  },
+  {
+    "content": "Staked",
+    "type": "Identifier",
+    "idtype": "function (address,uint256)",
+    "cid": 1118,
+    "pid": 1121
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1119,
+    "pid": 1121
+  },
+  {
+    "content": "amount",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1120,
+    "pid": 1121
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1130,
+    "pid": 1168
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1129,
+    "pid": 1130
+  },
+  {
+    "content": "delegatecall",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1127,
+    "pid": 1129
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1125,
+    "pid": 1127
+  },
+  {
+    "content": "0xfffffff",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 1128,
+    "pid": 1129
+  },
+  {
+    "content": "VariableDeclarationStatement",
+    "type": "VariableDeclarationStatement",
+    "cid": 1143,
+    "pid": 1168
+  },
+  {
+    "content": "success",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1132,
+    "pid": 1143
+  },
+  {
+    "content": "bool",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1131,
+    "pid": 1132
+  },
+  {
+    "content": "data",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1134,
+    "pid": 1143
+  },
+  {
+    "content": "bytes",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1133,
+    "pid": 1134
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1142,
+    "pid": 1143
+  },
+  {
+    "content": "delegatecall",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1136,
+    "pid": 1142
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1135,
+    "pid": 1136
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1141,
+    "pid": 1142
+  },
+  {
+    "content": "encodeWithSignature",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1138,
+    "pid": 1141
+  },
+  {
+    "content": "abi",
+    "type": "Identifier",
+    "idtype": "abi",
+    "cid": 1137,
+    "pid": 1138
+  },
+  {
+    "content": "setVars(uint256)",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 1139,
+    "pid": 1141
+  },
+  {
+    "content": "amount",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1140,
+    "pid": 1141
+  },
+  {
+    "content": "ForStatement",
+    "type": "ForStatement",
+    "cid": 1162,
+    "pid": 1168
+  },
+  {
+    "content": "VariableDeclarationStatement",
+    "type": "VariableDeclarationStatement",
+    "cid": 1147,
+    "pid": 1162
+  },
+  {
+    "content": "i",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1145,
+    "pid": 1147
+  },
+  {
+    "content": "uint",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1144,
+    "pid": 1145
+  },
+  {
+    "content": "0",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 1146,
+    "pid": 1147
+  },
+  {
+    "content": "<",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 1150,
+    "pid": 1162
+  },
+  {
+    "content": "i",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1148,
+    "pid": 1150
+  },
+  {
+    "content": "value",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1149,
+    "pid": 1150
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1153,
+    "pid": 1162
+  },
+  {
+    "content": "++",
+    "type": "UnaryOperation",
+    "idtype": "Null",
+    "cid": 1152,
+    "pid": 1153
+  },
+  {
+    "content": "i",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1151,
+    "pid": 1152
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1161,
+    "pid": 1162
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1160,
+    "pid": 1161
+  },
+  {
+    "content": "=",
+    "type": "Assignment",
+    "idtype": "Null",
+    "cid": 1159,
+    "pid": 1160
+  },
+  {
+    "content": "_totalSupply",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1154,
+    "pid": 1159
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1158,
+    "pid": 1159
+  },
+  {
+    "content": "add",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1156,
+    "pid": 1158
+  },
+  {
+    "content": "_totalSupply",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1155,
+    "pid": 1156
+  },
+  {
+    "content": "i",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1157,
+    "pid": 1158
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1167,
+    "pid": 1168
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1166,
+    "pid": 1167
+  },
+  {
+    "content": "selfdestruct",
+    "type": "Identifier",
+    "idtype": "function (address payable)",
+    "cid": 1163,
+    "pid": 1166
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1165,
+    "pid": 1166
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 1164,
+    "pid": 1165
+  }
+]

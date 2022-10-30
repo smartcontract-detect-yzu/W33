@@ -1,0 +1,110 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 1540,
+    "pid": 1541,
+    "fname": "acceptGovernance",
+    "cname": "ProtocolGovernance"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1525,
+    "pid": 1540
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1526,
+    "pid": 1540
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1539,
+    "pid": 1540
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1534,
+    "pid": 1539
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1533,
+    "pid": 1534
+  },
+  {
+    "content": "require",
+    "type": "Identifier",
+    "idtype": "function (bool,string memory) pure",
+    "cid": 1527,
+    "pid": 1533
+  },
+  {
+    "content": "==",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 1531,
+    "pid": 1533
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1529,
+    "pid": 1531
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 1528,
+    "pid": 1529
+  },
+  {
+    "content": "pendingGovernance",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1530,
+    "pid": 1531
+  },
+  {
+    "content": "acceptGovernance: !pendingGov",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 1532,
+    "pid": 1533
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1538,
+    "pid": 1539
+  },
+  {
+    "content": "=",
+    "type": "Assignment",
+    "idtype": "Null",
+    "cid": 1537,
+    "pid": 1538
+  },
+  {
+    "content": "governance",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1535,
+    "pid": 1537
+  },
+  {
+    "content": "pendingGovernance",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1536,
+    "pid": 1537
+  }
+]

@@ -1,0 +1,109 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 1622,
+    "pid": 1814,
+    "fname": "allowance",
+    "cname": "MasterDill"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1611,
+    "pid": 1622
+  },
+  {
+    "content": "account",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1608,
+    "pid": 1611
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1607,
+    "pid": 1608
+  },
+  {
+    "content": "spender",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1610,
+    "pid": 1611
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1609,
+    "pid": 1610
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1614,
+    "pid": 1622
+  },
+  {
+    "content": "",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1613,
+    "pid": 1614
+  },
+  {
+    "content": "uint",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1612,
+    "pid": 1613
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1621,
+    "pid": 1622
+  },
+  {
+    "content": "Return",
+    "type": "Return",
+    "cid": 1620,
+    "pid": 1621
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1619,
+    "pid": 1620
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1617,
+    "pid": 1619
+  },
+  {
+    "content": "allowances",
+    "type": "Identifier",
+    "idtype": "mapping(address => mapping(address => uint256))",
+    "cid": 1615,
+    "pid": 1617
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1616,
+    "pid": 1617
+  },
+  {
+    "content": "spender",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1618,
+    "pid": 1619
+  }
+]

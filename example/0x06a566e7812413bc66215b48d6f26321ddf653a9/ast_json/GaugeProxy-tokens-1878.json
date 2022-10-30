@@ -1,0 +1,62 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 1878,
+    "pid": 2499,
+    "fname": "tokens",
+    "cname": "GaugeProxy"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1870,
+    "pid": 1878
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1874,
+    "pid": 1878
+  },
+  {
+    "content": "",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 1873,
+    "pid": 1874
+  },
+  {
+    "content": "address[]",
+    "type": "ArrayTypeName",
+    "idtype": "Null",
+    "cid": 1872,
+    "pid": 1873
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1871,
+    "pid": 1872
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1877,
+    "pid": 1878
+  },
+  {
+    "content": "Return",
+    "type": "Return",
+    "cid": 1876,
+    "pid": 1877
+  },
+  {
+    "content": "_tokens",
+    "type": "Identifier",
+    "idtype": "address[] storage ref",
+    "cid": 1875,
+    "pid": 1876
+  }
+]

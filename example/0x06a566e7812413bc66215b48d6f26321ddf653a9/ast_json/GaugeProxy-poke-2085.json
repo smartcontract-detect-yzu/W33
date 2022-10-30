@@ -1,0 +1,541 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 2085,
+    "pid": 2499,
+    "fname": "poke",
+    "cname": "GaugeProxy"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 2004,
+    "pid": 2085
+  },
+  {
+    "content": "_owner",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 2003,
+    "pid": 2004
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 2002,
+    "pid": 2003
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 2005,
+    "pid": 2085
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 2084,
+    "pid": 2085
+  },
+  {
+    "content": "VariableDeclarationStatement",
+    "type": "VariableDeclarationStatement",
+    "cid": 2014,
+    "pid": 2084
+  },
+  {
+    "content": "_tokenVote",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 2010,
+    "pid": 2014
+  },
+  {
+    "content": "address[]",
+    "type": "ArrayTypeName",
+    "idtype": "Null",
+    "cid": 2009,
+    "pid": 2010
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 2008,
+    "pid": 2009
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 2013,
+    "pid": 2014
+  },
+  {
+    "content": "tokenVote",
+    "type": "Identifier",
+    "idtype": "mapping(address => address[] storage ref)",
+    "cid": 2011,
+    "pid": 2013
+  },
+  {
+    "content": "_owner",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 2012,
+    "pid": 2013
+  },
+  {
+    "content": "VariableDeclarationStatement",
+    "type": "VariableDeclarationStatement",
+    "cid": 2019,
+    "pid": 2084
+  },
+  {
+    "content": "_tokenCnt",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 2016,
+    "pid": 2019
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 2015,
+    "pid": 2016
+  },
+  {
+    "content": "length",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 2018,
+    "pid": 2019
+  },
+  {
+    "content": "_tokenVote",
+    "type": "Identifier",
+    "idtype": "address[] memory",
+    "cid": 2017,
+    "pid": 2018
+  },
+  {
+    "content": "VariableDeclarationStatement",
+    "type": "VariableDeclarationStatement",
+    "cid": 2030,
+    "pid": 2084
+  },
+  {
+    "content": "_weights",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 2024,
+    "pid": 2030
+  },
+  {
+    "content": "uint256[]",
+    "type": "ArrayTypeName",
+    "idtype": "Null",
+    "cid": 2023,
+    "pid": 2024
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 2022,
+    "pid": 2023
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 2029,
+    "pid": 2030
+  },
+  {
+    "content": "NewExpression",
+    "type": "NewExpression",
+    "cid": 2027,
+    "pid": 2029
+  },
+  {
+    "content": "uint256[]",
+    "type": "ArrayTypeName",
+    "idtype": "Null",
+    "cid": 2026,
+    "pid": 2027
+  },
+  {
+    "content": "uint",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 2025,
+    "pid": 2026
+  },
+  {
+    "content": "_tokenCnt",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 2028,
+    "pid": 2029
+  },
+  {
+    "content": "VariableDeclarationStatement",
+    "type": "VariableDeclarationStatement",
+    "cid": 2036,
+    "pid": 2084
+  },
+  {
+    "content": "_prevUsedWeight",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 2032,
+    "pid": 2036
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 2031,
+    "pid": 2032
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 2035,
+    "pid": 2036
+  },
+  {
+    "content": "usedWeights",
+    "type": "Identifier",
+    "idtype": "mapping(address => uint256)",
+    "cid": 2033,
+    "pid": 2035
+  },
+  {
+    "content": "_owner",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 2034,
+    "pid": 2035
+  },
+  {
+    "content": "VariableDeclarationStatement",
+    "type": "VariableDeclarationStatement",
+    "cid": 2043,
+    "pid": 2084
+  },
+  {
+    "content": "_weight",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 2038,
+    "pid": 2043
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 2037,
+    "pid": 2038
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 2042,
+    "pid": 2043
+  },
+  {
+    "content": "balanceOf",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 2040,
+    "pid": 2042
+  },
+  {
+    "content": "DILL",
+    "type": "Identifier",
+    "idtype": "contract IERC20",
+    "cid": 2039,
+    "pid": 2040
+  },
+  {
+    "content": "_owner",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 2041,
+    "pid": 2042
+  },
+  {
+    "content": "ForStatement",
+    "type": "ForStatement",
+    "cid": 2077,
+    "pid": 2084
+  },
+  {
+    "content": "VariableDeclarationStatement",
+    "type": "VariableDeclarationStatement",
+    "cid": 2047,
+    "pid": 2077
+  },
+  {
+    "content": "i",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 2045,
+    "pid": 2047
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 2044,
+    "pid": 2045
+  },
+  {
+    "content": "0",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 2046,
+    "pid": 2047
+  },
+  {
+    "content": "<",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 2050,
+    "pid": 2077
+  },
+  {
+    "content": "i",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 2048,
+    "pid": 2050
+  },
+  {
+    "content": "_tokenCnt",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 2049,
+    "pid": 2050
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 2053,
+    "pid": 2077
+  },
+  {
+    "content": "++",
+    "type": "UnaryOperation",
+    "idtype": "Null",
+    "cid": 2052,
+    "pid": 2053
+  },
+  {
+    "content": "i",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 2051,
+    "pid": 2052
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 2076,
+    "pid": 2077
+  },
+  {
+    "content": "VariableDeclarationStatement",
+    "type": "VariableDeclarationStatement",
+    "cid": 2063,
+    "pid": 2076
+  },
+  {
+    "content": "_prevWeight",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 2055,
+    "pid": 2063
+  },
+  {
+    "content": "uint256",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 2054,
+    "pid": 2055
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 2062,
+    "pid": 2063
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 2058,
+    "pid": 2062
+  },
+  {
+    "content": "votes",
+    "type": "Identifier",
+    "idtype": "mapping(address => mapping(address => uint256))",
+    "cid": 2056,
+    "pid": 2058
+  },
+  {
+    "content": "_owner",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 2057,
+    "pid": 2058
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 2061,
+    "pid": 2062
+  },
+  {
+    "content": "_tokenVote",
+    "type": "Identifier",
+    "idtype": "address[] memory",
+    "cid": 2059,
+    "pid": 2061
+  },
+  {
+    "content": "i",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 2060,
+    "pid": 2061
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 2075,
+    "pid": 2076
+  },
+  {
+    "content": "=",
+    "type": "Assignment",
+    "idtype": "Null",
+    "cid": 2074,
+    "pid": 2075
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 2066,
+    "pid": 2074
+  },
+  {
+    "content": "_weights",
+    "type": "Identifier",
+    "idtype": "uint256[] memory",
+    "cid": 2064,
+    "pid": 2066
+  },
+  {
+    "content": "i",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 2065,
+    "pid": 2066
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 2073,
+    "pid": 2074
+  },
+  {
+    "content": "div",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 2071,
+    "pid": 2073
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 2070,
+    "pid": 2071
+  },
+  {
+    "content": "mul",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 2068,
+    "pid": 2070
+  },
+  {
+    "content": "_prevWeight",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 2067,
+    "pid": 2068
+  },
+  {
+    "content": "_weight",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 2069,
+    "pid": 2070
+  },
+  {
+    "content": "_prevUsedWeight",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 2072,
+    "pid": 2073
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 2083,
+    "pid": 2084
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 2082,
+    "pid": 2083
+  },
+  {
+    "content": "_vote",
+    "type": "Identifier",
+    "idtype": "function (address,address[] memory,uint256[] memory)",
+    "cid": 2078,
+    "pid": 2082
+  },
+  {
+    "content": "_owner",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 2079,
+    "pid": 2082
+  },
+  {
+    "content": "_tokenVote",
+    "type": "Identifier",
+    "idtype": "address[] memory",
+    "cid": 2080,
+    "pid": 2082
+  },
+  {
+    "content": "_weights",
+    "type": "Identifier",
+    "idtype": "uint256[] memory",
+    "cid": 2081,
+    "pid": 2082
+  }
+]

@@ -1,0 +1,367 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 1044,
+    "pid": 1474,
+    "fname": "_deposit",
+    "cname": "Gauge"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 995,
+    "pid": 1044
+  },
+  {
+    "content": "amount",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 992,
+    "pid": 995
+  },
+  {
+    "content": "uint",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 991,
+    "pid": 992
+  },
+  {
+    "content": "account",
+    "type": "VariableDeclaration",
+    "idtype": "Null",
+    "cid": 994,
+    "pid": 995
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 993,
+    "pid": 994
+  },
+  {
+    "content": "ModifierInvocation",
+    "type": "ModifierInvocation",
+    "cid": 997,
+    "pid": 1044
+  },
+  {
+    "content": "nonReentrant",
+    "type": "Identifier",
+    "idtype": "modifier ()",
+    "cid": 996,
+    "pid": 997
+  },
+  {
+    "content": "ModifierInvocation",
+    "type": "ModifierInvocation",
+    "cid": 1000,
+    "pid": 1044,
+    "info": {
+      "contract_name": "Gauge",
+      "modifier_name": "updateReward",
+      "ref_id": 1451
+    }
+  },
+  {
+    "content": "updateReward",
+    "type": "Identifier",
+    "idtype": "modifier (address)",
+    "cid": 998,
+    "pid": 1000
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 999,
+    "pid": 1000
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 1001,
+    "pid": 1044
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 1043,
+    "pid": 1044
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1008,
+    "pid": 1043
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1007,
+    "pid": 1008
+  },
+  {
+    "content": "require",
+    "type": "Identifier",
+    "idtype": "function (bool,string memory) pure",
+    "cid": 1002,
+    "pid": 1007
+  },
+  {
+    "content": ">",
+    "type": "BinaryOperation",
+    "idtype": "Null",
+    "cid": 1005,
+    "pid": 1007
+  },
+  {
+    "content": "amount",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1003,
+    "pid": 1005
+  },
+  {
+    "content": "0",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 1004,
+    "pid": 1005
+  },
+  {
+    "content": "Cannot stake 0",
+    "type": "Literal",
+    "idtype": "Null",
+    "cid": 1006,
+    "pid": 1007
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1015,
+    "pid": 1043
+  },
+  {
+    "content": "=",
+    "type": "Assignment",
+    "idtype": "Null",
+    "cid": 1014,
+    "pid": 1015
+  },
+  {
+    "content": "_totalSupply",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1009,
+    "pid": 1014
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1013,
+    "pid": 1014
+  },
+  {
+    "content": "add",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1011,
+    "pid": 1013
+  },
+  {
+    "content": "_totalSupply",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1010,
+    "pid": 1011
+  },
+  {
+    "content": "amount",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1012,
+    "pid": 1013
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1026,
+    "pid": 1043
+  },
+  {
+    "content": "=",
+    "type": "Assignment",
+    "idtype": "Null",
+    "cid": 1025,
+    "pid": 1026
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1018,
+    "pid": 1025
+  },
+  {
+    "content": "_balances",
+    "type": "Identifier",
+    "idtype": "mapping(address => uint256)",
+    "cid": 1016,
+    "pid": 1018
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1017,
+    "pid": 1018
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1024,
+    "pid": 1025
+  },
+  {
+    "content": "add",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1022,
+    "pid": 1024
+  },
+  {
+    "content": "IndexAccess",
+    "type": "IndexAccess",
+    "cid": 1021,
+    "pid": 1022
+  },
+  {
+    "content": "_balances",
+    "type": "Identifier",
+    "idtype": "mapping(address => uint256)",
+    "cid": 1019,
+    "pid": 1021
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1020,
+    "pid": 1021
+  },
+  {
+    "content": "amount",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1023,
+    "pid": 1024
+  },
+  {
+    "content": "EmitStatement",
+    "type": "EmitStatement",
+    "cid": 1031,
+    "pid": 1043
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1030,
+    "pid": 1031
+  },
+  {
+    "content": "Staked",
+    "type": "Identifier",
+    "idtype": "function (address,uint256)",
+    "cid": 1027,
+    "pid": 1030
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1028,
+    "pid": 1030
+  },
+  {
+    "content": "amount",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1029,
+    "pid": 1030
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 1042,
+    "pid": 1043
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1041,
+    "pid": 1042
+  },
+  {
+    "content": "safeTransferFrom",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 1034,
+    "pid": 1041
+  },
+  {
+    "content": "TOKEN",
+    "type": "Identifier",
+    "idtype": "contract IERC20",
+    "cid": 1032,
+    "pid": 1034
+  },
+  {
+    "content": "account",
+    "type": "Identifier",
+    "idtype": "address",
+    "cid": 1035,
+    "pid": 1041
+  },
+  {
+    "content": "typeConversion",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 1039,
+    "pid": 1041
+  },
+  {
+    "content": "type(address)",
+    "type": "ElementaryTypeNameExpression",
+    "idtype": "Null",
+    "cid": 1037,
+    "pid": 1039
+  },
+  {
+    "content": "address",
+    "type": "ElementaryTypeName",
+    "idtype": "Null",
+    "cid": 1036,
+    "pid": 1037
+  },
+  {
+    "content": "this",
+    "type": "Identifier",
+    "idtype": "contract Gauge",
+    "cid": 1038,
+    "pid": 1039
+  },
+  {
+    "content": "amount",
+    "type": "Identifier",
+    "idtype": "uint256",
+    "cid": 1040,
+    "pid": 1041
+  }
+]

@@ -1,0 +1,25 @@
+{
+  "sol_file_path": "example//0x06a566e7812413bc66215b48d6f26321ddf653a9//Gauge.sol",
+  "contract_name": "GaugeProxy",
+  "contract_id": 2499,
+  "function_name": "_reset",
+  "function_id": 2001,
+  "function_sbp_infos": [
+    {
+      "expr_id": 1969,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "sub"
+      }
+    },
+    {
+      "expr_id": 1980,
+      "lable_infos": {
+        "label": "SafeMath",
+        "sbp_lib": "SafeMath",
+        "sbp_api": "sub"
+      }
+    }
+  ]
+}

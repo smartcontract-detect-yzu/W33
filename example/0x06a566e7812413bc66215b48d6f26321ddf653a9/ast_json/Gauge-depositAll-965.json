@@ -1,0 +1,97 @@
+[
+  {
+    "content": "FunctionDefinition",
+    "type": "FunctionDefinition",
+    "cid": 965,
+    "pid": 1474,
+    "fname": "depositAll",
+    "cname": "Gauge"
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 952,
+    "pid": 965
+  },
+  {
+    "content": "ParameterList",
+    "type": "ParameterList",
+    "cid": 953,
+    "pid": 965
+  },
+  {
+    "content": "Block",
+    "type": "Block",
+    "cid": 964,
+    "pid": 965
+  },
+  {
+    "content": "ExpressionStatement",
+    "type": "ExpressionStatement",
+    "cid": 963,
+    "pid": 964
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 962,
+    "pid": 963
+  },
+  {
+    "content": "_deposit",
+    "type": "Identifier",
+    "idtype": "function (uint256,address)",
+    "cid": 954,
+    "pid": 962
+  },
+  {
+    "content": "functionCall",
+    "type": "FunctionCall",
+    "idtype": "Null",
+    "cid": 959,
+    "pid": 962
+  },
+  {
+    "content": "balanceOf",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 956,
+    "pid": 959
+  },
+  {
+    "content": "TOKEN",
+    "type": "Identifier",
+    "idtype": "contract IERC20",
+    "cid": 955,
+    "pid": 956
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 958,
+    "pid": 959
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 957,
+    "pid": 958
+  },
+  {
+    "content": "sender",
+    "type": "MemberAccess",
+    "idtype": "Null",
+    "cid": 961,
+    "pid": 962
+  },
+  {
+    "content": "msg",
+    "type": "Identifier",
+    "idtype": "msg",
+    "cid": 960,
+    "pid": 961
+  }
+]
