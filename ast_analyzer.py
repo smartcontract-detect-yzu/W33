@@ -193,15 +193,6 @@ def _do_save_stmt_ast_to_json(stmt_ast_graph:nx.DiGraph, stmt_ast_json, stmt_ast
 
     return stmt_ast_info
 
-def _do_create_vmodifier_to_json(stmt_ast_json):
-
-    nodes = {}
-    nodes["v_modifier"] = {"id": "v_modifier","label": "EXIT_POINT","content": "EXIT_POINT","ast_type": "EXIT_POINT","pid": None}
-    stmt_ast_info = {"vul":0, "vul_type":0, "stmt_type": "EXIT_POINT", "nodes":nodes, "edges":[]}
-    stmt_ast_json["v_modifier"] = stmt_ast_info
-    return stmt_ast_info
-
-
 def _do_create_exit_point_to_json(stmt_ast_json):
     nodes = {}
     nodes["exit"] = {"id": "exit","label": "EXIT_POINT","content": "EXIT_POINT","ast_type": "EXIT_POINT","pid": None}
@@ -585,6 +576,7 @@ class FunctionAstAnalyzer:
 
         self.entry_ast_id = None
         self.entry_ast_info = {}
+        self.vnodes_infos = {}
         self.statements_ast = None
 
         self.analyzer_init(log_level)
@@ -1111,6 +1103,9 @@ class FunctionAstAnalyzer:
 
     def construct_virtual_nodes(self):
         
+        if self.cfg_key != "Gauge-test-1169":
+            return
+
         # 所有节点连接到modifier invocate节点
         _to_vnode = []
         _to_vnode_edges = []
@@ -1119,18 +1114,14 @@ class FunctionAstAnalyzer:
             if self.stmts_type_map[str(_ast_id)] in self.key_stmt_type:
                 _to_vnode.append((_node_id, _ast_id))
                 _to_vnode_edges.append((_node_id, "v_modifier"))
-        self.final_cfg.graph["to_vnode"] = _to_vnode
-        
-        # 在cfg中创建虚拟节点 Modifier
-        # [ASTID=1124, expr="IF ret", ext_call=False, label="ret  @1124 @6 @IfStatement @IfStatement", mk="not-modifier", sol_call=False, state_assign=False, stmt_type=IF] 
-        self.final_cfg.add_node("v_modifier", ASTID="v_modifier", expr="v_modifier", label="v_modifier", mk="not-modifier")
-        self.final_cfg.add_edges_from(_to_vnode_edges)
         
         # for\while\do_while连接到 loop block节点
-        self.final_cfg.graph["loop_blocks"] = {}
+        _vloopblock_nodes = []
+        _vloopblock_edges = []
         for _node_id in self.final_cfg.nodes:
             if "expr" in self.final_cfg.nodes[_node_id] and self.final_cfg.nodes[_node_id]["expr"] == "BEGIN_LOOP":
-                loop_block_nodes = []
+                _vnode_id = "{}-{}".format("v_loop", _node_id)
+                _vloopblock_nodes.append(_vnode_id)
                 _loop_entry_id = [subnode for subnode in self.final_cfg.successors(_node_id)][0]
                 for __node_id in self.final_cfg.predecessors(_loop_entry_id):
                     if __node_id != _node_id:
@@ -1141,10 +1132,21 @@ class FunctionAstAnalyzer:
                             for node in path:
                                 if node not in duplicat:
                                     duplicat[node] = 1
-                                    loop_block_nodes.append(node)
-                
-                if len(loop_block_nodes) > 0:
-                    self.final_cfg.graph["loop_blocks"][_node_id] = loop_block_nodes
+                                    _ast_id = self.final_cfg.nodes[_node_id]["ASTID"]
+                                    # if self.stmts_type_map[str(_ast_id)] in self.key_stmt_type:
+                                    _vloopblock_edges.append((node, _vnode_id))
+
+
+
+        # 在cfg中创建虚拟节点 Modifier
+        self.final_cfg.add_node("v_modifier", ASTID="v_modifier", expr="v_modifier", label="v_modifier", mk="not-modifier")
+        self.final_cfg.add_edges_from(_to_vnode_edges)
+        
+        if len(_vloopblock_nodes) > 0:
+            for _vnode_id in _vloopblock_nodes:      
+                self.final_cfg.add_node(_vnode_id, ASTID=_vnode_id, expr="v_loop", label="v_loop", mk="not-modifier")  
+            self.final_cfg.add_edges_from(_vloopblock_edges)              
+
 
     def concat_function_modifier_cfg(self):
         
@@ -1307,7 +1309,7 @@ class FunctionAstAnalyzer:
     
     def check_function_asm_info(self):
         cnt_key = self.in_param_cnt
-        self.cfg_slither:SFunction =  self.target_infos_collector.get_slither_cfg_info_before_align(self.cfg_key, self.simple_key, cnt_key, self.is_modifier, "slither")
+        self.cfg_slither = self.target_infos_collector.get_slither_cfg_info_before_align(self.cfg_key, self.simple_key, cnt_key, self.is_modifier, "slither")
         
         for stmt in self.cfg_slither.nodes:
             if str(stmt) == "INLINE ASM":
@@ -1319,7 +1321,7 @@ class FunctionAstAnalyzer:
     def ast_slither_id_align(self):
 
         cnt_key = self.in_param_cnt
-        self.cfg_slither =  self.target_infos_collector.get_slither_cfg_info_before_align(self.cfg_key, self.simple_key, cnt_key, self.is_modifier, "slither")
+        self.cfg_slither = self.target_infos_collector.get_slither_cfg_info_before_align(self.cfg_key, self.simple_key, cnt_key, self.is_modifier, "slither")
 
         ast_entry = int(self.ast_graph.graph["top_block"])
         cfg_entry = int(self.cfg_slither.entry_point.node_ast_id)
