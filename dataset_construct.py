@@ -190,7 +190,7 @@ def _construct_dgl_graph(ast_json_file, infercode):
         return graphs_for_function, infos_for_function
 
 
-def construct_dgl_graphs_for_sample(contract_sample_dir, infercode, check):
+def construct_dgl_graphs_for_sample(contract_sample_dir, infercode, pass_flag):
 
     function_cnt = 0
     sample_graphs = []
@@ -205,7 +205,7 @@ def construct_dgl_graphs_for_sample(contract_sample_dir, infercode, check):
         if not os.path.exists(sample_ast_json):
             pass
 
-        elif check == 1 and os.path.exists(sample_dgl_done_flag):
+        elif pass_flag != 0 and os.path.exists(sample_dgl_done_flag):
             function_cnt += 1
             pass
         
@@ -222,14 +222,14 @@ def construct_dgl_graphs_for_sample(contract_sample_dir, infercode, check):
                     f.write("dgl_done")
             except:
                 print("ERROR: !!!!!!!:", sample_ast_json)
-                if check != 1:  # 检测模式下不抛出异常
+                if pass_flag != 0:  # PASS模式下不抛出异常
                     raise RuntimeError("!!!!!!!!!!!!!!!!!")
                     
         
     return sample_graphs, sample_graphs_cnt, smaple_infos, function_cnt
 
 
-def construct_dgl_graphs_for_dataset(dataset_dir, infercode, check):
+def construct_dgl_graphs_for_dataset(dataset_dir, infercode, pass_flag, db):
 
     graphs = []
     graphs_cnts = []
@@ -250,7 +250,7 @@ def construct_dgl_graphs_for_dataset(dataset_dir, infercode, check):
 
             # construct dgl graph and lables
             contract_sample_dir = dataset_dir + contract + "//sample//"
-            sample_graphs, sample_graphs_cnt, smaple_infos, function_cnt = construct_dgl_graphs_for_sample(contract_sample_dir, infercode, check)
+            sample_graphs, sample_graphs_cnt, smaple_infos, function_cnt = construct_dgl_graphs_for_sample(contract_sample_dir, infercode, pass_flag)
 
             # add to the list
             graphs += sample_graphs
@@ -265,24 +265,23 @@ def construct_dgl_graphs_for_dataset(dataset_dir, infercode, check):
                 print("!!!Already collect max function samples")
                 break
 
-    if check == 1:
-        print("==total_function is :{}".format(total_function))
-        print("==total ast and cfg is:{}".format(len(graphs)))
+    
+    print("==total_function is :{}".format(total_function))
+    print("==total ast and cfg is:{}".format(len(graphs)))
+    
+    if db != 0: # 创建数据库
+        content_file = dataset_dir + "table_of_contents.json"
+        with open(content_file, "w+") as f:
+            table_of_contents = {}
+            for idx, sample_name in enumerate(graph_infos):
+                table_of_contents[str(idx)] = sample_name
+            f.write(json.dumps(table_of_contents, indent=4,  separators=(",", ":")))
 
-    else:
-        if check == 2:
-            content_file = dataset_dir + "table_of_contents.json"
-            with open(content_file, "w+") as f:
-                table_of_contents = {}
-                for idx, sample_name in enumerate(graph_infos):
-                    table_of_contents[str(idx)] = sample_name
-                f.write(json.dumps(table_of_contents, indent=4,  separators=(",", ":")))
-
-        # construct the dgl dataset bin file
-        infos = {"graph_cnts": torch.tensor(graphs_cnts)}
-        bin_file_name = "{}_{}_{}.bin".format(dataset_dir.split("//")[-2], total_function, len(graphs))
-        print("!! Save the dataset into {}, 图的总体数量为:{}".format(bin_file_name, total_function))
-        dgl.save_graphs(bin_file_name, graphs, infos)
+    # construct the dgl dataset bin file
+    infos = {"graph_cnts": torch.tensor(graphs_cnts)}
+    bin_file_name = "{}//{}_{}_{}.bin".format(DATASET_BIN_DIR, dataset_dir.split("//")[-2], total_function, len(graphs))
+    print("!! Save the dataset into {}, 图的总体数量为:{}".format(bin_file_name, total_function))
+    dgl.save_graphs(bin_file_name, graphs, infos)
 
 def _static_dgl_graph(ast_json_file):
 
@@ -391,15 +390,17 @@ def static_dgl_graphs_for_dataset(dataset_dir):
 def argParse():
     parser = argparse.ArgumentParser(description='manual to this script')
     parser.add_argument('-dataset', type=str, default=None)
-    parser.add_argument('-check', type=int, default=0)
+    parser.add_argument('-pass_flag', type=int, default=0)
+    parser.add_argument('-db', type=int, default=0)
     parser.add_argument('-static', type=int, default=0)
 
     args = parser.parse_args()
-    return args.dataset, args.check, args.static
+    return args.dataset, args.pass_flag, args.db, args.static
 
 if __name__ == '__main__':
 
-    data_set, check, static = argParse()
+    DATASET_BIN_DIR = "dataset_bin"
+    data_set, pass_flag, db, static = argParse()
 
     # ast_json_file = "dataset//resumable_loop//0x77c42a88194f81a17876fecce71199f48f0163c4//sample//Bitcoinrama-swapBack-4777//statement_ast_infos.json"
     # _construct_dgl_graph_v2(ast_json_file, infercode)
@@ -413,4 +414,4 @@ if __name__ == '__main__':
 
     else:
         infercode = infercode_init()
-        construct_dgl_graphs_for_dataset(dataset_dir, infercode, check)
+        construct_dgl_graphs_for_dataset(dataset_dir, infercode, pass_flag, db)

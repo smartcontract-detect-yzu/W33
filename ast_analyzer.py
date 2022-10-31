@@ -730,11 +730,10 @@ class FunctionAstAnalyzer:
                     else:
                         # ERC20(token).approve(Alice, 0)  --> EXPRESSION1:删除了子树而没有删除根节点导致的
                         # ERC20(token).approve(Alice, value) --> EXPRESSION2
-                        self.logger.error("发现了无子节点的EXPRESSION: {}".format(ast_node_id))
+                        self.logger.error("[get_types]发现了无子节点的EXPRESSION: {}".format(ast_node_id))
             
             elif cfg_info["stmt_type"] in ["END_IF", "END_LOOP", "OTHER_ENTRYPOINT"]:
                 final_stmt_type = "pass_tag" # 不分析: 原因是END_IF和condition是同一个AST节点, 避免覆盖
-
 
             if cfg_info["ext_call"] == "True":  # if (ext_fun) 或者 (bool _, ) = ext_fun
                 final_stmt_type = "External FunctionCall"
@@ -1008,7 +1007,7 @@ class FunctionAstAnalyzer:
             self.save_cfg_as_png(postfix="bottom", _graph=bottom_half)
 
         return upper_half, bottom_half
-    
+
     def construct_cfg_for_function_sample(self, postfix="cfg"):
         
         place_holder = None
@@ -1470,6 +1469,7 @@ class FunctionAstAnalyzer:
             if self.is_modifier is True:
                 self.target_infos_collector.set_modifier_stmts(stmt_root_ast_id, stmt_ast_info)
 
+        
         # 虚拟节点构建
         entry_info = self.save_virtual_node_to_json(final_stmts_ast_json)
         if self.is_modifier is True:
