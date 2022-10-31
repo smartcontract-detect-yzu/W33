@@ -9,11 +9,68 @@ from tqdm import tqdm
 import click
 from slither.slither import Slither
 
+def _do_main(ast_analyzer:FunctionAstAnalyzer):
+    """
+        样本分析主循环
+    """
+    # 构建 function-level AST
+    ast_analyzer.construct_ast_for_function_sample()
+    
+    # 不支持asm
+    if ast_analyzer.check_function_asm_info():
+        return
+    
+    # 构建 function-level CFG
+    ast_analyzer.ast_slither_id_align()   # slither和AST的ID对齐
+    ast_analyzer.construct_cfg_for_function_sample() 
+    
+    # sbp normalize in ast
+    ast_analyzer.normalize_sbp_in_ast()
+
+    # debug:保存AST图片
+    ast_analyzer.save_ast_as_png(postfix="")
+    ast_analyzer.save_ast_as_png(postfix="normalized")
+
+    # AST 与 CFG 图对齐
+    ast_analyzer.cfg_supplement_stmts_for_ast()
+    ast_analyzer.get_function_entry_info()   # 在分割之前记录下函数入口信息
+    ast_analyzer.split_function_ast_stmts()
+    ast_analyzer.check_split_function_ast_stmts()
+    
+    # 根据对齐后的normalize_ast对cfg进行normalize
+    ast_analyzer.normalize_sbp_in_cfg()
+    ast_analyzer.save_cfg_as_png(postfix="normalized")
+    
+    # 语句属性特征分析
+    ast_analyzer.get_stmts_types()
+    ast_analyzer.set_stmts_types_in_cfg()
+    
+    # debug: 保存CFG图片
+    ast_analyzer.save_cfg_as_png(postfix="")
+    ast_analyzer.save_cfg_as_png(postfix="typed_normalized")
+    
+    # 整合 modifier和 cfg
+    ast_analyzer.concat_function_modifier_cfg()
+
+    # 创建虚拟节点
+    ast_analyzer.construct_virtual_nodes() 
+    ast_analyzer.save_cfg_as_png(postfix="final")
+    
+    # 保存结果到json文件
+    ast_analyzer.save_statements_json_infos()
+
+    # debug: 根据保存的cfg生成一个png
+    ast_analyzer.save_cfg_from_json()
+    
+    # 清除不需要的中间结果
+    ast_analyzer.clean_up()
+
+    return
+
 def _construct_all_stmts_ast_infos_wrapper(target_filter, target_info_collector, is_modifier=False, save_png=1):
      
      """
-        包装器:
-            -- 构建AST语句级别信息
+        包装器:构建AST语句级别信息
      """
      for c_name in target_filter:
         for f_name in target_filter[c_name]:
@@ -24,55 +81,8 @@ def _construct_all_stmts_ast_infos_wrapper(target_filter, target_info_collector,
            # 构建解析器
            ast_analyzer = FunctionAstAnalyzer(target_info, target_info_collector,log_level=LOG_LEVEL, is_modifier=is_modifier, save_png=save_png)
            
-           # 构建 function-level AST/CFG
-           ast_analyzer.construct_ast_for_function_sample()
-           
-           # 不支持asm
-           if ast_analyzer.check_function_asm_info(): continue
-           
-           ast_analyzer.ast_slither_id_align()   # slither和AST的ID对齐
-           ast_analyzer.construct_cfg_for_function_sample(is_modifier=is_modifier)
-           
-           # sbp normalize in ast
-           ast_analyzer.normalize_sbp_in_ast()
-
-           # debug:保存AST图片
-           ast_analyzer.save_ast_as_png(postfix="")
-           ast_analyzer.save_ast_as_png(postfix="normalized")
-
-           # AST 与 CFG 图对齐
-           ast_analyzer.cfg_supplement_stmts_for_ast()
-           ast_analyzer.get_function_entry_info()  # 在分割之前记录下函数入口信息
-           ast_analyzer.split_function_ast_stmts()
-           ast_analyzer.check_split_function_ast_stmts()
-           
-           # CFG 与 normalized_ast对齐
-           ast_analyzer.normalize_sbp_in_cfg()
-           ast_analyzer.save_cfg_as_png(postfix="normalized")
-          
-           # 语句属性特征分析
-           ast_analyzer.get_stmts_types()
-           ast_analyzer.set_stmts_types_in_cfg()
-            
-           # debug: 保存CFG图片
-           ast_analyzer.save_cfg_as_png(postfix="")
-           ast_analyzer.save_cfg_as_png(postfix="typed_normalized")
-           
-           # 整合 modifier和 cfg
-           ast_analyzer.concat_function_modifier_cfg()
-
-           # 启用虚拟节点
-           ast_analyzer.construct_virtual_nodes() 
-           ast_analyzer.save_cfg_as_png(postfix="final")
-            
-           # 保存结果
-           ast_analyzer.save_statements_json_infos()
-
-           # 根据保存的cfg生成一个png 调试用的
-           ast_analyzer.get_cfg_from_json()
-            
-           # 清除不需要的中间结果
-           ast_analyzer.clean_up()
+           # 分析
+           _do_main(ast_analyzer)
         
            
 class AnalyzeWrapper:

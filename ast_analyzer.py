@@ -746,29 +746,6 @@ class FunctionAstAnalyzer:
             if final_stmt_type != "pass_tag":
                 self.stmts_type_map[str(ast_node_id)] = final_stmt_type
 
-    def _save_stmt_ast_to_json(self, stmt_ast_graph:nx.DiGraph, stmt_ast_json, stmt_ast_root, vul_label, vul_type):
-        """
-        transfer a ast graph of a statement into a json format
-        """
-        nodes = {}
-        edges = []
-
-        for node_id in stmt_ast_graph.nodes:
-
-            nodes[node_id] = {
-                "id": node_id,
-                "label": stmt_ast_graph.nodes[node_id]["label"],
-                "content": stmt_ast_graph.nodes[node_id]["expr"],
-                "ast_type": stmt_ast_graph.nodes[node_id]["ast_type"],
-                "pid": stmt_ast_graph.nodes[node_id]["pid"]
-            }
-
-        for edge in stmt_ast_graph.edges:
-            edges.append({"from":edge[0], "to":edge[1]})
-        
-        stmt_ast_json[stmt_ast_root] = {"vul":vul_label, "vul_type":vul_type, "nodes":nodes, "edges":edges}
-
-    
     def _record_function_modifier(self, ast_node):
 
         contract_name = ast_node["info"]["contract_name"]
@@ -858,7 +835,6 @@ class FunctionAstAnalyzer:
             self.in_param_cnt = len([subnode for subnode in self.ast_graph.successors(input_param_root)])
         
         self.logger.debug("入参数量:{}".format(self.in_param_cnt))
-    
     
 
     def normalize_sbp_in_ast(self):
@@ -1032,8 +1008,8 @@ class FunctionAstAnalyzer:
             self.save_cfg_as_png(postfix="bottom", _graph=bottom_half)
 
         return upper_half, bottom_half
-
-    def construct_cfg_for_function_sample(self, is_modifier=False, postfix="cfg", ):
+    
+    def construct_cfg_for_function_sample(self, postfix="cfg"):
         
         place_holder = None
 
@@ -1056,7 +1032,7 @@ class FunctionAstAnalyzer:
                 self.cfg_id_to_ast_id[str(node.node_id)] = str(node.node_ast_id)
                 self.ast_id_to_cfg_id[str(node.node_ast_id)] = str(node.node_id)
 
-                if is_modifier and "_" == str(node.type):
+                if self.is_modifier and "_" == str(node.type):
                     place_holder = str(node.node_id)
                 
                 if node.expression is None:
@@ -1090,11 +1066,11 @@ class FunctionAstAnalyzer:
         self.cfg.remove_nodes_from(node_to_removes)
 
         # 如果是modifier 必须记录下来 以方便后续分析
-        if is_modifier is True:
+        if self.is_modifier is True:
             self.logger.debug("开始modifier控制流图分解阶段")
             upper_half, bottom_half = self.construct_up_buttom_cfg_for_modifier()  # Modifier CFG 分割
             key = "{}-{}-modifier".format(self.c_name, self.f_name)
-            self.target_infos_collector.set_cfg_graph_by_key(self.cfg, upper_half, bottom_half, key, is_modifier)
+            self.target_infos_collector.set_cfg_graph_by_key(self.cfg, upper_half, bottom_half, key, self.is_modifier)
 
         # save the cfg or not    
         if not self.save_png: return
@@ -1120,7 +1096,7 @@ class FunctionAstAnalyzer:
         _vloopblock_edges = []
         for _node_id in self.final_cfg.nodes:
             if "expr" in self.final_cfg.nodes[_node_id] and self.final_cfg.nodes[_node_id]["expr"] == "BEGIN_LOOP":
-                _vnode_id = "{}-{}".format("v_loop", _node_id)
+                _vnode_id = "{}-{}".format("v_loop", self.final_cfg.nodes[_node_id]["ASTID"])
                 _vloopblock_nodes.append(_vnode_id)
                 _loop_entry_id = [subnode for subnode in self.final_cfg.successors(_node_id)][0]
                 for __node_id in self.final_cfg.predecessors(_loop_entry_id):
@@ -1141,10 +1117,12 @@ class FunctionAstAnalyzer:
         # 在cfg中创建虚拟节点 Modifier
         self.final_cfg.add_node("v_modifier", ASTID="v_modifier", expr="v_modifier", label="v_modifier", mk="not-modifier")
         self.final_cfg.add_edges_from(_to_vnode_edges)
+        self.vnodes_infos["v_modifier"] = self.entry_ast_id
         
         if len(_vloopblock_nodes) > 0:
             for _vnode_id in _vloopblock_nodes:      
-                self.final_cfg.add_node(_vnode_id, ASTID=_vnode_id, expr="v_loop", label="v_loop", mk="not-modifier")  
+                self.final_cfg.add_node(_vnode_id, ASTID=_vnode_id, expr="v_loop", label="v_loop", mk="not-modifier")
+                self.vnodes_infos[_vnode_id] = str(_vnode_id).split("-")[1]
             self.final_cfg.add_edges_from(_vloopblock_edges)              
 
 
@@ -1399,16 +1377,73 @@ class FunctionAstAnalyzer:
         nx_dot.write_dot(graph, dot_name)
         subprocess.check_call(["dot", "-Tpng", dot_name, "-o", png_name])
     
+    def save_cfg_from_json(self):
+        
+        if not self.save_png: return
+        
+        _debug_graph = nx.DiGraph()
+        json_file = self.sample_dir_with_path + "statement_ast_infos.json"
+        with open(json_file) as f:
+            ast_json = json.load(f)
+            
+            edges = []
+            for cfg_edge_info in ast_json["cfg_edges"]:
+
+                from_id = str(cfg_edge_info["from"])
+                if not _debug_graph.has_node(from_id):
+                    _debug_graph.add_node(from_id, label=from_id)
+
+                to_id = str(cfg_edge_info["to"])
+                if not _debug_graph.has_node(to_id):
+                    _debug_graph.add_node(to_id, label=to_id)
+                
+                edges.append((from_id, to_id))
+            
+            _debug_graph.add_edges_from(edges)
+            _debug_graph.graph["name"] = self.cfg_key
+
+        self.save_cfg_as_png(postfix="fromj", _graph=_debug_graph)
+    
+    def save_virtual_node_to_json(self, final_stmts_ast_json):
+
+        # 保存虚拟节点语句1.entry_point, v_modifier, v_loop
+        #  1. entry_point
+        ep_nodes = {}
+        ep_nodes[self.entry_ast_id] = {"id": self.entry_ast_id, "content": "ENTRY_POINT","ast_type": "ENTRY_POINT","pid": 0}
+        entry_info = {"vul":0, "vul_type":0, "stmt_type":"ENTRY_POINT", "nodes":ep_nodes, "edges":[]}        
+        final_stmts_ast_json[self.entry_ast_id] = entry_info
+
+        for vnode in self.vnodes_infos:  
+
+            # 2. v_modifier:
+            if not self.is_modifier and vnode == "v_modifier":
+                vm_nodes = {}  
+                vm_nodes["v_modifier"] = {"id": "v_modifier", "content": "V_MODIFIER","ast_type": "V_MODIFIER", "pid": 0}  
+                vm_info = {"vul":self.entry_ast_info["vul"], "stmt_type":"Modifier", "vul_type":self.entry_ast_info["vul_type"], "nodes":vm_nodes, "edges":[]}
+                final_stmts_ast_json[vnode] = vm_info
+
+            # 3. v_loop
+            else:
+                loop_ast_id = self.vnodes_infos[vnode]
+                vm_nodes = {} 
+                vm_nodes[vnode] = {"id": vnode, "label": 0,"content": "V_LOOP","ast_type": "V_LOOP","pid": 0}
+                
+                # vloop继承begin_loop节点的标签 
+                vul = final_stmts_ast_json[loop_ast_id]["vul"]
+                vul_type = final_stmts_ast_json[loop_ast_id]["vul_type"]
+                vm_info = {"vul":vul, "stmt_type":"Loop Block", "vul_type":vul_type, "nodes":vm_nodes, "edges":[]}
+                final_stmts_ast_json[vnode] = vm_info
+
+                # 清除begin_loop节点的标签 
+                final_stmts_ast_json[loop_ast_id]["vul"] = 0
+        
+        return entry_info
+
     def save_statements_json_infos(self):
 
         final_stmts_ast_json = {}
         cfg_edge_map = {}
         cfg_edge_info = []
-
-        # function的entry point信息生成
-        entry_info = _do_save_entry_point_to_json(self.entry_ast_id, self.entry_ast_info, final_stmts_ast_json)
-        if self.is_modifier is True:
-            self.target_infos_collector.set_modifier_stmts(self.entry_ast_id, entry_info)
 
         # 保存来自function的语句
         for stmt_root_ast_id in self.statements_ast:
@@ -1434,6 +1469,12 @@ class FunctionAstAnalyzer:
             # modifier的信息进行持久化保存，方便函数的分析
             if self.is_modifier is True:
                 self.target_infos_collector.set_modifier_stmts(stmt_root_ast_id, stmt_ast_info)
+
+        # 虚拟节点构建
+        entry_info = self.save_virtual_node_to_json(final_stmts_ast_json)
+        if self.is_modifier is True:
+            self.target_infos_collector.set_modifier_stmts(self.entry_ast_id, entry_info)        
+
 
         # 只有function的cfg才有final cfg, modifier为normalized_cfg
         if self.is_modifier is False:
@@ -1486,37 +1527,6 @@ class FunctionAstAnalyzer:
         with open(json_file, "w+") as f:
             f.write(json.dumps(final_stmts_ast_json, indent=4, separators=(",", ":")))
     
-    def get_cfg_from_json(self):
-        
-        if not self.save_png: return
-        
-        _debug_graph = nx.DiGraph()
-        json_file = self.sample_dir_with_path + "statement_ast_infos.json"
-        with open(json_file) as f:
-            ast_json = json.load(f)
-            
-            edges = []
-            for cfg_edge_info in ast_json["cfg_edges"]:
-
-                from_id = str(cfg_edge_info["from"])
-                if not _debug_graph.has_node(from_id):
-                    _debug_graph.add_node(from_id, label=from_id)
-
-                to_id = str(cfg_edge_info["to"])
-                if not _debug_graph.has_node(to_id):
-                    _debug_graph.add_node(to_id, label=to_id)
-                
-                edges.append((from_id, to_id))
-            
-            _debug_graph.add_edges_from(edges)
-            _debug_graph.graph["name"] = self.cfg_key
-
-        self.save_cfg_as_png(postfix="fromj", _graph=_debug_graph)
-                
-  
-
-        
-
     def clean_up(self):
         """
             避免文件夹过多, 删除所有的dot文件夹和无内容的png文件夹
