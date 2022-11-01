@@ -1078,9 +1078,6 @@ class FunctionAstAnalyzer:
 
     def construct_virtual_nodes(self):
         
-        if self.cfg_key != "Gauge-test-1169":
-            return
-
         # 所有节点连接到modifier invocate节点
         _to_vnode = []
         _to_vnode_edges = []
@@ -1110,8 +1107,6 @@ class FunctionAstAnalyzer:
                                     _ast_id = self.final_cfg.nodes[_node_id]["ASTID"]
                                     # if self.stmts_type_map[str(_ast_id)] in self.key_stmt_type:
                                     _vloopblock_edges.append((node, _vnode_id))
-
-
 
         # 在cfg中创建虚拟节点 Modifier
         self.final_cfg.add_node("v_modifier", ASTID="v_modifier", expr="v_modifier", label="v_modifier", mk="not-modifier")
@@ -1468,7 +1463,6 @@ class FunctionAstAnalyzer:
             # modifier的信息进行持久化保存，方便函数的分析
             if self.is_modifier is True:
                 self.target_infos_collector.set_modifier_stmts(stmt_root_ast_id, stmt_ast_info)
-
         
         # 虚拟节点构建
         entry_info = self.save_virtual_node_to_json(final_stmts_ast_json)
