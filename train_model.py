@@ -159,28 +159,26 @@ def dgl_bin_process(dataset_name, c_type):
 
 
 def wrong_sample_log(fn_samples, fp_samples):
-
+   
     if len(fn_samples) > 0:
-        print("\r\n==============fn_sample:start===================")
+        print("==============FN SAMPLES    [Start...]===================")
         for cfgid_astid in fn_samples:
-            cfg_id, ast_id = str(cfgid_astid).split('-')    
+            cfg_id, ast_id = str(cfgid_astid).split('-')
             print("FN: path:{} STMTID:{} type:{}".format(
                 DATASET_DB[cfg_id]["path"], 
                 ast_id, 
                 DATASET_DB[cfg_id][ast_id]["vul_tpye"]))
-        print("==============fn_sample:end===================")
-    
+        print("==============FN SAMPLES    [END...]===================")
 
     if len(fp_samples) > 0:
-        print("\r\n==============fp_samples:start===================")
+        print("\r\n==============FP SAMPLES    [Start...]===================")
         for cfgid_astid in fp_samples:
-            cfg_id, ast_id = str(cfgid_astid).split('-')    
-            print("FN: path:{} STMTID:{} type:{}".format(
+            cfg_id, ast_id = str(cfgid_astid).split('-')
+            print("FP: path:{} STMTID:{} type:{}".format(
                 DATASET_DB[cfg_id]["path"], 
                 ast_id, 
                 DATASET_DB[cfg_id][ast_id]["vul_tpye"]))
-        print("==============fp_samples:end===================")
-
+        print("==============FP SAMPLES    [END...]===================")
 
 def calculate_metrics(preds, labels, idxs, prefix, epoch, postive=1):
 
@@ -250,8 +248,13 @@ def calculate_metrics(preds, labels, idxs, prefix, epoch, postive=1):
             prefix, useless_flag, epoch, acc, recall, precision, f1, total_data_num)
         )
     
-    if useless_flag == 0 and recall >= 0.90 and precision >= 0.70 and f1 >= 0.80:
+    # if useless_flag == 0 and recall >= 0.90 and precision >= 0.70 and f1 >= 0.80:
+    if epoch > 5:
         save_flag = 1
+        print("\r\n========================错误日志=====================================")
+        print("{}:{}: EPOCH:{} ACC:{}, RE:{}, P:{},  F1:{}, TOTAL:{}".format(
+            prefix, useless_flag, epoch, acc, recall, precision, f1, total_data_num)
+        )
         wrong_sample_log(fn_samples, fp_samples)
         print("==TPR:{}, FNR:{}, FPR:{}, TNR:{}".format(TPR, FNR, FPR, TNR))
 
@@ -280,6 +283,7 @@ def debug_model_infos():
     print("==attn_drop:", attn_drop)
     print("==feat_drop:", feat_drop)
     print("==warmup:", warmup)
+    print("==weight_decay:", weight_decay)
     print("==loss_type:", loss_type)
     print("==classify_type:", classify_type)
     print("==device:", device)
@@ -295,8 +299,8 @@ if __name__ == '__main__':
         dataset_db_file = "dataset//" + _dataset + "_db.json"
     f = open(dataset_db_file, "r")
     DATASET_DB = json.load(f)
-
-     # 参数列表
+    
+    # 参数列表
     torch.manual_seed(3407)
     batch_size = 1024
     epoch = 256
@@ -305,6 +309,7 @@ if __name__ == '__main__':
     attn_drop = 0.05
     feat_drop = 0.05
     warmup = 1
+    weight_decay = 1e-4
     loss_type = "focal_loss" # focal_loss  cross_entropy
     classify_type = "multi" # binary multi 
     
@@ -332,7 +337,7 @@ if __name__ == '__main__':
 
     # 学习率
     lr_scheduler = None
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=weight_decay)
     if warmup:
         warmup_factor = 1. / 1000
         warmup_iters = min(1000, len(train_loader) - 1)
@@ -400,10 +405,10 @@ if __name__ == '__main__':
                 c = th.zeros((n, h_size)).to(device)
 
                 logits = model(batch_cfg, batch_ast, h, c)
-
+                
                 # 计算训练中的结果
                 _preds += logits.argmax(1)
-                _labels += batch_labels.argmax(1)
+                _labels += batch_labels.argmax(1) 
         
         calculate_metrics(_preds, _labels, _idxs, "VALIDATE", epoch)
 
