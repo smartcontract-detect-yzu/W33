@@ -1,5 +1,3 @@
-"""Torch modules for graph attention networks(GAT)."""
-# pylint: disable= no-member, arguments-differ, invalid-name
 import torch as th
 from torch import nn
 import dgl
@@ -29,18 +27,7 @@ class TGATConv(nn.Module):
         self._out_feats = out_feats
         self._allow_zero_in_degree = allow_zero_in_degree
         self.type_liner = nn.Linear(100, 64, bias=False)  # type = 100, feature = 64
-        if isinstance(in_feats, tuple):
-
-            print("WARINING !!!! 无用分支1")
-
-            self.fc_src = nn.Linear(
-                self._in_src_feats, out_feats * num_heads, bias=False)
-            self.fc_dst = nn.Linear(
-                self._in_dst_feats, out_feats * num_heads, bias=False)
-        else:
-            self.fc = nn.Linear(
-                self._in_src_feats, out_feats * num_heads, bias=False)
-
+        self.fc = nn.Linear(self._in_src_feats, out_feats * num_heads, bias=False)
         self.attn_l = nn.Parameter(th.FloatTensor(size=(1, num_heads, out_feats)))
         self.attn_r = nn.Parameter(th.FloatTensor(size=(1, num_heads, out_feats)))
         self.feat_drop = nn.Dropout(feat_drop)
@@ -88,37 +75,12 @@ class TGATConv(nn.Module):
             if not self._allow_zero_in_degree:
                 if (graph.in_degrees() == 0).any():
                     raise DGLError('There are 0-in-degree nodes in the graph.')
-
-            if isinstance(feat, tuple):
-
-                print("WARINING !!!! 无用分支2")
-
-                src_prefix_shape = feat[0].shape[:-1]
-                dst_prefix_shape = feat[1].shape[:-1]
-                h_src = self.feat_drop(feat[0])
-                h_dst = self.feat_drop(feat[1])
-                if not hasattr(self, 'fc_src'):
-                    feat_src = self.fc(h_src).view(
-                        *src_prefix_shape, self._num_heads, self._out_feats)
-                    feat_dst = self.fc(h_dst).view(
-                        *dst_prefix_shape, self._num_heads, self._out_feats)
-                else:
-                    feat_src = self.fc_src(h_src).view(
-                        *src_prefix_shape, self._num_heads, self._out_feats)
-                    feat_dst = self.fc_dst(h_dst).view(
-                        *dst_prefix_shape, self._num_heads, self._out_feats)
-            else:
-                feat = self.type_liner(feat) # 100压缩到64
-                src_prefix_shape = dst_prefix_shape = feat.shape[:-1]
-                h_src = h_dst = self.feat_drop(feat)
-                feat_src = feat_dst = self.fc(h_src).view(
-                    *src_prefix_shape, self._num_heads, self._out_feats)
-
-                if graph.is_block: # falise
-                    print("WARINING !!!! 无用分支3")
-                    feat_dst = feat_src[:graph.number_of_dst_nodes()]
-                    h_dst = h_dst[:graph.number_of_dst_nodes()]
-                    dst_prefix_shape = (graph.number_of_dst_nodes(),) + dst_prefix_shape[1:]
+            
+            feat = self.type_liner(feat) # 100压缩到64
+            src_prefix_shape = dst_prefix_shape = feat.shape[:-1]
+            h_src = h_dst = self.feat_drop(feat)
+            feat_src = feat_dst = self.fc(h_src).view(
+                *src_prefix_shape, self._num_heads, self._out_feats)
 
             el = (feat_src * self.attn_l).sum(dim=-1).unsqueeze(-1)
             er = (feat_dst * self.attn_r).sum(dim=-1).unsqueeze(-1)
@@ -130,15 +92,14 @@ class TGATConv(nn.Module):
             e = self.leaky_relu(graph.edata.pop('e'))
 
             # compute softmax
-            graph.edata['a'] = self.attn_drop(edge_softmax(graph, e))
+            graph.edata['a'] = self.attn_drop(edge_softmax(graph, e)) # node_nums * head * input_size
 
             # message passing: 节点本身的信息依赖cfg的自旋 ==> add self loop for cfg
             graph.update_all(fn.u_mul_e('feature', 'a', 'm'),  # 'm'= 'ft'*'a'
                              fn.sum('m', 'feature'))   # 'ft'= 'm1' + ...
 
-            # rst = graph.dstdata['feature']
-            rst = self.out_liner(graph.dstdata['feature'])
-
+            rst = self.out_liner(graph.dstdata['feature']) # node_nums * head * output_size
+            
             # residual
             if self.res_fc is not None:
                 # Use -1 rather than self._num_heads to handle broadcasting
@@ -153,10 +114,13 @@ class TGATConv(nn.Module):
             # activation
             if self.activation:
                 rst = self.activation(rst)
-
+                        
+            # 对每个head得到的值求平均
+            rst = rst.mean(dim=1) # node_nums * output_size
+            
             if get_attention:
                 return rst, graph.edata['a']
-
+            
             else:
                 return rst
 
@@ -196,16 +160,21 @@ class SAGNN(nn.Module):
                  attn_drop,
                  feat_drop,
                  classify_type,
-                 gnn_type="gcn"):
-
+                 gnn_type):
+        
         super(SAGNN, self).__init__()
         self.classify_type = classify_type
         self.type = gnn_type
         self.x_size = x_size
         self.tree_lstm = ChildSumTreeLSTMCell(x_size, h_size)
-        self.gcn = GraphConv(in_feats=h_size, out_feats=32, norm='both', weight=True, bias=True, allow_zero_in_degree=True)
-        self.tgat = TGATConv(in_feats=h_size, out_feats=32, num_heads=4, attn_drop=attn_drop, feat_drop=feat_drop, activation=nn.Softmax())
         
+        if self.type == "gcn":
+            self.gnn = GraphConv(in_feats=h_size, out_feats=32, norm='both', weight=True, bias=True, allow_zero_in_degree=True)
+        elif self.type == "tgat":
+            self.gnn = TGATConv(in_feats=h_size, out_feats=32, num_heads=4, attn_drop=attn_drop, feat_drop=feat_drop, activation=nn.ReLU())
+        else:
+            raise RuntimeError("!!!! 错误的GNN类型")
+
         self.linner1 = nn.Linear(32, 16)
         if self.classify_type == "binary":
             self.linner2 = nn.Linear(16, 1)
@@ -228,14 +197,12 @@ class SAGNN(nn.Module):
             cfg.ndata["feature"][idx].copy_(stmt_ast.ndata['h'][0]) # NOTE: 每个ast.nodes[0]就是语句的根节点 --> 由dataset_construct.py保证
         
         if self.type =="gcn": # GNN
-            res = self.gcn(cfg, cfg.ndata['feature'])
-            res = self.linner1(res)
-            res = self.linner2(res)
-        
+            res = self.gnn(cfg, cfg.ndata['feature'])
         elif self.type =="tgat": # TGAT
-            res = self.tgat(cfg, cfg.ndata['type'])
-            res = self.linner1(res) # 32 16
-            res = self.linner2(res) # 16 2
+            res = self.gnn(cfg, cfg.ndata['type']) # node_nums * 4 * 32
+
+        res = self.linner1(res) # 32 16
+        res = self.linner2(res) # 16 2
         
         if self.classify_type == "binary":
             res = self.sigmoid(res)
