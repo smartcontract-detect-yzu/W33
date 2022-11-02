@@ -14,6 +14,8 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from sagnn import SAGNN
 from focal_loss import FocalLoss2d
+import logging
+
 
 def _do_pause():
     raise RuntimeError("!!!!!!!!!!!!!!!!PAUSE")
@@ -121,13 +123,13 @@ def dgl_bin_process(dataset_name, c_type):
     valid_size = int(0.1*len(idx_graphs))
     test_size  = len(idx_graphs) - train_size - valid_size
 
-    print("\r\n====================统计信息===========================")
-    print("==数据集:{}".format(dataset_name))
-    print("==数量信息: total:{} train_size:{}, valid_size:{}, test_size:{}".format(
+    logger.debug("\r\n====================统计信息===========================")
+    logger.debug("==数据集:{}".format(dataset_name))
+    logger.debug("==数量信息: total:{} train_size:{}, valid_size:{}, test_size:{}".format(
         len(cfg_graphs), train_size, valid_size, test_size)
     )
-    print("==负标签分布: no_vul:{} {}".format(no_vul_cnt, no_vul_cnt/total_cnt))
-    print("==正标签分布: vul:{} {}".format(total_cnt - no_vul_cnt, (total_cnt - no_vul_cnt)/total_cnt))
+    logger.debug("==负标签分布: no_vul:{} {}".format(no_vul_cnt, no_vul_cnt/total_cnt))
+    logger.debug("==正标签分布: vul:{} {}".format(total_cnt - no_vul_cnt, (total_cnt - no_vul_cnt)/total_cnt))
 
     train_idx_list = idx_graphs[0:train_size]  # 80%
     valid_idx_list = idx_graphs[train_size + 1: train_size + valid_size]  # 10%
@@ -161,24 +163,67 @@ def dgl_bin_process(dataset_name, c_type):
 def wrong_sample_log(fn_samples, fp_samples):
    
     if len(fn_samples) > 0:
-        print("==============FN SAMPLES    [Start...]===================")
+        logger.debug("==============FN SAMPLES    [Start...]===================")
         for cfgid_astid in fn_samples:
             cfg_id, ast_id = str(cfgid_astid).split('-')
-            print("FN: path:{} STMTID:{} type:{}".format(
+            logger.debug("FN: path:{} STMTID:{} type:{}".format(
                 DATASET_DB[cfg_id]["path"], 
                 ast_id, 
                 DATASET_DB[cfg_id][ast_id]["vul_tpye"]))
-        print("==============FN SAMPLES    [END...]===================")
+        logger.debug("==============FN SAMPLES    [END...]===================")
 
     if len(fp_samples) > 0:
-        print("\r\n==============FP SAMPLES    [Start...]===================")
+        logger.debug("==============FP SAMPLES    [Start...]===================")
         for cfgid_astid in fp_samples:
             cfg_id, ast_id = str(cfgid_astid).split('-')
-            print("FP: path:{} STMTID:{} type:{}".format(
+            logger.debug("FP: path:{} STMTID:{} type:{}".format(
                 DATASET_DB[cfg_id]["path"], 
                 ast_id, 
                 DATASET_DB[cfg_id][ast_id]["vul_tpye"]))
-        print("==============FP SAMPLES    [END...]===================")
+        logger.debug("==============FP SAMPLES    [END...]===================\r\n")
+
+
+def calculate_metrics_v2(y_pred, y_true, sample_idxs, prefix, epoch):
+    """
+        基于tensor的计算且在GPU内, 速度快于原始版本
+    """
+    useless_flag = 0 
+    y_pred = y_pred.argmax(dim=1)
+    y_true = y_true.argmax(dim=1)
+
+    tp = (y_true * y_pred).sum().to(torch.float32)
+    tn = ((1 - y_true) * (1 - y_pred)).sum().to(torch.float32)
+    
+    fp_samples = (1 - y_true) * y_pred   # fp = ((1 - y_true) * y_pred).sum().to(torch.float32)
+    fp = fp_samples.sum().to(torch.float32)
+    if fp.item() > 0:
+        fp_idxs = (fp_samples==1).nonzero().squeeze(dim=1).cpu().numpy().tolist()
+    else:
+        useless_flag = 1
+        fp_idxs = None
+
+    fn_samples = y_true * (1 - y_pred)   # fn = (y_true * (1 - y_pred)).sum().to(torch.float32)
+    fn = fn_samples.sum().to(torch.float32)
+    if fn.item() > 0:
+        fn_idxs = (fn_samples==1).nonzero().squeeze(dim=1).cpu().numpy().tolist()
+    else:
+        useless_flag = 1
+        fn_idxs = None
+
+    epsilon = 1e-7
+    
+    a = (tp + tn) / (tp + tn + fp + fn + epsilon)
+    p = tp / (tp + fp + epsilon)
+    r = tp / (tp + fn + epsilon)
+    f1 = 2* (p*r) / (p + r + epsilon)
+
+    logger.debug("[epoch:{}] - {}阶段指标: A:{} P:{} R:{} F1:{}".format(epoch, prefix, a.item(), p.item(), r.item(), f1.item()))
+
+    if useless_flag != 1:
+        fn_samples_idx = [sample_idxs[idx] for idx in fn_idxs]
+        fp_smaples_idx = [sample_idxs[idx] for idx in fp_idxs]
+        wrong_sample_log(fn_samples_idx, fp_smaples_idx)
+    
 
 def calculate_metrics(preds, labels, idxs, prefix, epoch, postive=1):
 
@@ -244,19 +289,19 @@ def calculate_metrics(preds, labels, idxs, prefix, epoch, postive=1):
     else:
         FPR = TNR = 9999
     
-    print("{}:{}: EPOCH:{} ACC:{}, RE:{}, P:{},  F1:{}, TOTAL:{}".format(
+    logger.debug("{}:{}: EPOCH:{} ACC:{}, RE:{}, P:{},  F1:{}, TOTAL:{}".format(
             prefix, useless_flag, epoch, acc, recall, precision, f1, total_data_num)
         )
     
     # if useless_flag == 0 and recall >= 0.90 and precision >= 0.70 and f1 >= 0.80:
-    if epoch > 5:
+    if (epoch > 0 and epoch % 10 ==0) or (useless_flag == 0 and f1 >= 0.75):
         save_flag = 1
-        print("\r\n========================错误日志=====================================")
-        print("{}:{}: EPOCH:{} ACC:{}, RE:{}, P:{},  F1:{}, TOTAL:{}".format(
+        logger.debug("\r\n========================错误日志=====================================")
+        logger.debug("{}:{}: EPOCH:{} ACC:{}, RE:{}, P:{},  F1:{}, TOTAL:{}".format(
             prefix, useless_flag, epoch, acc, recall, precision, f1, total_data_num)
         )
         wrong_sample_log(fn_samples, fp_samples)
-        print("==TPR:{}, FNR:{}, FPR:{}, TNR:{}".format(TPR, FNR, FPR, TNR))
+        logger.debug("==TPR:{}, FNR:{}, FPR:{}, TNR:{}".format(TPR, FNR, FPR, TNR))
 
     return save_flag, acc, recall, precision, f1
 
@@ -275,18 +320,21 @@ def argParse():
     return args.dataset
 
 def debug_model_infos():
-    print("\r\n=========模型情况打印:===========")
-    print("==batch_size:", batch_size)
-    print("==epoch:", epoch)
-    print("==x_size:", x_size)
-    print("==h_size:", h_size)
-    print("==attn_drop:", attn_drop)
-    print("==feat_drop:", feat_drop)
-    print("==warmup:", warmup)
-    print("==weight_decay:", weight_decay)
-    print("==loss_type:", loss_type)
-    print("==classify_type:", classify_type)
-    print("==device:", device)
+    logger.debug("\r\n=========模型情况打印:===========")
+    logger.debug("==my_seed: %s", my_seed)
+    logger.debug("==batch_size: %s", batch_size)
+    logger.debug("==epoch: %s", epoch)
+    logger.debug("==x_size: %s", x_size)
+    logger.debug("==h_size: %s", h_size)
+    logger.debug("==attn_drop: %s", attn_drop)
+    logger.debug("==feat_drop: %s", feat_drop)
+    logger.debug("==warmup: %s", warmup)
+    logger.debug("==weight_decay: %s", weight_decay)
+    logger.debug("==loss_type: %s", loss_type)
+    logger.debug("==classify_type: %s", classify_type)
+    logger.debug("==gnn_type: %s", gnn_type)
+    logger.debug("==metic_calc: %s", metic_calc)
+    logger.debug("==device: %s", device_name)
 
 if __name__ == '__main__':
 
@@ -299,28 +347,46 @@ if __name__ == '__main__':
         dataset_db_file = "dataset//" + _dataset + "_db.json"
     f = open(dataset_db_file, "r")
     DATASET_DB = json.load(f)
-    
+
+     # 日志
+    _time_stamp = time.strftime('%Y-%m-%d-%H-%M', time.localtime())
+    log_file_name = "train_log//{}_{}.log".format(_dataset, _time_stamp)
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+    fh = logging.FileHandler(log_file_name, "w+")
+    fh.setLevel(logging.DEBUG)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    logger.addHandler(ch)
+    logger.addHandler(fh)
+
     # 参数列表
-    torch.manual_seed(3407)
-    batch_size = 1024
+    my_seed = 3407
+    batch_size = 1
     epoch = 256
     x_size = 100 # ast node feature size
     h_size = 64  # tree_lstm learning feature or CFG node feature size
     attn_drop = 0.05
     feat_drop = 0.05
     warmup = 1
-    weight_decay = 1e-4
-    loss_type = "focal_loss" # focal_loss  cross_entropy
+    weight_decay = 0  # 1e-4
+    loss_type = "cross_entropy" # focal_loss  cross_entropy
     classify_type = "multi" # binary multi 
-    
+    gnn_type = "tgat" # tgat gcn
+    metic_calc = "v2"  # v1 v2
+
     if torch.cuda.is_available():
+        device_name = "cuda:0"
         device = torch.device("cuda:0")
         th.cuda.set_device(device)
     else:
+        device_name = "cpu"
         device = torch.device("cpu")
-
+    
     debug_model_infos()
     
+    # 模型初始化
+    torch.manual_seed(my_seed)
     if loss_type == "focal_loss":
         focal_loss = FocalLoss2d().to(device)
 
@@ -331,9 +397,9 @@ if __name__ == '__main__':
     test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, collate_fn=batcher_v1(device, classify_type), shuffle=False, num_workers=0)
 
     # 模型
-    model = SAGNN(x_size, h_size, attn_drop, feat_drop, classify_type).to(device)
-    print("\r\n========模型结构==========")
-    print(model)
+    model = SAGNN(x_size, h_size, attn_drop, feat_drop, classify_type, gnn_type).to(device)
+    logger.debug("\r\n========模型结构==========")
+    logger.debug(model) # 需要记录在日志文件中
 
     # 学习率
     lr_scheduler = None
@@ -344,7 +410,7 @@ if __name__ == '__main__':
         lr_scheduler = warmup_lr_scheduler(optimizer, warmup_iters, warmup_factor)
     
     # 模型训练
-    print("\r\n=============开始训练模型==================")
+    logger.debug("\r\n=============开始训练模型==================")
     for epoch in range(epoch):
         training_loss = 0
         total_nodes = 0
@@ -378,20 +444,26 @@ if __name__ == '__main__':
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-
+            
             if lr_scheduler is not None:
                 lr_scheduler.step()
-            
         
         training_loss /= total_nodes
-        print("\r\nEPOCH:{} training_loss:{}".format(epoch, training_loss))
-
+        logger.debug("\r\nEPOCH:{} training_loss:{}".format(epoch, training_loss))
+        
         ######################
         # validate the model #
         ######################
         model.eval()
-        _preds = []
-        _labels = []
+
+        if metic_calc == "v1":
+            _preds = []
+            _labels = []
+
+        elif metic_calc == "v2":
+            _preds = None
+            _labels = None
+
         _idxs = []
         for step, batch in enumerate(valid_loader):
             with torch.no_grad():
@@ -405,19 +477,39 @@ if __name__ == '__main__':
                 c = th.zeros((n, h_size)).to(device)
 
                 logits = model(batch_cfg, batch_ast, h, c)
-                
+
                 # 计算训练中的结果
-                _preds += logits.argmax(1)
-                _labels += batch_labels.argmax(1) 
+                if metic_calc == "v1":
+                    _preds += logits.argmax(1)
+                    _labels += batch_labels.argmax(1) 
+
+                elif metic_calc == "v2":
+                    if step == 0:
+                        _preds = logits
+                        _labels = batch_labels
+                    else:
+                        _preds = torch.cat((_preds, logits), 0)
+                        _labels = torch.cat((_labels, batch_labels), 0)
+               
         
-        calculate_metrics(_preds, _labels, _idxs, "VALIDATE", epoch)
+        if metic_calc == "v1":
+            calculate_metrics(_preds, _labels, _idxs, "VALIDATE", epoch)
+
+        elif metic_calc == "v2":
+            calculate_metrics_v2(_preds, _labels, _idxs, "VALIDATE", epoch)
 
         ######################
         # test the model #
         ######################
         model.eval()
-        __preds = []
-        __labels = []
+        if metic_calc == "v1":
+            __preds = []
+            __labels = []
+            
+        elif metic_calc == "v2":
+            __preds = None
+            __labels = None
+
         __idxs = []
         for step, batch in enumerate(test_loader):
             with torch.no_grad():
@@ -433,12 +525,27 @@ if __name__ == '__main__':
                 logits = model(batch_cfg, batch_ast, h, c)
 
                 # 计算训练中的结果
-                __preds += logits.argmax(1)
-                __labels += batch_labels.argmax(1)
+                if metic_calc == "v1":
+                    __preds += logits.argmax(1)
+                    __labels += batch_labels.argmax(1) 
+
+                elif metic_calc == "v2":
+                    if step == 0:
+                        __preds = logits
+                        __labels = batch_labels
+                    else:
+                        __preds = torch.cat((__preds, logits), 0)
+                        __labels = torch.cat((__labels, batch_labels), 0)
         
-        save_flag, acc, recall, precision, f1 = calculate_metrics(__preds, __labels, __idxs, "TEST", epoch)
-        if save_flag == 1:
-            _pt_name = "model//{}_{}_{}_{}.pt".format(epoch, recall, precision, f1)
-            torch.save(model.state_dict(), _pt_name)
+        if metic_calc == "v1":
+            calculate_metrics(__preds, __labels, __idxs, "TEST", epoch)
+
+        elif metic_calc == "v2":
+            calculate_metrics_v2(__preds, __labels, __idxs, "TEST", epoch)
+
+        # save_flag, acc, recall, precision, f1 = calculate_metrics(__preds, __labels, __idxs, "TEST", epoch)
+        # if save_flag == 1:
+        #     _pt_name = "model//{}_{}_{}_{}.pt".format(epoch, recall, precision, f1)
+        #     torch.save(model.state_dict(), _pt_name)
         
     
