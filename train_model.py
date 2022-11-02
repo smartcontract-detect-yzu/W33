@@ -161,7 +161,7 @@ def dgl_bin_process(dataset_name, c_type):
 
 
 def wrong_sample_log(fn_samples, fp_samples):
-   
+    
     if len(fn_samples) > 0:
         logger.debug("==============FN SAMPLES    [Start...]===================")
         for cfgid_astid in fn_samples:
@@ -182,6 +182,49 @@ def wrong_sample_log(fn_samples, fp_samples):
                 DATASET_DB[cfg_id][ast_id]["vul_tpye"]))
         logger.debug("==============FP SAMPLES    [END...]===================\r\n")
 
+def _do_countor(cfg_id, ast_id, _type):
+
+    if cfg_id not in SAMPLE_COUNTOR[_type]:
+        SAMPLE_COUNTOR[_type][cfg_id] = {"_cnt":1}
+    else:
+        SAMPLE_COUNTOR[_type][cfg_id]["_cnt"] += 1
+    
+    if ast_id not in SAMPLE_COUNTOR[_type][cfg_id]:
+        SAMPLE_COUNTOR[_type][cfg_id][ast_id] = 1
+    else:
+        SAMPLE_COUNTOR[_type][cfg_id][ast_id] += 1
+
+def wrong_sample_log_v2(fn_samples, fp_samples):
+    
+    if len(fn_samples) > 0:
+        logger.debug("==============FN SAMPLES:{}    [Start...]===================".format(len(fn_samples)))
+        for cfgid_astid in fn_samples:
+            cfg_id, ast_id = str(cfgid_astid).split('-')
+            _do_countor(cfg_id, ast_id, "fn")
+
+            sample_infos = str(DATASET_DB[cfg_id]["path"]).split("//")
+            logger.debug("FN: {} {} ASTID:{} TYPE:{}".format(
+                sample_infos[2], 
+                sample_infos[4], 
+                DATASET_DB[cfg_id][ast_id]["ASTID"], 
+                DATASET_DB[cfg_id][ast_id]["vul_tpye"])
+            )
+        logger.debug("==============FN SAMPLES    [END...]===================")
+
+    if len(fp_samples) > 0:
+        logger.debug("==============FP SAMPLES:{}    [Start...]===================".format(len(fp_samples)))
+        for cfgid_astid in fp_samples:
+            cfg_id, ast_id = str(cfgid_astid).split('-')
+            _do_countor(cfg_id, ast_id, "fp")
+
+            sample_infos = str(DATASET_DB[cfg_id]["path"]).split("//")
+            logger.debug("FP: {} {} ASTID:{} TYPE:{}".format(
+                sample_infos[2], 
+                sample_infos[4], 
+                DATASET_DB[cfg_id][ast_id]["ASTID"], 
+                DATASET_DB[cfg_id][ast_id]["vul_tpye"])
+            )
+        logger.debug("==============FP SAMPLES    [END...]===================\r\n")
 
 def calculate_metrics_v2(y_pred, y_true, sample_idxs, prefix, epoch):
     """
@@ -222,7 +265,7 @@ def calculate_metrics_v2(y_pred, y_true, sample_idxs, prefix, epoch):
     if useless_flag != 1:
         fn_samples_idx = [sample_idxs[idx] for idx in fn_idxs]
         fp_smaples_idx = [sample_idxs[idx] for idx in fp_idxs]
-        wrong_sample_log(fn_samples_idx, fp_smaples_idx)
+        wrong_sample_log_v2(fn_samples_idx, fp_smaples_idx)
     
 
 def calculate_metrics(preds, labels, idxs, prefix, epoch, postive=1):
@@ -348,7 +391,7 @@ if __name__ == '__main__':
     f = open(dataset_db_file, "r")
     DATASET_DB = json.load(f)
 
-     # 日志
+     # 日志初始化
     _time_stamp = time.strftime('%Y-%m-%d-%H-%M', time.localtime())
     log_file_name = "train_log//{}_{}.log".format(_dataset, _time_stamp)
     logger = logging.getLogger()
@@ -359,6 +402,11 @@ if __name__ == '__main__':
     ch.setLevel(logging.DEBUG)
     logger.addHandler(ch)
     logger.addHandler(fh)
+
+    SAMPLE_COUNTOR = {}
+    SAMPLE_COUNTOR["fn"] = {}
+    SAMPLE_COUNTOR["fp"] = {}
+    col_json_name = "train_log//{}_{}_collecotor.json".format(_dataset, _time_stamp)
 
     # 参数列表
     my_seed = 3407
@@ -440,7 +488,7 @@ if __name__ == '__main__':
             
             training_loss += loss.item() * batch_cfg.num_nodes()
             total_nodes += batch_cfg.num_nodes()
-
+            
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -450,7 +498,7 @@ if __name__ == '__main__':
         
         training_loss /= total_nodes
         logger.debug("\r\nEPOCH:{} training_loss:{}".format(epoch, training_loss))
-        
+
         ######################
         # validate the model #
         ######################
@@ -548,4 +596,6 @@ if __name__ == '__main__':
         #     _pt_name = "model//{}_{}_{}_{}.pt".format(epoch, recall, precision, f1)
         #     torch.save(model.state_dict(), _pt_name)
         
-    
+    # 保存计数器结果
+    with open(col_json_name, "w+") as f:
+        f.write(json.dumps(SAMPLE_COUNTOR, indent=4,  separators=(",", ":")))
