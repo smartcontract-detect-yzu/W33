@@ -1079,13 +1079,11 @@ class FunctionAstAnalyzer:
     def construct_virtual_nodes(self):
         
         # 所有节点连接到modifier invocate节点
-        _to_vnode = []
-        _to_vnode_edges = []
+        _to_vmodifier_edges = []
         for _node_id in self.final_cfg.nodes:
             _ast_id =  self.final_cfg.nodes[_node_id]["ASTID"]
             if self.stmts_type_map[str(_ast_id)] in self.key_stmt_type:
-                _to_vnode.append((_node_id, _ast_id))
-                _to_vnode_edges.append((_node_id, "v_modifier"))
+                _to_vmodifier_edges.append((_node_id, "v_modifier"))
         
         # for\while\do_while连接到 loop block节点
         _vloopblock_nodes = []
@@ -1109,9 +1107,10 @@ class FunctionAstAnalyzer:
                                     _vloopblock_edges.append((node, _vnode_id))
 
         # 在cfg中创建虚拟节点 Modifier
-        self.final_cfg.add_node("v_modifier", ASTID="v_modifier", expr="v_modifier", label="v_modifier", mk="not-modifier")
-        self.final_cfg.add_edges_from(_to_vnode_edges)
-        self.vnodes_infos["v_modifier"] = self.entry_ast_id
+        if len(_to_vmodifier_edges) != 0:
+            self.final_cfg.add_node("v_modifier", ASTID="v_modifier", expr="v_modifier", label="v_modifier", mk="not-modifier")
+            self.final_cfg.add_edges_from(_to_vmodifier_edges)
+            self.vnodes_infos["v_modifier"] = self.entry_ast_id
         
         if len(_vloopblock_nodes) > 0:
             for _vnode_id in _vloopblock_nodes:      
@@ -1412,10 +1411,13 @@ class FunctionAstAnalyzer:
             # 2. v_modifier:
             if not self.is_modifier and vnode == "v_modifier":
                 vm_nodes = {}  
-                vm_nodes["v_modifier"] = {"id": "v_modifier", "content": "V_MODIFIER","ast_type": "V_MODIFIER", "pid": 0}  
-                vm_info = {"vul":self.entry_ast_info["vul"], "stmt_type":"Modifier", "vul_type":self.entry_ast_info["vul_type"], "nodes":vm_nodes, "edges":[]}
+                vm_nodes["v_modifier"] = {"id": "v_modifier", "content": "V_MODIFIER","ast_type": "V_MODIFIER", "pid": 0}
+                if "vul" not in self.entry_ast_info:
+                    vm_info = {"vul":0, "stmt_type":"Modifier", "vul_type":0, "nodes":vm_nodes, "edges":[]}
+                else:
+                    vm_info = {"vul":self.entry_ast_info["vul"], "stmt_type":"Modifier", "vul_type":self.entry_ast_info["vul_type"], "nodes":vm_nodes, "edges":[]}
                 final_stmts_ast_json[vnode] = vm_info
-
+            
             # 3. v_loop
             else:
                 loop_ast_id = self.vnodes_infos[vnode]
