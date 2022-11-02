@@ -24,7 +24,7 @@ def _do_main(ast_analyzer:FunctionAstAnalyzer):
     ast_analyzer.ast_slither_id_align()   # slither和AST的ID对齐
     ast_analyzer.construct_cfg_for_function_sample() 
     
-    # sbp normalize in ast
+    # sbp normalize in ast, 同时给AST打标签
     ast_analyzer.normalize_sbp_in_ast()
 
     # debug:保存AST图片
@@ -107,6 +107,7 @@ class AnalyzeWrapper:
         self.DONE_FLAG = "construct_done.flag"
         self.FAIL_FLAG = "construct_fail.flag"
         self.SLITHER_FAIL_FLAG = "slither_error.flag"
+        self.SOLC_ERROR_FLAG = "solcjs_error.flag"
     
     def do_vulnerability_static_after_stmt_analyze(self):
 
@@ -285,9 +286,12 @@ class AnalyzeWrapper:
 
                 if os.path.isdir(path_sample):
                     pbar.set_description('Processing:{}'.format(sample))
-
-                    if os.path.exists(path_sample + self.DONE_FLAG) or os.path.exists(path_sample + self.SLITHER_FAIL_FLAG):
-                        pass  # if already have the flag, pass
+                    
+                    # if already have the flag, pass
+                    if os.path.exists(path_sample + self.DONE_FLAG) \
+                        or os.path.exists(path_sample + self.SLITHER_FAIL_FLAG)  \
+                            or os.path.exists(path_sample + self.SOLC_ERROR_FLAG):
+                        pass 
                     else:
                         try: 
                             flag = self.do_analyze_for_target(path_sample)
@@ -431,6 +435,11 @@ if __name__ == '__main__':
         elif clean_done:
             analyze_wrapper.clean_done_flag()
             print("=======>Do Clean Done Flag..........[DONE]<====================")
+
+            
+            print("=======>开始数据集分析..........[Starting]<====================")
+            LOG_LEVEL = 30 # log warning
+            analyze_wrapper.do_analyze_for_dataset()
         
         else:
             LOG_LEVEL = 30 # log warning
