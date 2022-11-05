@@ -243,8 +243,11 @@ def construct_dgl_graphs_for_dataset(dataset_dir, infercode, pass_flag, db):
     with tqdm(total=len(all_contracts)) as pbar:
         for contract in all_contracts:
             
-            # 必须是文件夹, 且文件夹存在construct_done.flag标志
-            if str(contract).endswith(".json") or not os.path.exists(dataset_dir + contract + "//construct_done.flag"): 
+            if dataset_dir == "dataset//sbp_dataset//":
+                pass
+
+            # 非sbp_dataset数据集必须是文件夹, 且文件夹存在construct_done.flag标志
+            elif str(contract).endswith(".json") or not os.path.exists(dataset_dir + contract + "//construct_done.flag"): 
                 pbar.set_description('Processing:{} total:{}'.format(contract, total_function))
                 pbar.update(1)
                 continue
@@ -436,13 +439,14 @@ def vul_type_based_dataset(phase):
         print("目标添加样本: ", target_number)
 
     elif phase == 3:
-        target_number = random.randint(2000,4000)
+        target_number = random.randint(1000,1500)
         _cnt = 0
         already_cnt = 0
         print("目标添加样本: ", target_number)
 
     for _tmp_dataset in backup_datasets:
         sample_files = os.listdir(_tmp_dataset)
+        random.shuffle(sample_files)
         for address in sample_files:
             path_sample = "{}//{}//".format(_tmp_dataset, address)
             if os.path.exists(path_sample + "construct_done.flag"):
@@ -470,16 +474,14 @@ def vul_type_based_dataset(phase):
 
                                         # 阶段1: 聚合 resumable_loop; safe cast 和 transaction order dependency 三个最少类型样本
                                         if phase == 1:
-                                            if c_name == "ERC20":
-                                                pass
 
                                             if vul_type_infos[ast_id] in PHASE_ONE_VUL:
                                                 if not os.path.exists(root_dir + address):
-                                                    dst = root_dir + address
-                                                    src = path_sample
-                                                    shutil.copytree(src, dst)
-                                                    shutil.rmtree(root_dir + address + "//sample")
-                                                    os.mkdir(root_dir + address + "//sample")
+                                                    # dst = root_dir + address
+                                                    # src = path_sample
+                                                    # shutil.copytree(src, dst)
+                                                    # shutil.rmtree(root_dir + address + "//sample")
+                                                    os.makedirs(root_dir + address + "//sample")
 
                                                 src = c_f_sample_dir_path
                                                 dst = root_dir + address + "//sample//" + c_f
@@ -489,17 +491,17 @@ def vul_type_based_dataset(phase):
 
                                         # 阶段2: 补全 low-level call 增加 2000~3000的随机数
                                         elif phase == 2:
-                                            if c_name == "ERC20":
+                                            if c_name in ["ERC20", "ERC720"]:
                                                 pass
 
                                             elif vul_type_infos[ast_id] == "low-level call":
                                                 
                                                 if not os.path.exists(root_dir + address):
-                                                    dst = root_dir + address
-                                                    src = path_sample
-                                                    shutil.copytree(src, dst)
-                                                    shutil.rmtree(root_dir + address + "//sample")
-                                                    os.mkdir(root_dir + address + "//sample")
+                                                    # dst = root_dir + address
+                                                    # src = path_sample
+                                                    # shutil.copytree(src, dst)
+                                                    # shutil.rmtree(root_dir + address + "//sample")
+                                                    os.makedirs(root_dir + address + "//sample")
 
                                                 src = c_f_sample_dir_path
                                                 dst = root_dir + address + "//sample//" + c_f
@@ -514,17 +516,17 @@ def vul_type_based_dataset(phase):
                                         
                                         # 阶段3: 补全 nonReentrant 增加 2000~4000的随机数
                                         elif phase == 3:
-                                            if c_name == "ERC20":
+                                            if c_name in ["ERC20", "ERC720"]:
                                                 pass
 
                                             if vul_type_infos[ast_id] == "nonReentrant":
                                                 already_cnt += 1
                                                 if not os.path.exists(root_dir + address):
-                                                    dst = root_dir + address
-                                                    src = path_sample
-                                                    shutil.copytree(src, dst)
-                                                    shutil.rmtree(root_dir + address + "//sample")
-                                                    os.mkdir(root_dir + address + "//sample")
+                                                    # dst = root_dir + address
+                                                    # src = path_sample
+                                                    # shutil.copytree(src, dst)
+                                                    # shutil.rmtree(root_dir + address + "//sample")
+                                                    os.makedirs(root_dir + address + "//sample")
 
                                                 src = c_f_sample_dir_path
                                                 dst = root_dir + address + "//sample//" + c_f
