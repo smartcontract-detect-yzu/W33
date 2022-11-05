@@ -124,11 +124,16 @@ class AnalyzeWrapper:
             "resumable_loop": 0
         }
 
+        flag_pass = 0
+        if self.dataset_dir == "dataset//sbp_dataset":
+            flag_pass = 1
+
+
         sample_files = os.listdir(self.dataset_dir)
 
         for sample in sample_files:
             path_sample = "{}//{}//".format(self.dataset_dir, sample)
-            if os.path.exists(path_sample + self.DONE_FLAG):
+            if flag_pass == 1 or os.path.exists(path_sample + self.DONE_FLAG):
                 sample_dir_path = path_sample + "sample//"
                 c_f_samples = os.listdir(sample_dir_path)
 
@@ -157,19 +162,19 @@ class AnalyzeWrapper:
                                     for ast_id in vul_type_infos:
                                         vul_type_cnt_map[vul_type_infos[ast_id]] += 1
 
-                                if vul_flag == 0:
-                                    vul_functions += 1
-                                else:
-                                    no_vul_functions += 1
-      
-        print("===============统计结果===============")
-        print("no_vul_stmts:", no_vul_stmts)
-        print("vul_stmts:", no_vul_stmts)
-        print("no_vul_functions:", no_vul_stmts)
-        print("vul_functions:", no_vul_stmts)
-        print("============详细统计结果===============")
+                            if vul_flag == 0:
+                                no_vul_functions += 1
+                            else:
+                                vul_functions += 1
+
+        print("===============统计结果===============", "  ")
+        print("no_vul_stmts:", no_vul_stmts, "  ")
+        print("vul_stmts:", vul_stmts, "  ")
+        print("no_vul_functions:", no_vul_functions, "  ")
+        print("vul_functions:", vul_functions, "  ")
+        print("============详细统计结果===============", "  ")
         print(json.dumps(vul_type_cnt_map, indent=4, separators=(",", ":")))
-        print("====================END===============")
+        print("====================END===============", "  ")
 
 
     def do_vulnerability_static_after_ast_analyze(self):
@@ -411,7 +416,7 @@ if __name__ == '__main__':
         LOG_LEVEL = 10 # log debug
         analyze_wrapper = AnalyzeWrapper("dummy", save_png=1)  # 创建假的
         analyze_wrapper.do_analyze_for_target("example//0x06a566e7812413bc66215b48d6f26321ddf653a9//")
-
+    
     elif clean:
 
         if dataset is None:
