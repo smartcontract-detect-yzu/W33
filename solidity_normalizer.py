@@ -1,26 +1,39 @@
-
 import os
 import re
-
-
-        
     
 class SrcNormalize:
-    def __init__(self, target_dir, sol_file) -> None:
-        self.sol_file = target_dir + sol_file
+    def __init__(self, target_dir) -> None:
+        self.target_dr = target_dir
         self.norm_dir = target_dir + "normalized_src//"
-        self.norm_sol_file = target_dir + "normalized_src//" + sol_file
+        self.target_sols = {}
+        
+        self.SafeLowLevelCallMap = ['safeTransferFrom', 'safeTransfer', "sendValue","functionCallWithValue",  "functionCall", "functionStaticCall"]
+        self.TodCallMap = [".safeApprove", ".approve", ".safeIncreaseAllowance", ".safeDecreaseAllowance"]
+        
+        self.environment_prepare()
+
+    def environment_prepare(self):
+
         if not os.path.exists(self.norm_dir):
             os.mkdir(self.norm_dir)
         
-        self.lines = open(self.sol_file).readlines()
-        self.SafeLowLevelCallMap = ['safeTransferFrom', 'safeTransfer', "sendValue","functionCallWithValue",  "functionCall", "functionStaticCall"]
-        self.TodCallMap = [".safeApprove", ".approve", ".safeIncreaseAllowance", ".safeDecreaseAllowance"]
+        _temp_files = os.listdir(self.target_dr)
+        for _temp_file in _temp_files:
+            if str(_temp_file).endswith(".sol"):
+                self.target_sols[self.target_dr + _temp_file] = _temp_file
+        
+        # print(self.target_sols)
 
-    def do_normalize_file(self):
+    def normalize_files(self):
+        for target in self.target_sols:
+            
+            lines = open(target).readlines()
+            norm_sol_file = self.norm_dir + self.target_sols[target]
+            self._do_normalize_file(lines, norm_sol_file)
 
-        with open(self.norm_sol_file, "w+") as n_f:
-            for line in self.lines:
+    def _do_normalize_file(self, lines, norm_sol_file):
+        with open(norm_sol_file, "w+") as n_f:
+            for line in lines:
                 delete_flag = 0
                 if ".add" in line:
                     result = re.search(r'\.add\((.*?)\)',line) # .sub(匹配)
@@ -116,15 +129,18 @@ class SrcNormalize:
 
                         # xxx var.toUint(xxx) 由.向前找第一个不是字符的位置
                         while pos > 0:
-                            if (not line[pos].isalpha()) and (line[pos] not in [".", "[", "]"]):
+                            # if (not line[pos].isalpha()) and (line[pos] not in [".", "[", "]"]):
+                            if line[pos].isspace():
                                 pos += 1
                                 break
                             pos -= 1
 
                         var_name = line[pos:result.span()[0]]
+                        
                         org = "{}{}".format(var_name, result.group(0))
                         new = "{}({})".format(_cast, var_name)
                         line = line.replace(org, new)
+                        
                 
                 if "toInt" in line:
                     result = re.search(r'\.toInt(.*?)\(\)',line)
@@ -134,7 +150,8 @@ class SrcNormalize:
 
                         # xxx var.toUint(xxx) 由.向前找第一个不是字符的位置
                         while pos > 0:
-                            if (not line[pos].isalpha()) and (line[pos] not in [".", "[", "]"]):
+                            # if (not line[pos].isalpha()) and (line[pos] not in [".", "[", "]"]):
+                            if line[pos].isspace():
                                 pos += 1
                                 break
                             pos -= 1
@@ -151,6 +168,6 @@ class SrcNormalize:
 if __name__ == '__main__':
     
     # norlamize_function_with_safemath(EXAMPLE_PERFIX + '0x06a566e7812413bc66215b48d6f26321ddf653a9/' + "Gauge.sol")
-    nom = SrcNormalize("example//" + '0x00f401c1e60C9eBf48b1c22c0D87250Cc54F979f//', "VirtualBalance.sol")
-    nom.do_normalize()
+    nom = SrcNormalize("example//0x00f401c1e60C9eBf48b1c22c0D87250Cc54F979f//")
+    nom.normalize_files()
     
