@@ -1,9 +1,10 @@
 import argparse
 import json
+import random
+import shutil
 import dgl 
 import torch
 import os
-from infercode.client.infercode_client import InferCodeClient
 from tqdm import tqdm
 
 INFERCODE_FEATURE_SIZE = 100
@@ -390,17 +391,157 @@ def static_dgl_graphs_for_dataset(dataset_dir):
 def argParse():
     parser = argparse.ArgumentParser(description='manual to this script')
     parser.add_argument('-dataset', type=str, default=None)
+    parser.add_argument('-phase', type=int, default=0)
     parser.add_argument('-pass_flag', type=int, default=0)
     parser.add_argument('-db', type=int, default=0)
     parser.add_argument('-static', type=int, default=0)
 
     args = parser.parse_args()
-    return args.dataset, args.pass_flag, args.db, args.static
+    return args.dataset, args.phase, args.pass_flag, args.db, args.static
+
+def create_dataset_1():
+    """
+      合并 resumable_loop 和 resumable_loop_2
+    """
+     
+    _dataset_dir_1 = "dataset//{}//".format("resumable_loop")
+    _dataset_dir_2 = "dataset//{}//".format("resumable_loop_2")
+    dataset_1 = "dataset//{}//".format("dataset_reloop")
+
+    _all_contracts_1 = os.listdir(_dataset_dir_1)
+    _all_contracts_2 = os.listdir(_dataset_dir_2)
+    for _c_in_2 in _all_contracts_2:
+        if _c_in_2 in _all_contracts_1:
+            pass
+        else:
+            src = _dataset_dir_2 + _c_in_2
+            dst = dataset_1 + _c_in_2
+            shutil.copytree(src, dst)
+    
+    for _c_in_1 in _all_contracts_1: 
+        src = _dataset_dir_1 + _c_in_1
+        dst = dataset_1 + _c_in_1
+        shutil.copytree(src, dst)
+
+
+VUL_TYPE_LIST = ["SafeMath", "low-level call", "safe cast", "transaction order dependency", "nonReentrant", "onlyOwner", "resumable_loop"]
+PHASE_ONE_VUL = ["safe cast", "transaction order dependency", "resumable_loop"]
+def vul_type_based_dataset(phase):
+    root_dir = "dataset//sbp_dataset//"
+    backup_datasets = ["dataset//dataset_reloop//", "dataset//reentrancy//"]
+
+    if phase == 2:
+        target_number = random.randint(1000,1500)
+        _cnt = 0
+        print("目标添加样本: ", target_number)
+
+    elif phase == 3:
+        target_number = random.randint(2000,4000)
+        _cnt = 0
+        already_cnt = 0
+        print("目标添加样本: ", target_number)
+
+    for _tmp_dataset in backup_datasets:
+        sample_files = os.listdir(_tmp_dataset)
+        for address in sample_files:
+            path_sample = "{}//{}//".format(_tmp_dataset, address)
+            if os.path.exists(path_sample + "construct_done.flag"):
+                sample_dir_path = path_sample + "sample//"
+                c_f_samples = os.listdir(sample_dir_path)
+                for c_f in c_f_samples:
+                    cfid = str(c_f).split("-")
+                    c_name = cfid[0]
+                    f_name = cfid[1]
+                    c_f_sample_dir_path = sample_dir_path + c_f + "//"
+                    if os.path.exists(c_f_sample_dir_path + "statement_ast_infos.json"):
+                        
+                        with open(c_f_sample_dir_path + "statement_ast_infos.json", "r") as f:
+                            stmts_infos = json.load(f)
+                            for stmt_id in stmts_infos:
+                                
+                                if stmt_id == "cfg_edges":
+                                    continue
+
+                                # 开始统计
+                                stmt_info = stmts_infos[stmt_id]
+                                if stmt_info["vul"] != 0:
+                                    vul_type_infos = stmt_info["vul_type"]
+                                    for ast_id in vul_type_infos:
+
+                                        # 阶段1: 聚合 resumable_loop; safe cast 和 transaction order dependency 三个最少类型样本
+                                        if phase == 1:
+                                            if c_name == "ERC20":
+                                                pass
+
+                                            if vul_type_infos[ast_id] in PHASE_ONE_VUL:
+                                                if not os.path.exists(root_dir + address):
+                                                    dst = root_dir + address
+                                                    src = path_sample
+                                                    shutil.copytree(src, dst)
+                                                    shutil.rmtree(root_dir + address + "//sample")
+                                                    os.mkdir(root_dir + address + "//sample")
+
+                                                src = c_f_sample_dir_path
+                                                dst = root_dir + address + "//sample//" + c_f
+                                                if not os.path.exists(dst):
+                                                    shutil.copytree(src, dst) # 拷贝到目标目录
+                                                break    
+
+                                        # 阶段2: 补全 low-level call 增加 2000~3000的随机数
+                                        elif phase == 2:
+                                            if c_name == "ERC20":
+                                                pass
+
+                                            elif vul_type_infos[ast_id] == "low-level call":
+                                                
+                                                if not os.path.exists(root_dir + address):
+                                                    dst = root_dir + address
+                                                    src = path_sample
+                                                    shutil.copytree(src, dst)
+                                                    shutil.rmtree(root_dir + address + "//sample")
+                                                    os.mkdir(root_dir + address + "//sample")
+
+                                                src = c_f_sample_dir_path
+                                                dst = root_dir + address + "//sample//" + c_f
+                                                if not os.path.exists(dst):
+                                                    shutil.copytree(src, dst) # 拷贝到目标目录
+                                                    _cnt += 1
+                                                
+                                                if _cnt >= target_number:
+                                                    return # 达到目标
+                                                else:
+                                                    break  # 下一个sample    
+                                        
+                                        # 阶段3: 补全 nonReentrant 增加 2000~4000的随机数
+                                        elif phase == 3:
+                                            if c_name == "ERC20":
+                                                pass
+
+                                            if vul_type_infos[ast_id] == "nonReentrant":
+                                                already_cnt += 1
+                                                if not os.path.exists(root_dir + address):
+                                                    dst = root_dir + address
+                                                    src = path_sample
+                                                    shutil.copytree(src, dst)
+                                                    shutil.rmtree(root_dir + address + "//sample")
+                                                    os.mkdir(root_dir + address + "//sample")
+
+                                                src = c_f_sample_dir_path
+                                                dst = root_dir + address + "//sample//" + c_f
+                                                if not os.path.exists(dst):
+                                                    shutil.copytree(src, dst) # 拷贝到目标目录
+                                                    _cnt += 1
+
+                                                if _cnt >= target_number:
+                                                    return # 达到目标
+
+                                                else:
+                                                    break  # 下一个sample  
 
 if __name__ == '__main__':
 
     DATASET_BIN_DIR = "dataset_bin"
-    data_set, pass_flag, db, static = argParse()
+    data_set, phase, pass_flag, db, static = argParse()
 
     # ast_json_file = "dataset//resumable_loop//0x77c42a88194f81a17876fecce71199f48f0163c4//sample//Bitcoinrama-swapBack-4777//statement_ast_infos.json"
     # _construct_dgl_graph_v2(ast_json_file, infercode)
@@ -408,10 +549,28 @@ if __name__ == '__main__':
     # sample_dir = "dataset//reentrancy//0xffa3a0ff18078c0654b174cf6cb4c27699a4369e//sample//"
     # sample_graphs, sample_graph_lables = construct_dgl_graphs_for_sample(sample_dir, infercode)
 
-    dataset_dir = "dataset//{}//".format(data_set)
-    if static != 0:
-        static_dgl_graphs_for_dataset(dataset_dir)
+    if data_set is None:
+        if phase == 1:
+            print("开始手动构建数据集 -- 阶段1: 收集resumable_loop safe_cast 和 transaction_order_dependency 三个最少类型样本")
+            vul_type_based_dataset(phase)
 
+        elif phase == 2:
+            print("开始手动构建数据集 -- 阶段2: 补充 2000 ~ 3000 个low-level call 样本")
+            vul_type_based_dataset(phase)
+
+        elif phase == 3:
+             print("开始手动构建数据集 -- 阶段3: 补充 2000 ~ 3000 个 nonReentrant 样本")
+             vul_type_based_dataset(phase)
+
+        else:
+            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        
     else:
-        infercode = infercode_init()
-        construct_dgl_graphs_for_dataset(dataset_dir, infercode, pass_flag, db)
+        dataset_dir = "dataset//{}//".format(data_set)
+        if static != 0:
+            static_dgl_graphs_for_dataset(dataset_dir)
+        
+        else:
+            from infercode.client.infercode_client import InferCodeClient
+            infercode = infercode_init()
+            construct_dgl_graphs_for_dataset(dataset_dir, infercode, pass_flag, db)
