@@ -1,6 +1,7 @@
 import argparse
 import collections
 import json
+import os
 import random
 import dgl
 from dgl.data import DGLDataset
@@ -45,7 +46,7 @@ def batcher_v1(device, classify_type):
         asts = []
         gidx = []
 
-        # [cfg_i], [ast_i_1, ast_i_2]
+        # [cfg_i], [ast_i_1, ast_i_2], function_idx
         for cfg_ast in batch:
 
             _cfg = cfg_ast[0]
@@ -55,10 +56,10 @@ def batcher_v1(device, classify_type):
             for idx, ast in enumerate(cfg_ast[1]): 
                 ast = dgl.remove_self_loop(ast) # 在AST中删除self loop
                 asts.append(ast)
-                gidx.append("{}-{}".format(cfg_ast[2], idx))
-
-        cfg_batch = dgl.batch(cfgs) # batch:[1_2n    ,2_3n,     3_2n] 
-        ast_batch = dgl.batch(asts) # batch:[[1,2],  [1,2,3],  [1,2]] => [1,2,3,4,5,6,7]
+                gidx.append("{}-{}".format(cfg_ast[2], idx)) # 函数ID-当前语句的ASTID
+        
+        cfg_batch = dgl.batch(cfgs) # batch:[1_2stmts,   2_3stmts,     3_2stmts] 
+        ast_batch = dgl.batch(asts) # batch:[[1,2],      [1,2,3],      [1,2]   ] => [1,2,3,4,5,6,7]
 
         if classify_type == "multi":
             _node_lables = cfg_batch.ndata['label']
@@ -81,41 +82,47 @@ def batcher_v1(device, classify_type):
 def dgl_bin_process(dataset_name, c_type):
 
     idx_graphs = [] # 图索引
-    cfg_graphs = []
-    ast_graphs = []
+    cfg_graphs = {} # cfg map
+    ast_graphs = {} # ast map
 
     no_vul_cnt = 0
     total_cnt = 0
+
     # 抽取全部数据
     graphs, graphs_infos = dgl.load_graphs(dataset_name)
     for idx in range(0, len(graphs_infos["graph_cnts"])):
+
         tmp_ast_graphs = []
-    
         graph_cnt = graphs_infos["graph_cnts"][idx].int()
         if graph_cnt == 0:
             raise RuntimeError("!!! 出现了没有图的样本")
-
-        for graph_idx in range(0, graph_cnt):
-
-            tmp_graph = graphs.pop(0)
-            if graph_idx == 0:   # 第一个是CFG, 其它的是AST
-                
-                total_cnt += tmp_graph.num_nodes()
-                no_vul_cnt += th.sum(tmp_graph.ndata["label"].argmax(1).eq(th.zeros(tmp_graph.num_nodes())))
-
-                tmp_graph.ndata["feature"] = th.zeros(tmp_graph.num_nodes(), 64) # 为CFG开辟一个特征空间,大小为TREE_LSTM的输出
-                if c_type == "multi":
-                    pass
-
-                elif c_type == "binary":
-                    tmp_graph.ndata["label_b"] = tmp_graph.ndata["label"].argmax(1) # 建模为二分类任务, 不使用交叉熵
-
-                cfg_graphs.append(tmp_graph)
-            else:
-                tmp_ast_graphs.append(tmp_graph)
         
-        ast_graphs.append(tmp_ast_graphs)
-        idx_graphs.append(idx)
+        if str(idx) in BLACK_LIST: # 黑名单过滤
+            for graph_idx in range(0, graph_cnt):
+                graphs.pop(0) # 丢弃
+            
+        else:
+            for graph_idx in range(0, graph_cnt):
+                        
+                tmp_graph = graphs.pop(0)
+                if graph_idx == 0:   # 第一个是CFG, 其它的是AST
+                    
+                    total_cnt += tmp_graph.num_nodes()
+                    no_vul_cnt += th.sum(tmp_graph.ndata["label"].argmax(1).eq(th.zeros(tmp_graph.num_nodes())))
+
+                    tmp_graph.ndata["feature"] = th.zeros(tmp_graph.num_nodes(), 64) # 为CFG开辟一个特征空间,大小为TREE_LSTM的输出
+                    if c_type == "multi":
+                        pass
+
+                    elif c_type == "binary":
+                        tmp_graph.ndata["label_b"] = tmp_graph.ndata["label"].argmax(1) # 建模为二分类任务, 不使用交叉熵
+
+                    cfg_graphs[idx] = tmp_graph
+                else:
+                    tmp_ast_graphs.append(tmp_graph)
+            
+            ast_graphs[idx] = tmp_ast_graphs
+            idx_graphs.append(idx)
 
     # 划分train/test/valid数据集
     random.shuffle(idx_graphs)
@@ -262,7 +269,7 @@ def calculate_metrics_v2(y_pred, y_true, sample_idxs, prefix, epoch):
 
     logger.debug("[epoch:{}] - {}阶段指标: A:{} P:{} R:{} F1:{}".format(epoch, prefix, a.item(), p.item(), r.item(), f1.item()))
 
-    if useless_flag != 1:
+    if useless_flag != 1 and f1 >= 0.70:
         fn_samples_idx = [sample_idxs[idx] for idx in fn_idxs]
         fp_smaples_idx = [sample_idxs[idx] for idx in fp_idxs]
         wrong_sample_log_v2(fn_samples_idx, fp_smaples_idx)
@@ -378,6 +385,7 @@ def debug_model_infos():
     logger.debug("==gnn_type: %s", gnn_type)
     logger.debug("==metic_calc: %s", metic_calc)
     logger.debug("==device: %s", device_name)
+    logger.debug("==黑名单: %d", len(BLACK_LIST))
 
 if __name__ == '__main__':
 
@@ -385,13 +393,18 @@ if __name__ == '__main__':
     if str(_dataset).endswith(".bin"):
         dataset_name = "dataset//" + _dataset
         dataset_db_file = "dataset//" + str(_dataset).split(".bin")[0] + "_db.json"
+        dataset_blacklist = "dataset//" + str(_dataset).split(".bin")[0] + "_black_list.json"
     else:
         dataset_name = "dataset//" + "{}.bin".format(_dataset)
         dataset_db_file = "dataset//" + _dataset + "_db.json"
+        dataset_blacklist = "dataset//" + _dataset + "_black_list.json"
+
     f = open(dataset_db_file, "r")
     DATASET_DB = json.load(f)
 
-     # 日志初始化
+   
+
+    # 日志初始化
     _time_stamp = time.strftime('%Y-%m-%d-%H-%M', time.localtime())
     log_file_name = "train_log//{}_{}.log".format(_dataset, _time_stamp)
     logger = logging.getLogger()
@@ -408,9 +421,14 @@ if __name__ == '__main__':
     SAMPLE_COUNTOR["fp"] = {}
     col_json_name = "train_log//{}_{}_collecotor.json".format(_dataset, _time_stamp)
 
+    BLACK_LIST = {}
+    if os.path.exists(dataset_blacklist):
+        logger.debug(">>>>>>>>>>开启黑名单")
+        BLACK_LIST = json.load(open(dataset_blacklist, "r"))
+
     # 参数列表
     my_seed = 3407
-    batch_size = 1
+    batch_size = 1024
     epoch = 256
     x_size = 100 # ast node feature size
     h_size = 64  # tree_lstm learning feature or CFG node feature size
