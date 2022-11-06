@@ -9,6 +9,10 @@ from tqdm import tqdm
 import click
 from slither.slither import Slither
 
+# 获取列表的第二个元素
+def takeSecond(elem):
+    return elem[1]
+
 def _do_main(ast_analyzer:FunctionAstAnalyzer):
     """
         样本分析主循环
@@ -394,15 +398,41 @@ def argParse():
     parser.add_argument('-cd', type=int, default=0) # clean done flag
     parser.add_argument('-static', type=int, default=0)
     parser.add_argument('-slither_check', type=int, default=0)
+    parser.add_argument('-result', type=str, default=None)
 
     args = parser.parse_args()
-    return args.clean, args.add, args.t, args.cfg, args.dataset, args.cd, args.static, args.slither_check
+    return args.clean, args.add, args.t, args.cfg, args.dataset, args.cd, args.static, args.slither_check, args.result
 
 
+def do_result_analyze(result_json):
+
+    db = json.load(open("dataset\\sbp_dataset_10224_136999_db.json", "r"))
+    top_k = 30
+    black_list = {}
+    with open("train_log\\" + result_json, "r") as f:
+        result_collector = json.load(f)
+        for _type in ["fn", "fp"]:
+            _list = []
+            _type_collectors = result_collector[_type]
+            for _sample in _type_collectors:
+                _list.append((_sample, _type_collectors[_sample]["_cnt"]))
+            _list.sort(key=takeSecond, reverse=True)
+            print("\r\n=============={} TOP - {}===============".format(_type, top_k))
+            print(_list[:top_k])
+            
+            for _sample_id in _list[:top_k]:
+                print("CNT: {}".format(_sample_id[1]), "  ",  db[_sample_id[0]]['path'])
+                # black_list[db[_sample_id[0]]['path']] = _sample_id[1]
+                black_list[_sample_id[0]] = _sample_id[1]
+
+    with open("sbp_dataset_10224_136999_black_list.json", "w+") as f:
+        f.write(json.dumps(black_list, indent=4 ,separators=(",", ":")))
+
+    
 
 if __name__ == '__main__':
 
-    clean, address, test, cfg, dataset, clean_done, static, slither_check = argParse()
+    clean, address, test, cfg, dataset, clean_done, static, slither_check, result = argParse()
 
     if address is not None:
 
@@ -410,6 +440,9 @@ if __name__ == '__main__':
         analyze_wrapper = AnalyzeWrapper("dummy", save_png=1) # 创建假的
         analyze_wrapper.do_analyze_for_target("dataset//resumable_loop_2//{}//".format(address))
         # analyze_wrapper.do_analyze_for_target("example//{}//".format(address))
+
+    elif result:
+        do_result_analyze(result)
 
     elif test:
 
@@ -433,7 +466,7 @@ if __name__ == '__main__':
 
         if static:
             analyze_wrapper.do_vulnerability_static_after_stmt_analyze()
-            
+
         elif slither_check:
             analyze_wrapper.do_slither_check()
 
