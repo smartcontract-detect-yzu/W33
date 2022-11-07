@@ -7,6 +7,7 @@ import shutil
 import subprocess
 from slither.slither import Slither
 from slither.core.declarations import Function as SFunction
+from slither.core.declarations.structure_contract import StructureContract
 import logging
 import networkx as nx
 
@@ -42,6 +43,9 @@ class TrgetInfoCollector:
         self.modifier_filter = {}
         self.polymorphism_filter = {}
         self.slither_error = 0
+
+        # 合约语义相关
+        self.structs = {} # 合约定义的结构体信息
 
         # slither cfg去重操作
         self.simple_key_dup = {}
@@ -336,7 +340,24 @@ class TrgetInfoCollector:
                 self.modifier_cfg_infos[key] = function_cfg_info
                 self.modifier_slither_infos[key] = _modifier
 
-    
+    def _collect_structs_for_all_contract(self, slither:Slither):
+        """
+            收集合约中的结构体信息
+        """
+        for contract in slither.contracts:
+
+            for structure in contract.structures:
+                _struct:StructureContract = structure
+
+                if _struct.canonical_name not in self.structs:
+                    self.structs[_struct.canonical_name] = {}
+                    # print("\r\n结构体名称:", _struct.canonical_name, _struct.name)
+                    
+                    for elem in _struct.elems:
+                        self.structs[_struct.canonical_name][elem] = str(_struct.elems[elem].type)
+                        # print("===>", elem, "  ", _struct.elems[elem].type)
+
+
     def _construct_cfg_for_all_target_functions(self, slither:Slither):
         """
             Construct cfg info for all target functions
@@ -352,7 +373,7 @@ class TrgetInfoCollector:
             function_filter = self.target_filter[contract.name]
             for _function_slither in contract.functions + contract.modifiers:
                 if _function_slither.name in function_filter:
-                      
+
                     # save the json file
                     cfg_edges_list = []
                     cfg_nodes_list = []
@@ -458,6 +479,8 @@ class TrgetInfoCollector:
             self.slither_error = 1
             os.chdir(pwd)
             return
+
+        self._collect_structs_for_all_contract(slither)
 
         self._construct_cfg_for_all_modifiers(slither)
 

@@ -11,7 +11,6 @@ from slither.core.declarations import SolidityFunction as SolidityFunction
 from slither.core.declarations import Contract as SContract
 from slither.core.declarations import SolidityVariable as SolidityVariable
 from slither.core.variables.variable import Variable as SVariable
-
 from slither.core.cfg.node import Node as SNode
 import networkx.drawing.nx_pydot as nx_dot
 
@@ -89,7 +88,11 @@ def _get_function_call_info(node:SNode, debug=[]):
 
     return external_call_flag, state_assign_flag, solidity_call
 
-
+def _get_ir(node:SNode):
+    print("\r =========IR:============")
+    for ir in node.irs:
+        print(ir)
+           
 def _get_all_leaf_nodes(graph:nx.DiGraph):
 
     leaf_nodes = []
@@ -115,7 +118,6 @@ def _remove_useless_leaf(graph:nx.DiGraph):
 
 def _do_take_second(elem):
     return elem[1]
-
 
 
 def _do_remove_node(g: nx.DiGraph, node):
@@ -556,7 +558,8 @@ class FunctionAstAnalyzer:
         self.cfg:nx.DiGraph = None
         self.normalized_cfg:nx.DiGraph = None
         self.final_cfg:nx.DiGraph = None
-        self.key_stmt_type = None
+        self.key_stmt_type = None  # 必须特别关注的语句类型
+        self.vars_map = {} # 当前函数使用的变量名称和类型
 
         # 解决AST与CFG之间无法对齐的问题
         self.cfg_astid_offset = 0 
@@ -568,6 +571,9 @@ class FunctionAstAnalyzer:
         self.f_name = None
         self.ast_id = None
         
+        # 转换表和信息存放
+        self.var_encoder = 1   # var1,...,varn
+        self.var_rename_map = {}  # 变量名重命名
         self.stmts_type_map = {}
         self.cfg_id_to_ast_id = {}
         self.ast_id_to_cfg_id = {}
@@ -609,7 +615,6 @@ class FunctionAstAnalyzer:
         self.logger.debug("\r\n=============开始分析===================\r\n")
         self.logger.debug("\r\nInit for :{}".format(self.cfg_key))
         
-    
     def get_function_entry_info(self):
         self.entry_ast_info =  self.normalized_ast_graph.nodes[int(self.entry_ast_id)]
         self.logger.debug("\r\nentry_ast_info :{}".format(self.entry_ast_info))
@@ -623,6 +628,18 @@ class FunctionAstAnalyzer:
                 stmt_type = self.stmts_type_map[str(ast_id)]
                 self.normalized_cfg.nodes[cfg_node_id]["label"] = old_lable + " @{}".format(stmt_type)
 
+    def get_stmt_vars_info(self, stmt:SNode):
+        
+        for var in stmt.variables_written + stmt.variables_read:
+            if str(var) in self.vars_map: continue
+
+            if isinstance(var, SContract): 
+                _var_type = "contract"
+            else:
+                _var_type = var.type
+
+            self.vars_map[str(var)] = {"type":str(_var_type)}
+    
     def get_stmts_types(self):
         
         tmp_cfg = self.normalized_cfg
@@ -785,13 +802,14 @@ class FunctionAstAnalyzer:
                 ast_type = ast_node["type"]
                 cid = ast_node["cid"]
                 pid = ast_node["pid"]
+                var_type = ast_node["idtype"]
 
                 # get the modifier AST file name as: <Gauge-updateReward-MOD-1394.json>
                 if ast_type == "ModifierInvocation" and "info" in ast_node:
                    self._record_function_modifier(ast_node)
 
                 label_content = "{}  @ID:{}".format(content, cid)
-                ast.add_node(cid, label=label_content, expr=content, ast_type=ast_type, pid=pid)
+                ast.add_node(cid, label=label_content, expr=content, ast_type=ast_type, var_type=var_type, pid=pid)
                 
                 if ast_type not in ["FunctionDefinition", "ModifierDefinition"]:
                     edges.append((pid, cid))
@@ -835,7 +853,6 @@ class FunctionAstAnalyzer:
         
         self.logger.debug("入参数量:{}".format(self.in_param_cnt))
     
-
     def normalize_sbp_in_ast(self):
         """
             Normalize the AST based on its sbp file
@@ -896,6 +913,88 @@ class FunctionAstAnalyzer:
         # 记录
         self.normalized_ast_graph = _to_normal_ast_graph
 
+    def normalize_var_in_ast(self, _ast_graph:nx.DiGraph, _root):
+        """
+            将函数中的变量名称进行归一化表示
+            普通变量: identify -- 直接编码为vari
+            结构体成员 member --> struct 
+                首先还原到一个节点 struct.member
+                然后根据struct.member进行编码
+        """
+        strcuts_infos = self.target_infos_collector.structs
+        node_to_remove = []
+        jump_table = {}
+        
+        # dfs
+        for _node_id in  nx.dfs_preorder_nodes(_ast_graph, source=_root):
+            
+            if _node_id in jump_table:
+                continue
+
+            # 普通变量    
+            if _ast_graph.nodes[_node_id]["ast_type"] == "Identifier":
+                _var_name = _ast_graph.nodes[_node_id]["expr"]
+
+                # 当前节点不在变量表中则跳过
+                if _var_name not in self.vars_map:
+                    pass
+
+                else:
+                    # 变量类型
+                    _var_type = self.vars_map[_var_name]["type"]
+                    if _var_type == "contract": 
+                        continue # 直接调用一个合约的接口, 不是变量  
+
+                    # 变量重命名
+                    if _var_name not in self.var_rename_map: 
+                        self.var_rename_map[_var_name] = "var{}".format(self.var_encoder)
+                        self.var_encoder += 1
+                    
+                    # 修改AST
+                    _ast_graph.nodes[_node_id]["expr"] = self.var_rename_map[_var_name]
+                    _ast_graph.nodes[_node_id]["idtype"] = _var_type
+                    _ast_graph.nodes[_node_id]["label"] = "{}  @{}".format(self.var_rename_map[_var_name], _node_id)
+
+            # 访问结构体成员 MemberAccess -> struct
+            elif _ast_graph.nodes[_node_id]["ast_type"] == "MemberAccess":
+                
+                # memberaccess的成员名称
+                _element_name = _ast_graph.nodes[_node_id]["expr"]
+
+                # memberaccess的子节点就是结构体变量的名称
+                _struct_node = [subnode for subnode in _ast_graph.successors(_node_id)][0]
+                _var_name = _ast_graph.nodes[_struct_node]["expr"]
+                
+                # 其子节点也要求是一个变量
+                if _var_name not in self.vars_map:
+                    continue
+                
+                # 其子节点是一个结构体变量
+                _struct_name = self.vars_map[_var_name]["type"]
+                if _struct_name not in strcuts_infos: # 可能调用interface
+                    continue
+                
+                # 得到该结构体的成员列表
+                _struct_element_infos = strcuts_infos[_struct_name]
+                _element_type = _struct_element_infos[_element_name]
+
+                # 合并两个节点, 并重命名
+                _new_var_name = "{}.{}".format(_var_name, _element_name) # a.b
+                if _new_var_name not in self.var_rename_map: 
+                    self.var_rename_map[_new_var_name] = "var{}".format(self.var_encoder)
+                    self.var_encoder += 1
+
+                _ast_graph.nodes[_node_id]["expr"] = self.var_rename_map[_new_var_name]
+                _ast_graph.nodes[_node_id]["idtype"] = _element_type
+                _ast_graph.nodes[_node_id]["label"] = "{}  @{}".format(self.var_rename_map[_new_var_name], _node_id)
+
+                node_to_remove.append(_struct_node)
+                jump_table[_struct_node] = 1
+        
+        for node in node_to_remove:
+            if _ast_graph.has_node(node):
+                _ast_graph = _do_remove_node(_ast_graph, node)
+        
 
     def normalize_sbp_in_cfg(self):
         """
@@ -1023,11 +1122,13 @@ class FunctionAstAnalyzer:
             f.write("digraph{\n")
             for node in self.cfg_slither.nodes:
                 
-                if self.cfg_key == "Gauge-test-1166":
+                if self.cfg_key in ["Gauge-test-1169", "SushiSLP-deposit-4059"]:
                     ext_call_flag, state_assign_flag, sol_call_flag = _get_function_call_info(node, debug=["all"])
+                    self.get_stmt_vars_info(node)
                 else:
                     ext_call_flag, state_assign_flag, sol_call_flag = _get_function_call_info(node, debug=[])
-                
+                    self.get_stmt_vars_info(node)
+
                 self.cfg_id_to_ast_id[str(node.node_id)] = str(node.node_ast_id)
                 self.ast_id_to_cfg_id[str(node.node_ast_id)] = str(node.node_id)
 
@@ -1053,6 +1154,10 @@ class FunctionAstAnalyzer:
                     f.write(f"{node.node_id}->{son.node_id};\n")
             
             f.write("}\n")
+
+        if self.cfg_key in ["Gauge-test-1169", "SushiSLP-deposit-4059"]:
+            # print(self.vars_map)
+            print(json.dumps(self.vars_map, indent=4, separators=(",", ":")))
 
         self.cfg = nx.drawing.nx_agraph.read_dot(dot_name)
         self.cfg.graph["name"] = self.ast_json_file_name 
@@ -1117,7 +1222,6 @@ class FunctionAstAnalyzer:
                 self.final_cfg.add_node(_vnode_id, ASTID=_vnode_id, expr="v_loop", label="v_loop", mk="not-modifier")
                 self.vnodes_infos[_vnode_id] = str(_vnode_id).split("-")[1]
             self.final_cfg.add_edges_from(_vloopblock_edges)              
-
 
     def concat_function_modifier_cfg(self):
         
@@ -1190,7 +1294,6 @@ class FunctionAstAnalyzer:
         self.final_cfg = self.normalized_cfg
         return
         
-           
     def split_function_ast_stmts(self):
         """
             分解AST,得到语句粒度AST表示
@@ -1258,15 +1361,17 @@ class FunctionAstAnalyzer:
                 sub_stmt_ast.graph["name"] = "stmt_at_{}".format(sub_stmt)
                 cfg_stmt_map[sub_stmt] = sub_stmt_ast
                 stmt_ast.remove_nodes_from(sub_nodes) 
-        
+
         # 记录原始AST中的语句
         for stmt_root in ast_stmt_map:
             function_stmts_map[stmt_root] = _remove_useless_leaf(ast_stmt_map[stmt_root])
+            self.normalize_var_in_ast(function_stmts_map[stmt_root], stmt_root)
             self.save_ast_as_png(postfix="splited", _graph=function_stmts_map[stmt_root])
 
         # 记录CFG中补全的语句
         for stmt_root in cfg_stmt_map:
             function_stmts_map[stmt_root] = _remove_useless_leaf(cfg_stmt_map[stmt_root])
+            self.normalize_var_in_ast(function_stmts_map[stmt_root], stmt_root)
             self.save_ast_as_png(postfix="splited", _graph=function_stmts_map[stmt_root])
 
         self.statements_ast = function_stmts_map
@@ -1307,7 +1412,6 @@ class FunctionAstAnalyzer:
             self.cfg_info["offset"] = 1
         
         self.logger.debug("!! offset:{} ast_entry:{} cfg_entry:{}".format(self.cfg_astid_offset, ast_entry, cfg_entry))
-
 
     def save_ast_as_png(self, postfix="", _graph:nx.DiGraph=None):
 
@@ -1372,6 +1476,9 @@ class FunctionAstAnalyzer:
     
     def save_cfg_from_json(self):
         
+        if self.cfg_key == "SushiSLP-deposit-4059":
+            print("222222333333333333:", self.var_rename_map)
+
         if not self.save_png: return
         
         _debug_graph = nx.DiGraph()
