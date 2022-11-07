@@ -267,12 +267,15 @@ def calculate_metrics_v2(y_pred, y_true, sample_idxs, prefix, epoch):
     r = tp / (tp + fn + epsilon)
     f1 = 2* (p*r) / (p + r + epsilon)
 
-    logger.debug("[epoch:{}] - {}阶段指标: A:{} P:{} R:{} F1:{}".format(epoch, prefix, a.item(), p.item(), r.item(), f1.item()))
+    logger.debug("[epoch:{}] - {}阶段指标: A: {} P: {} R: {} F1: {}".format(epoch, prefix, a.item(), p.item(), r.item(), f1.item()))
 
-    if useless_flag != 1 and f1 >= 0.70:
+    if useless_flag != 1 and f1 >= 0.80:
         fn_samples_idx = [sample_idxs[idx] for idx in fn_idxs]
         fp_smaples_idx = [sample_idxs[idx] for idx in fp_idxs]
         wrong_sample_log_v2(fn_samples_idx, fp_smaples_idx)
+        return 1, p.item(), r.item(), f1.item()
+    else:
+        return 0, p.item(), r.item(), f1.item()
     
 
 def calculate_metrics(preds, labels, idxs, prefix, epoch, postive=1):
@@ -607,8 +610,11 @@ if __name__ == '__main__':
             calculate_metrics(__preds, __labels, __idxs, "TEST", epoch)
 
         elif metic_calc == "v2":
-            calculate_metrics_v2(__preds, __labels, __idxs, "TEST", epoch)
-
+            flag, p ,r, f1 = calculate_metrics_v2(__preds, __labels, __idxs, "TEST", epoch)
+            if flag == 1:
+                _pt_name = "model//{}_{}_{}_{}_{}.pt".format(_dataset, epoch, p, r, f1)
+                torch.save(model.state_dict(), _pt_name)
+                
         # save_flag, acc, recall, precision, f1 = calculate_metrics(__preds, __labels, __idxs, "TEST", epoch)
         # if save_flag == 1:
         #     _pt_name = "model//{}_{}_{}_{}.pt".format(epoch, recall, precision, f1)
