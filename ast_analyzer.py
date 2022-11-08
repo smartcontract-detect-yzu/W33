@@ -632,13 +632,13 @@ class FunctionAstAnalyzer:
         
         for var in stmt.variables_written + stmt.variables_read:
             if str(var) in self.vars_map: continue
-
-            if isinstance(var, SContract): 
-                _var_type = "contract"
+            
+            if hasattr(var, 'type'):
+                _var_type = str(var.type)
             else:
-                _var_type = var.type
-
-            self.vars_map[str(var)] = {"type":str(_var_type)}
+                _var_type = "not var" # 对象类型不是变量，可能是一个合约或者接口
+            
+            self.vars_map[str(var)] = {"type":_var_type}
     
     def get_stmts_types(self):
         
@@ -797,12 +797,15 @@ class FunctionAstAnalyzer:
                 if "content" not in ast_node:
                     print("type:{} ID:{} file:{}".format(ast_node["type"], ast_node["cid"], self.ast_file))
                     raise RuntimeError("error!!!")
-
+                
                 content = ast_node["content"]
                 ast_type = ast_node["type"]
                 cid = ast_node["cid"]
                 pid = ast_node["pid"]
-                var_type = ast_node["idtype"]
+                if "idtype" in ast_node:
+                    var_type = ast_node["idtype"]
+                else:
+                    var_type = None
 
                 # get the modifier AST file name as: <Gauge-updateReward-MOD-1394.json>
                 if ast_type == "ModifierInvocation" and "info" in ast_node:
@@ -924,6 +927,9 @@ class FunctionAstAnalyzer:
         strcuts_infos = self.target_infos_collector.structs
         node_to_remove = []
         jump_table = {}
+
+        if len(_ast_graph.nodes) == 0:
+            return  # 0x5873e3726B5AFDEB7C5fc46D8b79527c5b30Ad90\sample\WidoWithdraw-withdrawBatch-1913\   1831节点
         
         # dfs
         for _node_id in  nx.dfs_preorder_nodes(_ast_graph, source=_root):
@@ -942,7 +948,7 @@ class FunctionAstAnalyzer:
                 else:
                     # 变量类型
                     _var_type = self.vars_map[_var_name]["type"]
-                    if _var_type == "contract": 
+                    if _var_type == "not var": 
                         continue # 直接调用一个合约的接口, 不是变量  
 
                     # 变量重命名
@@ -976,20 +982,37 @@ class FunctionAstAnalyzer:
                 
                 # 得到该结构体的成员列表
                 _struct_element_infos = strcuts_infos[_struct_name]
-                _element_type = _struct_element_infos[_element_name]
-
-                # 合并两个节点, 并重命名
-                _new_var_name = "{}.{}".format(_var_name, _element_name) # a.b
-                if _new_var_name not in self.var_rename_map: 
-                    self.var_rename_map[_new_var_name] = "var{}".format(self.var_encoder)
-                    self.var_encoder += 1
-
-                _ast_graph.nodes[_node_id]["expr"] = self.var_rename_map[_new_var_name]
-                _ast_graph.nodes[_node_id]["idtype"] = _element_type
-                _ast_graph.nodes[_node_id]["label"] = "{}  @{}".format(self.var_rename_map[_new_var_name], _node_id)
-
-                node_to_remove.append(_struct_node)
                 jump_table[_struct_node] = 1
+                
+                # 如果其 memberaccess 的不是成员，表明其memberaccess的是方法接口
+                # e.g. 0xeb00e4636970cfb6ac390c1545a8f5a089f74d9b @ CroshiDividendTracker-setBalance-3129  tokenHoldersMap.set(account, newBalance);
+                if _element_name not in _struct_element_infos:
+
+                    # 变量重命名
+                    if _var_name not in self.var_rename_map: 
+                        self.var_rename_map[_var_name] = "var{}".format(self.var_encoder)
+                        self.var_encoder += 1
+                    
+                    # 修改AST
+                    _ast_graph.nodes[_struct_node]["expr"] = self.var_rename_map[_var_name]
+                    _ast_graph.nodes[_struct_node]["idtype"] = _struct_name
+                    _ast_graph.nodes[_struct_node]["label"] = "{}  @{}".format(self.var_rename_map[_var_name], _node_id)
+
+                else:    
+                    _element_type = _struct_element_infos[_element_name]
+
+                    # 合并两个节点, 并重命名
+                    _new_var_name = "{}.{}".format(_var_name, _element_name) # a.b
+                    if _new_var_name not in self.var_rename_map: 
+                        self.var_rename_map[_new_var_name] = "var{}".format(self.var_encoder)
+                        self.var_encoder += 1
+
+                    _ast_graph.nodes[_node_id]["expr"] = self.var_rename_map[_new_var_name]
+                    _ast_graph.nodes[_node_id]["idtype"] = _element_type
+                    _ast_graph.nodes[_node_id]["label"] = "{}  @{}".format(self.var_rename_map[_new_var_name], _node_id)
+
+                    node_to_remove.append(_struct_node)
+                    
         
         for node in node_to_remove:
             if _ast_graph.has_node(node):
