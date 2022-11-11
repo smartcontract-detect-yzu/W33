@@ -111,12 +111,16 @@ def dgl_bin_process(dataset_name, c_type):
                     no_vul_cnt += th.sum(tmp_graph.ndata["label"].argmax(1).eq(th.zeros(tmp_graph.num_nodes())))
 
                     tmp_graph.ndata["feature"] = th.zeros(tmp_graph.num_nodes(), 64) # 为CFG开辟一个特征空间,大小为TREE_LSTM的输出
+
                     if c_type == "multi":
                         pass
-
                     elif c_type == "binary":
                         tmp_graph.ndata["label_b"] = tmp_graph.ndata["label"].argmax(1) # 建模为二分类任务, 不使用交叉熵
 
+                    # 双向
+                    if bidir_cfg == 1:
+                        tmp_graph = dgl.add_reverse_edges(tmp_graph)
+                    
                     cfg_graphs[idx] = tmp_graph
                 else:
                     tmp_ast_graphs.append(tmp_graph)
@@ -389,6 +393,7 @@ def debug_model_infos():
     logger.debug("==metic_calc: %s", metic_calc)
     logger.debug("==device: %s", device_name)
     logger.debug("==黑名单: %d", len(BLACK_LIST))
+    logger.debug("==bidir_cfg: %d", bidir_cfg)
 
 if __name__ == '__main__':
 
@@ -443,6 +448,8 @@ if __name__ == '__main__':
     classify_type = "multi" # binary multi 
     gnn_type = "tgat" # tgat gcn
     metic_calc = "v2"  # v1 v2
+    bidir_cfg = 1    # CFG是否使用双向边
+
 
     if torch.cuda.is_available():
         device_name = "cuda:0"
