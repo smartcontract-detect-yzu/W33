@@ -69,6 +69,7 @@ def _do_main(ast_analyzer:FunctionAstAnalyzer):
     # 清除不需要的中间结果
     ast_analyzer.clean_up()
 
+
     return
 
 def _construct_all_stmts_ast_infos_wrapper(target_filter, target_info_collector, is_modifier=False, save_png=1):
@@ -129,14 +130,18 @@ class AnalyzeWrapper:
         }
 
         flag_pass = 0
-        if self.dataset_dir == "dataset//sbp_dataset":
+        if self.dataset_dir in ["dataset//sbp_dataset", "dataset//sbp_dataset_var"]:
             flag_pass = 1
 
 
         sample_files = os.listdir(self.dataset_dir)
 
         for sample in sample_files:
+
             path_sample = "{}//{}//".format(self.dataset_dir, sample)
+            if not os.path.isdir(path_sample):
+                continue
+                    
             if flag_pass == 1 or os.path.exists(path_sample + self.DONE_FLAG):
                 sample_dir_path = path_sample + "sample//"
                 c_f_samples = os.listdir(sample_dir_path)
@@ -271,7 +276,7 @@ class AnalyzeWrapper:
         target_info_collector = TrgetInfoCollector(target_dir=target_dir)
         if target_info_collector.slither_error:
             return self.SLITHER_ERROR
-            
+        
         # Note: 此处发生异常的判断 ==> 依赖异常抛出
         if not target_info_collector.slither_error:
             
@@ -438,7 +443,7 @@ if __name__ == '__main__':
 
         LOG_LEVEL = 10 # log debug
         analyze_wrapper = AnalyzeWrapper("dummy", save_png=1) # 创建假的
-        analyze_wrapper.do_analyze_for_target("dataset//resumable_loop_2//{}//".format(address))
+        analyze_wrapper.do_analyze_for_target("dataset//reentrancy//{}//".format(address))
         # analyze_wrapper.do_analyze_for_target("example//{}//".format(address))
 
     elif result:
