@@ -135,10 +135,10 @@ def _construct_dgl_graph(ast_json_file, infercode):
             for ast_node_id in stmt_ast_nodes_maps:
                 
                 content = stmt_ast_nodes_maps[ast_node_id]["content"]
-                if len(content) == 0:
+                if len(content) == 0 or str(content).isspace():
                     content = stmt_ast_nodes_maps[ast_node_id]["ast_type"]
+                
                 v = infercode.encode([content])
-
                 if ast_node_id not in stmt_ast_node_id_map:
                    stmt_ast_node_id_map[ast_node_id] = dgl_node_id
                    dgl_nodes_content[dgl_node_id] = torch.from_numpy(v[0])
@@ -243,9 +243,9 @@ def construct_dgl_graphs_for_dataset(dataset_dir, infercode, pass_flag, db):
     with tqdm(total=len(all_contracts)) as pbar:
         for contract in all_contracts:
             
-            if dataset_dir == "dataset//sbp_dataset//":
+            if "sbp_dataset" in dataset_dir:
                 pass
-
+                
             # 非sbp_dataset数据集必须是文件夹, 且文件夹存在construct_done.flag标志
             elif str(contract).endswith(".json") or not os.path.exists(dataset_dir + contract + "//construct_done.flag"): 
                 pbar.set_description('Processing:{} total:{}'.format(contract, total_function))
@@ -364,18 +364,21 @@ def static_dgl_graphs_for_dataset(dataset_dir):
     all_contracts = os.listdir(dataset_dir)
     with tqdm(total=len(all_contracts)) as pbar:
         for contract in all_contracts:
+
+            if "sbp_dataset" in dataset_dir:
+                pass
             
-            # 必须是文件夹, 且文件夹存在construct_done.flag标志
-            if str(contract).endswith(".json") or not os.path.exists(dataset_dir + contract + "//construct_done.flag"): 
+            elif str(contract).endswith(".json") or not os.path.exists(dataset_dir + contract + "//construct_done.flag"): 
+                # 非sbp_dataset数据集必须是文件夹, 且文件夹存在construct_done.flag标志
                 pbar.set_description('Processing:{} total:{}'.format(contract, total_function))
                 pbar.update(1)
                 continue
-
+            
             contract_sample_dir = dataset_dir + contract + "//sample//"
             
             # construct dgl graph and lables
             smaple_infos, function_cnt = static_dgl_graphs_for_sample(contract_sample_dir)
-
+            
             # add to the list
             graph_infos += smaple_infos
 
@@ -398,9 +401,10 @@ def argParse():
     parser.add_argument('-pass_flag', type=int, default=0)
     parser.add_argument('-db', type=int, default=0)
     parser.add_argument('-static', type=int, default=0)
+    parser.add_argument('-create_list', type=int, default=0)
 
     args = parser.parse_args()
-    return args.dataset, args.phase, args.pass_flag, args.db, args.static
+    return args.dataset, args.phase, args.pass_flag, args.db, args.static, args.create_list
 
 def create_dataset_1():
     """
@@ -429,12 +433,13 @@ def create_dataset_1():
 
 VUL_TYPE_LIST = ["SafeMath", "low-level call", "safe cast", "transaction order dependency", "nonReentrant", "onlyOwner", "resumable_loop"]
 PHASE_ONE_VUL = ["safe cast", "transaction order dependency", "resumable_loop"]
-def vul_type_based_dataset(phase):
-    root_dir = "dataset//sbp_dataset//"
+def vul_type_based_dataset(phase, new_dataset):
+
+    root_dir = "dataset//{}//".format(new_dataset)
     backup_datasets = ["dataset//dataset_reloop//", "dataset//reentrancy//"]
 
     if phase == 2:
-        target_number = random.randint(1000,1500)
+        target_number = random.randint(1500,2000)
         _cnt = 0
         print("目标添加样本: ", target_number)
 
@@ -519,7 +524,7 @@ def vul_type_based_dataset(phase):
                                             if c_name in ["ERC20", "ERC720"]:
                                                 pass
 
-                                            if vul_type_infos[ast_id] == "nonReentrant":
+                                            elif vul_type_infos[ast_id] == "nonReentrant":
                                                 already_cnt += 1
                                                 if not os.path.exists(root_dir + address):
                                                     # dst = root_dir + address
@@ -540,10 +545,43 @@ def vul_type_based_dataset(phase):
                                                 else:
                                                     break  # 下一个sample  
 
+
+def create_dataset_list(dataset_dir, d_name):
+
+    print(">>>>>>>>>>>>>>扫描数据集:{}<<<<<<<<<<<<<<<".format(dataset_dir))
+    
+    all_contract_dirs = os.listdir(dataset_dir)
+    datset_list = {}
+
+    with tqdm(total=len(all_contract_dirs)) as pbar:
+        for contract_dir in all_contract_dirs:
+
+            _contract_sample_dir = dataset_dir + "{}//sample//".format(contract_dir)
+            address = contract_dir
+            if not os.path.isdir(_contract_sample_dir):
+                pbar.update(1)
+                continue
+            
+            c_f_samples = os.listdir(_contract_sample_dir)
+            for _sampe in c_f_samples:
+                _info = {
+                    "address":address,
+                    "sample": _sampe
+                }
+                key = _contract_sample_dir + _sampe
+                datset_list[key] = _info
+            
+            pbar.update(1)
+            
+    _list_name = d_name + "_list.json"
+    with open(_list_name, "w+") as f:
+        f.write(json.dumps(datset_list, indent=4,  separators=(",", ":")))
+
+
 if __name__ == '__main__':
 
     DATASET_BIN_DIR = "dataset_bin"
-    data_set, phase, pass_flag, db, static = argParse()
+    data_set, phase, pass_flag, db, static, create_list= argParse()
 
     # ast_json_file = "dataset//resumable_loop//0x77c42a88194f81a17876fecce71199f48f0163c4//sample//Bitcoinrama-swapBack-4777//statement_ast_infos.json"
     # _construct_dgl_graph_v2(ast_json_file, infercode)
@@ -552,17 +590,20 @@ if __name__ == '__main__':
     # sample_graphs, sample_graph_lables = construct_dgl_graphs_for_sample(sample_dir, infercode)
 
     if data_set is None:
+
+        new_dataset = "sbp_dataset_var"
+
         if phase == 1:
             print("开始手动构建数据集 -- 阶段1: 收集resumable_loop safe_cast 和 transaction_order_dependency 三个最少类型样本")
-            vul_type_based_dataset(phase)
+            vul_type_based_dataset(phase, new_dataset)
 
         elif phase == 2:
-            print("开始手动构建数据集 -- 阶段2: 补充 2000 ~ 3000 个low-level call 样本")
-            vul_type_based_dataset(phase)
+            print("开始手动构建数据集 -- 阶段2: 补充 1500 ~ 2000 个low-level call 样本")
+            vul_type_based_dataset(phase, new_dataset)
 
         elif phase == 3:
-             print("开始手动构建数据集 -- 阶段3: 补充 2000 ~ 3000 个 nonReentrant 样本")
-             vul_type_based_dataset(phase)
+             print("开始手动构建数据集 -- 阶段3: 补充 1500 ~ 2000 个 nonReentrant 样本")
+             vul_type_based_dataset(phase, new_dataset)
 
         else:
             print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -571,6 +612,9 @@ if __name__ == '__main__':
         dataset_dir = "dataset//{}//".format(data_set)
         if static != 0:
             static_dgl_graphs_for_dataset(dataset_dir)
+
+        if create_list:
+            create_dataset_list(dataset_dir, data_set)
         
         else:
             from infercode.client.infercode_client import InferCodeClient
