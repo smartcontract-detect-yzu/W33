@@ -688,7 +688,7 @@ function _construct_ast_for_all_functions_withSBP(
 
     /*Check SBP and Construct AST JSON FILE based on the root node*/
     tree_root_nodes.forEach(root_node => {
-
+        
         /*construct ast for: 1. function with sbp, 2: all modifiers*/
         let {check_flag, sbp_infos} = _check_sbp_function(root_node, function_symbol_table, cname) //check SBP info
         if (check_flag ||  root_node.type === "ModifierDefinition") {
@@ -707,11 +707,11 @@ function _construct_ast_for_all_functions_withSBP(
             }
         } 
         
-        /* construct ast for all function in test mode*/
-        else if(TEST) {
-
+        /* construct ast for all function in test/verified mode*/
+        else if(TEST || TEST_DIR) {
+            
             if (!check_filter(root_node.getFieldValues().get("name"))) {
-                
+               
             }else {
                 /*construct the ast json file for the function*/
                 _construct_ast_for_function(root_node, cname, work_dir)
@@ -769,7 +769,7 @@ function _create_ast_for_source_units(sourceUnits:SourceUnit[], work_dir:string)
 
     /*1: get the contract & function symbol table*/
     let {contract_symbol_table, function_symbol_table} = _construct_function_symbol_table(sourceUnits)
-
+    
     /*2.analyze each sourceUnit*/
     sourceUnits.forEach(sourceUnit => {
         _analye_source_unit(sourceUnit, function_symbol_table, work_dir)
@@ -827,7 +827,7 @@ function create_ast_for_sol_async(sol_file:string, version:string, work_dir:stri
 }
 
 async function create_ast_for_sol_sync(sol_file:string, version:string, work_dir:string) {
-
+    
     /*check is need to anaylze*/
     if (_check_already_done(work_dir)) {
         return 
@@ -875,7 +875,7 @@ async function create_ast_for_dataset_sync(analyze_objects:Map<string, {[key:str
 
     /*for all data sample*/
     for(let analyze_object of analyze_objects.values()){
-       
+        
         let ver = analyze_object.ver
         let path_profix = analyze_object.path_profix
 
@@ -919,14 +919,14 @@ function create_ast_for_dataset_async(analyze_objects:Map<string, {[key:string]:
 }
 
 function analyze_target(target_dir:string) {
-    
+
      /*get the sol file name and sol version*/
      let info = JSON.parse(fs.readFileSync(target_dir + "download_done.txt", "utf8"));
      if (info["compile"] == "ok") {
 
         let sol_file_path:string = target_dir + info["name"]
         let sol_version:string = info["ver"]
-        
+
         create_ast_for_sol_sync(
             sol_file_path, 
             sol_version, 
@@ -943,12 +943,12 @@ function get_contract_list(dataset_dir:string) {
         
         /*get the sol file name and sol version*/
         let path_profix = dataset_dir + address + "//"
-
+        
         /*!(ast_done && not_example_dir) && !compile_error && download*/
-        if (!(fs.existsSync(path_profix + AST_DONE_FLAG) && dataset_dir != EXAMPLE_DIR)
+        if (!(fs.existsSync(path_profix + AST_DONE_FLAG) && dataset_dir != TEST_DIR)
             && !fs.existsSync(path_profix + COMPILE_ERROR_FLAG)
             && fs.existsSync(path_profix + "download_done.txt")) {
-
+            
             let info = JSON.parse(fs.readFileSync(path_profix + "download_done.txt", "utf8"));
             if (info["compile"] == "ok") {
                 target_sol.set(address, {add:address, file:info["name"], ver:info["ver"], path_profix:path_profix})
@@ -975,11 +975,11 @@ SBPLIBRegist()
 SBPAPIRegist()
 ExtractContentByKeyRegist()
 
-let EXAMPLE_DIR = "example//"
-let DATASET_DIR = "dataset//reentrancy//" // dataset//resumable_loop//   noRe_dataset
+let EXAMPLE_DIR = "dataset//varified_smartbugs//" // "example//"
+let DATASET_DIR = "dataset//varified_smartbugs//" // dataset//resumable_loop//   noRe_dataset
 let TOTAL_SIEZ = 0
+let TEST = 0
 let TEST_DIR = 1
-let TEST = 1
 
 
 /*开始分析*/
@@ -988,7 +988,7 @@ if (!TEST) {
     
     /*analyze the dataset*/
     let analyze_object:Map<string, {[key:string]:string}> = get_contract_list(DATASET_DIR)
-        
+    
     if (LINUX && TOTAL_SIEZ < 128){
         
         /*async version only work in linux os -- 超大规模数据集, 性能下降，需要batch*/

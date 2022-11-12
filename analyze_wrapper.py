@@ -97,6 +97,10 @@ class AnalyzeWrapper:
     def __init__(self, dataset_dir, save_png) -> None:
         self.save_png = save_png
         self.dataset_dir = dataset_dir
+        if str(dataset_dir).startswith("verified"):
+            self.dataset_tpye = "verified"
+        else:
+            self.dataset_tpye = "traing"
 
         self.AST_JSON_DIR = "ast_json"
         self.SBP_JSON_DIR = "sbp_json"
@@ -132,7 +136,6 @@ class AnalyzeWrapper:
         flag_pass = 0
         if self.dataset_dir in ["dataset//sbp_dataset", "dataset//sbp_dataset_var"]:
             flag_pass = 1
-
 
         sample_files = os.listdir(self.dataset_dir)
 
@@ -273,7 +276,7 @@ class AnalyzeWrapper:
 
     def do_analyze_for_target(self, target_dir):
 
-        target_info_collector = TrgetInfoCollector(target_dir=target_dir)
+        target_info_collector = TrgetInfoCollector(target_dir=target_dir, target_type=self.dataset_tpye)
         if target_info_collector.slither_error:
             return self.SLITHER_ERROR
         
@@ -474,17 +477,17 @@ if __name__ == '__main__':
 
         elif slither_check:
             analyze_wrapper.do_slither_check()
-
+        
         elif clean_done:
             analyze_wrapper.clean_done_flag()
             print("=======>Do Clean Done Flag..........[DONE]<====================")
 
-            
-            print("=======>开始数据集分析..........[Starting]<====================")
+            print(f"=======>开始数据集分析...类型:{analyze_wrapper.dataset_tpye}.......[Starting]<====================")
             LOG_LEVEL = 30 # log warning
             analyze_wrapper.do_analyze_for_dataset()
         
         else:
+            print(f"=======>开始数据集分析...类型:{analyze_wrapper.dataset_tpye}.......[Starting]<====================")
             LOG_LEVEL = 30 # log warning
             analyze_wrapper.do_analyze_for_dataset()
     

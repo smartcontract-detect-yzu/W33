@@ -545,6 +545,127 @@ def vul_type_based_dataset(phase, new_dataset):
                                                 else:
                                                     break  # 下一个sample  
 
+def _select_solc_version(version_info):
+    versions = ['0', '0.1.7', '0.2.2', '0.3.6', '0.4.26', '0.5.17', '0.6.12', '0.7.6', '0.8.17']
+
+    start = 0
+
+    for i, char in enumerate(version_info):
+        if char == '0' and start == 0:
+            start = 1
+            op_info = version_info[0:i]
+
+            space_cnt = 0
+            for c in op_info:
+                if c == '^' or c == '>':
+                    return versions[int(version_info[i + 2])]
+
+                if c == '=':
+                    last_char = version_info[i + 5]
+                    if '0' <= last_char <= '9':
+                        return version_info[i:i + 6]
+                    else:
+                        return version_info[i:i + 5]
+
+                if c == ' ':
+                    space_cnt += 1
+
+            if space_cnt == len(op_info):
+                last_char = version_info[i + 5]
+
+                if '0' <= last_char <= '9':
+                    return version_info[i:i + 6]
+                else:
+                    return version_info[i:i + 5]
+
+    return "auto"
+
+def _parse_solc_version(file_name):
+
+        version_resault = None
+
+        with open(file_name, 'r', encoding='utf-8') as contract_code:
+
+            mini = 100
+            for line in contract_code:
+                target_id = line.find("pragma solidity")
+                if target_id != -1:
+                    new_line = line[target_id:]
+                    version_info = new_line.split("pragma solidity")[1]
+                    v = _select_solc_version(version_info)
+
+                    if v[-3] == '.':
+                        last_version = int(v[-2:])
+                    else:
+                        last_version = int(v[-1:])
+
+                    if mini > last_version:
+                        mini = last_version
+                        version_resault = v
+                    
+                    return version_resault
+
+            if version_resault is None:
+                version_resault = "0.4.26"
+
+            return version_resault
+
+def smartbugs_dataset(smartbugs_dir):
+
+    name_map = {
+        "access_control": "ac",
+        "arithmetic": "math",
+        "bad_randomness": "random",
+        "denial_of_service": "dos",
+        "front_running": "tod",
+        "reentrancy": "re",
+        "short_addresses": "short",
+        "time_manipulation": "time",
+        "unchecked_low_level_calls": "llc"
+    }
+
+    target_dir = "dataset//verified_smartbugs//"
+    if not os.path.exists(target_dir):
+        os.mkdir(target_dir)
+
+    vul_type_dirs = os.listdir(smartbugs_dir)
+    with tqdm(total=len(vul_type_dirs)) as pbar:
+        for vul_type in vul_type_dirs:
+
+            vul_dir_path = smartbugs_dir + vul_type
+            if not os.path.isdir(vul_dir_path) or vul_type not in name_map:
+                pass
+
+            else:
+                sol_files = os.listdir(vul_dir_path)
+                for sol_file in sol_files:
+                    if str(sol_file).endswith(".sol"):
+
+                        address = str(sol_file).strip(".sol")
+                        _new_dir_name = f"{address}-{name_map[vul_type]}"
+
+                        if os.path.exists(target_dir + _new_dir_name):
+                            shutil.rmtree(target_dir + _new_dir_name)
+                        os.mkdir(target_dir + _new_dir_name)
+
+                        _src = f"{vul_dir_path}//{sol_file}"
+                        _dst = target_dir + _new_dir_name
+                        shutil.copy(_src, _dst)
+
+                        # 解析版本号和目标sol文件类型
+                        _info_file = f"{target_dir}{_new_dir_name}//download_done.txt"
+                        sol_version = _parse_solc_version(_src)
+                        file_info = {
+                            "name": sol_file,
+                            "ver": sol_version,
+                            "compile":"ok"
+                        }
+                        with open(_info_file, "w+") as f:
+                            f.write(json.dumps(file_info, indent=4, separators=(",", ":")))
+
+                       
+                        
+        pbar.update(1)               
 
 def create_dataset_list(dataset_dir, d_name):
 
@@ -573,7 +694,7 @@ def create_dataset_list(dataset_dir, d_name):
             
             pbar.update(1)
             
-    _list_name = d_name + "_list.json"
+    _list_name = "dataset//" + d_name + "_list.json"
     with open(_list_name, "w+") as f:
         f.write(json.dumps(datset_list, indent=4,  separators=(",", ":")))
 
@@ -592,7 +713,6 @@ if __name__ == '__main__':
     if data_set is None:
 
         new_dataset = "sbp_dataset_var"
-
         if phase == 1:
             print("开始手动构建数据集 -- 阶段1: 收集resumable_loop safe_cast 和 transaction_order_dependency 三个最少类型样本")
             vul_type_based_dataset(phase, new_dataset)
@@ -605,6 +725,11 @@ if __name__ == '__main__':
              print("开始手动构建数据集 -- 阶段3: 补充 1500 ~ 2000 个 nonReentrant 样本")
              vul_type_based_dataset(phase, new_dataset)
 
+        elif phase == 4:
+            print("开始手动构建数据集 -- 将smartbugs构建为一般表示")
+            smartbugs_dir = "dataset//smartbugs//"
+            smartbugs_dataset(smartbugs_dir)
+        
         else:
             print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         

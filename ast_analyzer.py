@@ -32,7 +32,7 @@ def _get_function_call_info(node:SNode, debug=[]):
         solidity_call = "True"
 
     if node.node_ast_id in debug or len(debug) == 1 and debug[0]== "all":
-
+        
         print("\r\n当前语句的特征打印: {} @{}".format(str(node), node.node_ast_id))
         print("===================variables:START=======================")
         print("state_variables_written:{} {}".format(len(node.state_variables_written), 

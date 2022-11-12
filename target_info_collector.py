@@ -36,8 +36,9 @@ def compile_sol_file(sol_file, sol_ver):
 
 class TrgetInfoCollector:
 
-    def __init__(self, target_dir, log_level=logging.WARN) -> None:
+    def __init__(self, target_dir, target_type, log_level=logging.WARN) -> None:
         self.target_dir = target_dir
+        self.target_type = target_type
         self.logger = None
         self.target_filter = {}
         self.modifier_filter = {}
@@ -257,8 +258,9 @@ class TrgetInfoCollector:
             if os.path.exists(target_dir + temp_dir):
                 shutil.rmtree(target_dir + temp_dir)
             os.mkdir(target_dir + temp_dir)
-        
-        for _, _, file_list in os.walk(target_dir + "sbp_json//"):
+
+        _basic_json_dir = "ast_json//" if self.target_type == "verified" else "sbp_json//"
+        for _, _, file_list in os.walk(target_dir + _basic_json_dir):
             for sbp_file in file_list:
             
                 # only support json format of AST, and pass the construct function
@@ -288,7 +290,8 @@ class TrgetInfoCollector:
 
                 # copy the json file to the example dir
                 shutil.copy(target_dir + "ast_json//" + sbp_file, smaple_dir)
-                shutil.copy(target_dir + "sbp_json//" + sbp_file, smaple_dir + "sbp_info.json")
+                if self.target_type == "traing":
+                    shutil.copy(target_dir + "sbp_json//" + sbp_file, smaple_dir + "sbp_info.json")
 
                 if c_name not in self.target_filter:
                     self.target_filter[c_name] = {}
@@ -296,7 +299,7 @@ class TrgetInfoCollector:
                 if f_name in self.target_filter[c_name]:
                     # 多态: slither目前不支持多态的CFG生成 https://github.com/smartcontract-detect-yzu/W33/issues/2
                     self.target_filter[c_name].pop(f_name)
-
+                
                 else: #if f_name not in self.target_filter[c_name]:
                     if not is_in_black_list(c_name, f_name):
                         self.target_filter[c_name][f_name] = {
