@@ -41,6 +41,9 @@ def _do_main(ast_analyzer:FunctionAstAnalyzer):
     ast_analyzer.split_function_ast_stmts()
     ast_analyzer.check_split_function_ast_stmts()
     
+    # AST中变量名修改: 效果不好, 默认不开启
+    ast_analyzer.normalize_var_in_ast()
+    
     # 根据对齐后的normalize_ast对cfg进行normalize
     ast_analyzer.normalize_sbp_in_cfg()
     ast_analyzer.save_cfg_as_png(postfix="normalized")

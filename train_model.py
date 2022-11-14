@@ -167,7 +167,12 @@ def dgl_bin_process(dataset_name, c_type):
         test_cfg_graphs.append(cfg_graphs[tmp_id])
         test_ast_graphs.append(ast_graphs[tmp_id])
     test_dataset = MyDataset(test_cfg_graphs, test_ast_graphs, test_idx_list)
-        
+    
+    # 保存验证集和测试集
+    dataset_info = {"valid": valid_idx_list,  "test": test_idx_list}
+    with open(test_valide_json_name, "w+") as f:
+        f.write(json.dump(dataset_info, indent=4, separators=(",",":")))
+
     return train_dataset, valid_dataset, test_dataset
 
 
@@ -409,9 +414,7 @@ if __name__ == '__main__':
 
     f = open(dataset_db_file, "r")
     DATASET_DB = json.load(f)
-
-   
-
+    
     # 日志初始化
     _time_stamp = time.strftime('%Y-%m-%d-%H-%M', time.localtime())
     log_file_name = "train_log//{}_{}.log".format(_dataset, _time_stamp)
@@ -428,6 +431,9 @@ if __name__ == '__main__':
     SAMPLE_COUNTOR["fn"] = {}
     SAMPLE_COUNTOR["fp"] = {}
     col_json_name = "train_log//{}_{}_collecotor.json".format(_dataset, _time_stamp)
+
+    TEST_VALIDE_SET_ID = {}
+    test_valide_json_name = "train_log//{}_{}_test_valid.json".format(_dataset, _time_stamp)
 
     BLACK_LIST = {}
     if os.path.exists(dataset_blacklist):
@@ -448,8 +454,7 @@ if __name__ == '__main__':
     classify_type = "multi" # binary multi 
     gnn_type = "tgat" # tgat gcn
     metic_calc = "v2"  # v1 v2
-    bidir_cfg = 1    # CFG是否使用双向边
-
+    bidir_cfg = 0    # CFG是否使用双向边:启用后效果差
 
     if torch.cuda.is_available():
         device_name = "cuda:0"

@@ -538,7 +538,10 @@ class FunctionAstAnalyzer:
         self.sbp_normalizer = SbpNormalizer()
         self.logger = None
 
+        # 开关
         self.save_png = save_png
+        self.change_var_name = 0
+
         self.is_modifier = is_modifier
         self.ast_json_file_name = target_info["file_name"]
         self.sample_dir_with_path = target_info["dir"]
@@ -630,6 +633,8 @@ class FunctionAstAnalyzer:
 
     def get_stmt_vars_info(self, stmt:SNode):
         
+        if self.change_var_name == 0: return
+
         for var in stmt.variables_written + stmt.variables_read:
             if str(var) in self.vars_map: continue
             
@@ -916,7 +921,35 @@ class FunctionAstAnalyzer:
         # 记录
         self.normalized_ast_graph = _to_normal_ast_graph
 
-    def normalize_var_in_ast(self, _ast_graph:nx.DiGraph, _root):
+    def normalize_var_in_ast(self):
+        """
+            修改AST中的变量名称
+            Note:默认不开启, 效果很差
+        """
+        if self.change_var_name == 0: return # 不开启该功能
+
+        for stmt_root in self.statements_ast:
+            self.do_normalize_var_in_ast(self.statements_ast[stmt_root], stmt_root)
+            self.save_ast_as_png(postfix="_newvar_splited", _graph=self.statements_ast[stmt_root])
+
+    def normalize_sbp_in_cfg(self):
+        """
+            1.AST中删除的语句级别节点, 在CFG中也要相应的删除;
+            2.modifier也要从cfg中删除;
+        """
+        normalized_cfg = nx.DiGraph(self.cfg)
+
+        for cfg_node_ast_id in self.cfg_nodes_map:
+            if self.cfg_nodes_map[cfg_node_ast_id]["tag"] in ["normalized_remove", "modifier_remove"]:
+                    
+                cfg_id = str(self.cfg_nodes_map[cfg_node_ast_id]["cfg_id"])
+                if normalized_cfg.has_node(cfg_id):
+                    normalized_cfg = _do_remove_node(normalized_cfg, cfg_id)
+        
+        self.normalized_cfg = normalized_cfg 
+        self.normalized_cfg.graph["leaves"] = _get_all_leaf_nodes(self.normalized_cfg)
+    
+    def do_normalize_var_in_ast(self, _ast_graph:nx.DiGraph, _root):
         """
             将函数中的变量名称进行归一化表示
             普通变量: identify -- 直接编码为vari
@@ -1017,24 +1050,6 @@ class FunctionAstAnalyzer:
         for node in node_to_remove:
             if _ast_graph.has_node(node):
                 _ast_graph = _do_remove_node(_ast_graph, node)
-        
-
-    def normalize_sbp_in_cfg(self):
-        """
-            1.AST中删除的语句级别节点, 在CFG中也要相应的删除;
-            2.modifier也要从cfg中删除;
-        """
-        normalized_cfg = nx.DiGraph(self.cfg)
-
-        for cfg_node_ast_id in self.cfg_nodes_map:
-            if self.cfg_nodes_map[cfg_node_ast_id]["tag"] in ["normalized_remove", "modifier_remove"]:
-                    
-                cfg_id = str(self.cfg_nodes_map[cfg_node_ast_id]["cfg_id"])
-                if normalized_cfg.has_node(cfg_id):
-                    normalized_cfg = _do_remove_node(normalized_cfg, cfg_id)
-        
-        self.normalized_cfg = normalized_cfg 
-        self.normalized_cfg.graph["leaves"] = _get_all_leaf_nodes(self.normalized_cfg)
 
     def cfg_supplement_stmts_for_ast(self):
 
@@ -1178,8 +1193,7 @@ class FunctionAstAnalyzer:
             
             f.write("}\n")
 
-        if self.cfg_key in ["Gauge-test-1169", "SushiSLP-deposit-4059"]:
-            # print(self.vars_map)
+        if self.change_var_name and self.cfg_key in ["Gauge-test-1169", "SushiSLP-deposit-4059"]:
             print(json.dumps(self.vars_map, indent=4, separators=(",", ":")))
 
         self.cfg = nx.drawing.nx_agraph.read_dot(dot_name)
@@ -1388,13 +1402,13 @@ class FunctionAstAnalyzer:
         # 记录原始AST中的语句
         for stmt_root in ast_stmt_map:
             function_stmts_map[stmt_root] = _remove_useless_leaf(ast_stmt_map[stmt_root])
-            self.normalize_var_in_ast(function_stmts_map[stmt_root], stmt_root)
+            # self.do_normalize_var_in_ast(function_stmts_map[stmt_root], stmt_root)
             self.save_ast_as_png(postfix="splited", _graph=function_stmts_map[stmt_root])
 
         # 记录CFG中补全的语句
         for stmt_root in cfg_stmt_map:
             function_stmts_map[stmt_root] = _remove_useless_leaf(cfg_stmt_map[stmt_root])
-            self.normalize_var_in_ast(function_stmts_map[stmt_root], stmt_root)
+            # self.do_normalize_var_in_ast(function_stmts_map[stmt_root], stmt_root)
             self.save_ast_as_png(postfix="splited", _graph=function_stmts_map[stmt_root])
 
         self.statements_ast = function_stmts_map
