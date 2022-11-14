@@ -7,6 +7,8 @@ import torch
 import os
 from tqdm import tqdm
 
+from baseline.baseline_constructor import Baseline_Constructor
+
 INFERCODE_FEATURE_SIZE = 100
 
 def infercode_init():
@@ -394,43 +396,6 @@ def static_dgl_graphs_for_dataset(dataset_dir):
             f.write(json.dumps(table_of_contents, indent=4,  separators=(",", ":")))
 
 
-def argParse():
-    parser = argparse.ArgumentParser(description='manual to this script')
-    parser.add_argument('-dataset', type=str, default=None)
-    parser.add_argument('-phase', type=int, default=0)
-    parser.add_argument('-pass_flag', type=int, default=0)
-    parser.add_argument('-db', type=int, default=0)
-    parser.add_argument('-static', type=int, default=0)
-    parser.add_argument('-create_list', type=int, default=0)
-
-    args = parser.parse_args()
-    return args.dataset, args.phase, args.pass_flag, args.db, args.static, args.create_list
-
-def create_dataset_1():
-    """
-      合并 resumable_loop 和 resumable_loop_2
-    """
-     
-    _dataset_dir_1 = "dataset//{}//".format("resumable_loop")
-    _dataset_dir_2 = "dataset//{}//".format("resumable_loop_2")
-    dataset_1 = "dataset//{}//".format("dataset_reloop")
-
-    _all_contracts_1 = os.listdir(_dataset_dir_1)
-    _all_contracts_2 = os.listdir(_dataset_dir_2)
-    for _c_in_2 in _all_contracts_2:
-        if _c_in_2 in _all_contracts_1:
-            pass
-        else:
-            src = _dataset_dir_2 + _c_in_2
-            dst = dataset_1 + _c_in_2
-            shutil.copytree(src, dst)
-    
-    for _c_in_1 in _all_contracts_1: 
-        src = _dataset_dir_1 + _c_in_1
-        dst = dataset_1 + _c_in_1
-        shutil.copytree(src, dst)
-
-
 VUL_TYPE_LIST = ["SafeMath", "low-level call", "safe cast", "transaction order dependency", "nonReentrant", "onlyOwner", "resumable_loop"]
 PHASE_ONE_VUL = ["safe cast", "transaction order dependency", "resumable_loop"]
 def vul_type_based_dataset(phase, new_dataset):
@@ -698,11 +663,79 @@ def create_dataset_list(dataset_dir, d_name):
     with open(_list_name, "w+") as f:
         f.write(json.dumps(datset_list, indent=4,  separators=(",", ":")))
 
+def do_create_src_dataset(dataset_name):
+
+    backup_datasets = ["dataset//dataset_reloop//", "dataset//reentrancy//"]
+
+    dataset_src_name = dataset_name + "_src"
+    dataset_src_name_path = "dataset//" + dataset_src_name + "//"
+    if not os.path.exists(dataset_src_name_path):
+        os.mkdir(dataset_src_name_path)
+
+    # 首先读取dataset_list
+    list_file = f"{dataset_name}_list.json"
+    _list_file = f"dataset//{list_file}"
+    if not os.path.exists(list_file):
+        print("ERROR: 请先创建LIST JOSN文件")
+        return
+    
+    address_list = []
+    dataset_list_json = json.load(open(_list_file, "r"))
+    for path_key in dataset_list_json:
+        address = dataset_list_json[path_key]["address"]
+        address_list.append(address)
+        
+
+    for target_address in address_list:
+
+        print(dataset_src_name_path + target_address)
+
+        if not os.path.exists(dataset_src_name_path + target_address):
+            os.mkdir(dataset_src_name_path + target_address)
+
+        for backup_dir in backup_datasets:
+            _target_dir = backup_dir + target_address
+            if os.path.exists(_target_dir):
+                _target_files = os.listdir(_target_dir)
+                for _target_file in _target_files:
+                    
+                    if str(_target_file) == "sbp_json":
+                        target_sbp_infos = {}
+                        sbp_dir = _target_dir + "//" + _target_file + "//"
+                        sbp_files = os.listdir(sbp_dir)
+                        for _sbp_file_name in sbp_files:
+                            with open(sbp_dir + _sbp_file_name) as f:
+                                sbp_info = json.load(f)
+                                _sbp_key = str(_sbp_file_name).strip(".json")
+                                target_sbp_infos[_sbp_key] = sbp_info
+                        contract_level_sbp_summary = dataset_src_name_path + target_address + "//total_sbp.json"
+                        with open(contract_level_sbp_summary, "w+") as f:
+                            f.write(json.dumps(target_sbp_infos, indent=4, separators=(",", ":")))
+
+                    if str(_target_file).endswith(".sol") or str(_target_file) == "download_done.txt":
+                        src = _target_dir + "//" + _target_file
+                        dst = dataset_src_name_path + target_address
+                        shutil.copy(src, dst)
+                        
+
+def argParse():
+    parser = argparse.ArgumentParser(description='manual to this script')
+    parser.add_argument('-dataset', type=str, default=None)
+    parser.add_argument('-baseline', type=str, default=None)
+    parser.add_argument('-phase', type=int, default=0)
+    parser.add_argument('-pass_flag', type=int, default=0)
+    parser.add_argument('-db', type=int, default=0)
+    parser.add_argument('-static', type=int, default=0)
+    parser.add_argument('-create_list', type=int, default=0)
+    parser.add_argument('-create_src_dataset', type=str, default=None)
+
+    args = parser.parse_args()
+    return args.dataset, args.baseline, args.phase, args.pass_flag, args.db, args.static, args.create_list, args.create_src_dataset
 
 if __name__ == '__main__':
 
     DATASET_BIN_DIR = "dataset_bin"
-    data_set, phase, pass_flag, db, static, create_list= argParse()
+    data_set, baseline, phase, pass_flag, db, static, create_list, create_src_dataset = argParse()
 
     # ast_json_file = "dataset//resumable_loop//0x77c42a88194f81a17876fecce71199f48f0163c4//sample//Bitcoinrama-swapBack-4777//statement_ast_infos.json"
     # _construct_dgl_graph_v2(ast_json_file, infercode)
@@ -710,8 +743,12 @@ if __name__ == '__main__':
     # sample_dir = "dataset//reentrancy//0xffa3a0ff18078c0654b174cf6cb4c27699a4369e//sample//"
     # sample_graphs, sample_graph_lables = construct_dgl_graphs_for_sample(sample_dir, infercode)
 
-    if data_set is None:
-
+    if create_src_dataset is not None:
+        print("创建源代码数据集")
+        do_create_src_dataset(create_src_dataset)
+		
+    if data_set is None and baseline is None:
+        
         new_dataset = "sbp_dataset_var"
         if phase == 1:
             print("开始手动构建数据集 -- 阶段1: 收集resumable_loop safe_cast 和 transaction_order_dependency 三个最少类型样本")
@@ -732,7 +769,28 @@ if __name__ == '__main__':
         
         else:
             print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
+    elif baseline != None:
         
+        print("创建baseline数据集")
+        dataset = "dataset//" + baseline
+        bc = Baseline_Constructor(dataset, "re")
+        bc.get_target_samples()
+        bc.construct_normalized_dataset()
+        
+        # tmp dataset
+        if 0: 
+            bc.TMP_create_feature_for_smaples()
+            bc.TMP_create_train_valid_dataset()
+            
+        # peculiar dataset
+        if 0: 
+            bc.Peculiar_create_feature_for_dataset()
+            bc.Peculiar_create_train_valid_dataset()
+            
+        bc.DRGCN_create_dataset()
+        
+    
     else:
         dataset_dir = "dataset//{}//".format(data_set)
         if static != 0:
