@@ -4,8 +4,11 @@ import os
 from sklearn import model_selection
 import jsonlines
 from random import sample
+
+from tqdm import tqdm
 from baseline.RE_TMP import ReGraphExtractor, ReGraph2Vec
 from sol_analyzer.info_analyze.file_psc_analyze import FilePscAnalyzer
+from baseline.CBGRU.CBGRU_dataset import CBGRU_constructor
 
 VUL_MAP = {
     "re": "nonReentrant",
@@ -135,7 +138,7 @@ class Baseline_Constructor:
                     
                     # 记录目标样本
                     if vul_sample == 1:
-                        print(target_file_path)
+                        # print(target_file_path)
                         self.vul_samples[target_file_path] = 1
                     else:
                         self.no_vul_samples[target_file_path] = 1
@@ -143,7 +146,7 @@ class Baseline_Constructor:
 
     def _construct_normalize_sample(self, file_path, new_file_path):
         lines = open(file_path, encoding="utf-8").readlines()
-
+        
         with open(new_file_path, "w+", encoding="utf-8") as f:
             for line in lines:
                 for do_normal in self.line_normlizers:
@@ -290,7 +293,7 @@ class Baseline_Constructor:
         print("训练集：{}  测试集：{}".format(len(train_samples), len(test_samples)))
 
     """========================================================================
-    =                                DR-GCN                                  =
+    =                  DR-GCN:ERROR 该功能暂不可用                             =
     ========================================================================"""
     def DRGCN_create_dataset(self):
         
@@ -384,5 +387,35 @@ class Baseline_Constructor:
 
         # 构建train\valid\test数据集 7：2：1
         self.Peculiar_create_idx_files()
+    
+    """========================================================================
+    =                                CBGRU                                    =
+    ========================================================================"""
+    def CBGRU_create_feature_for_sample(self):
+
+        cbgru = CBGRU_constructor()
+        dataset_result = []
+        
+        total_cnt = len(self.vul_samples) + len(self.no_vul_samples)
+        with tqdm(total=total_cnt) as pbar:
+
+            for sample in self.vul_samples:
+                file_analyzer = FilePscAnalyzer(sample, 1)
+                lines = file_analyzer.do_delete_comment()
+                dataset_result += cbgru.clean_fragment(lines.split('\n'), 1)
+                pbar.update(1)
+
+            for sample in self.no_vul_samples:
+                file_analyzer = FilePscAnalyzer(sample, 1)
+                lines = file_analyzer.do_delete_comment()
+                dataset_result += cbgru.clean_fragment(lines.split('\n'), 0)
+                pbar.update(1)
+
+        dataset_file = f"CBGRU_dataset_{self.vul_type}.txt"
+        with open(dataset_file, "w+") as f:
+            f.writelines(dataset_result)
+
+
+        
 
     
