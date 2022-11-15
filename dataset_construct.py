@@ -778,17 +778,17 @@ if __name__ == '__main__':
         bc.get_target_samples()
         bc.construct_normalized_dataset()
         
-        # tmp dataset
-        if 0: 
+        
+        if 0:  # tmp dataset
             bc.TMP_create_feature_for_smaples()
             bc.TMP_create_train_valid_dataset()
-            
-        # peculiar dataset
-        if 0: 
+        
+        if 1: # peculiar dataset
             bc.Peculiar_create_feature_for_dataset()
             bc.Peculiar_create_train_valid_dataset()
-            
-        bc.DRGCN_create_dataset()
+        
+        if 0: # CBGRU dataset
+            bc.CBGRU_create_feature_for_sample()
         
     
     else:
