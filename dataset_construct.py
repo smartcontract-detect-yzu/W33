@@ -1,6 +1,7 @@
 import argparse
 import json
 import random
+import re
 import shutil
 import dgl 
 import torch
@@ -575,21 +576,43 @@ def _parse_solc_version(file_name):
 
             return version_resault
 
+
+def _smartbugs_get_function(sol_file):
+    
+    function_vul = {}
+    _function_name = None
+
+    lines = open(sol_file, "r").readlines()
+    for line in lines:
+        text = line.strip() 
+        result = re.search(r'(function)\s(\w+)\([a-zA-Z0-9_:\[\]=, ]*\)',text) # function名匹配
+        if result != None:
+            _function_name = result.group(2)
+        
+        if "<yes> <report>" in text:
+            function_vul[_function_name] = text
+    
+    return function_vul
+            
+        
+      
+
+
 def smartbugs_dataset(smartbugs_dir):
 
     name_map = {
         "access_control": "ac",
         "arithmetic": "math",
-        "bad_randomness": "random",
+        # "bad_randomness": "random",
         "denial_of_service": "dos",
         "front_running": "tod",
         "reentrancy": "re",
-        "short_addresses": "short",
-        "time_manipulation": "time",
+        # "short_addresses": "short",
+        # "time_manipulation": "time",
         "unchecked_low_level_calls": "llc"
     }
 
-    target_dir = "dataset//verified_smartbugs//"
+    target_dir = "dataset//verified_smartbugs_new//"
     if not os.path.exists(target_dir):
         os.mkdir(target_dir)
 
@@ -608,7 +631,7 @@ def smartbugs_dataset(smartbugs_dir):
 
                         address = str(sol_file).strip(".sol")
                         _new_dir_name = f"{address}-{name_map[vul_type]}"
-
+                        
                         if os.path.exists(target_dir + _new_dir_name):
                             shutil.rmtree(target_dir + _new_dir_name)
                         os.mkdir(target_dir + _new_dir_name)
@@ -617,12 +640,16 @@ def smartbugs_dataset(smartbugs_dir):
                         _dst = target_dir + _new_dir_name
                         shutil.copy(_src, _dst)
 
+                        # 得到存在漏洞的函数名称
+                        function_vul = _smartbugs_get_function(_src)
+
                         # 解析版本号和目标sol文件类型
                         _info_file = f"{target_dir}{_new_dir_name}//download_done.txt"
                         sol_version = _parse_solc_version(_src)
                         file_info = {
                             "name": sol_file,
                             "ver": sol_version,
+                            "label": function_vul,
                             "compile":"ok"
                         }
                         with open(_info_file, "w+") as f:
@@ -732,6 +759,9 @@ def argParse():
     args = parser.parse_args()
     return args.dataset, args.baseline, args.phase, args.pass_flag, args.db, args.static, args.create_list, args.create_src_dataset
 
+def do_test_by_trained_model():
+    pass
+
 if __name__ == '__main__':
 
     DATASET_BIN_DIR = "dataset_bin"
@@ -783,7 +813,7 @@ if __name__ == '__main__':
             bc.TMP_create_feature_for_smaples()
             bc.TMP_create_train_valid_dataset()
         
-        if 1: # peculiar dataset
+        if 0: # peculiar dataset
             bc.Peculiar_create_feature_for_dataset()
             bc.Peculiar_create_train_valid_dataset()
         

@@ -68,7 +68,7 @@ class TrgetInfoCollector:
         # cfg info saved as graph
         self.modifier_cfg_graphs = {}
         self.function_cfg_graphs = {}
-
+        
         self.logger_init(log_level)
         self.get_polymorphism_filter()           # 函数多态过滤: function polymorphism filter
         self.environment_prepare_for_function()  # prepare for functions with SBP
@@ -249,7 +249,7 @@ class TrgetInfoCollector:
                     break
     
     def environment_prepare_for_function(self):
-
+        
         # Record all target sample need to analyze
         target_dir = self.target_dir
         print("start ==> {}".format(target_dir))
@@ -258,8 +258,16 @@ class TrgetInfoCollector:
             if os.path.exists(target_dir + temp_dir):
                 shutil.rmtree(target_dir + temp_dir)
             os.mkdir(target_dir + temp_dir)
-
-        _basic_json_dir = "ast_json//" if self.target_type == "verified" else "sbp_json//"
+        
+        _basic_json_dir = "sbp_json//"
+        verified_functions = {}
+        if self.target_type == "verified": 
+            _basic_json_dir = "ast_json//"
+            print(target_dir)
+            vul_lables = json.load(open(target_dir +"download_done.txt"))["label"]
+            for vul_label in vul_lables:
+                verified_functions[vul_label] = vul_lables[vul_label]
+        
         for _, _, file_list in os.walk(target_dir + _basic_json_dir):
             for sbp_file in file_list:
             
@@ -271,6 +279,17 @@ class TrgetInfoCollector:
                 c_name = smaple_infos[0]
                 f_name = smaple_infos[1]
                 ast_id = smaple_infos[2]
+
+                # 为验证集创建空的SBP文件
+                if self.target_type == "verified": 
+
+                    if f_name not in verified_functions:
+                        continue
+                            
+                    print(f"[INFO] VERIFIED: {f_name} ===>  {verified_functions[f_name]}")        
+                    if not os.path.exists(target_dir + f"sbp_json//{sbp_file}"):
+                        with open(target_dir + f"sbp_json//{sbp_file}", "w+") as f:
+                            f.write(json.dumps({"function_sbp_infos":[]}, indent=4, separators=(",", ":")))
 
                 # 多态检测
                 sample_key = "{}-{}".format(c_name, f_name)
@@ -290,8 +309,7 @@ class TrgetInfoCollector:
 
                 # copy the json file to the example dir
                 shutil.copy(target_dir + "ast_json//" + sbp_file, smaple_dir)
-                if self.target_type == "traing":
-                    shutil.copy(target_dir + "sbp_json//" + sbp_file, smaple_dir + "sbp_info.json")
+                shutil.copy(target_dir + "sbp_json//" + sbp_file, smaple_dir + "sbp_info.json")
 
                 if c_name not in self.target_filter:
                     self.target_filter[c_name] = {}
