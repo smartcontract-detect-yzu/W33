@@ -33,7 +33,7 @@ class TGATConv(nn.Module):
         self.feat_drop = nn.Dropout(feat_drop)
         self.attn_drop = nn.Dropout(attn_drop)
         self.leaky_relu = nn.LeakyReLU(negative_slope)
-        self.out_liner = nn.Linear(64, 32, bias=False)  # type = 100, feature = 64
+        # self.out_liner = nn.Linear(64, 32, bias=False) # 暂时无用
         if bias:
             self.bias = nn.Parameter(th.FloatTensor(size=(num_heads * out_feats,)))
         else:
@@ -98,8 +98,9 @@ class TGATConv(nn.Module):
             graph.update_all(fn.u_mul_e('feature', 'a', 'm'),  # 'm'= 'ft'*'a'
                              fn.sum('m', 'feature'))   # 'ft'= 'm1' + ...
 
-            rst = self.out_liner(graph.dstdata['feature']) # node_nums * head * output_size
-            
+            # rst = self.out_liner(graph.dstdata['feature']) # node_nums * head * output_size
+            rst = graph.dstdata['feature']
+
             # residual
             if self.res_fc is not None:
                 # Use -1 rather than self._num_heads to handle broadcasting
@@ -116,7 +117,11 @@ class TGATConv(nn.Module):
                 rst = self.activation(rst)
                         
             # 对每个head得到的值求平均
-            rst = rst.mean(dim=1) # node_nums * output_size
+            # node_numbers * head_numbers * output_size ==> node_numbers * (output_size = 64)
+            rst = rst.mean(dim=1)
+
+            # concate the cfg feature with lstm feature ==> node_numbers * (output_size*2 = 128)
+            rst = th.cat((rst, graph.dstdata['syntax']), 1)
             
             if get_attention:
                 return rst, graph.edata['a']
@@ -170,17 +175,19 @@ class SAGNN(nn.Module):
         
         if self.type == "gcn":
             self.gnn = GraphConv(in_feats=h_size, out_feats=32, norm='both', weight=True, bias=True, allow_zero_in_degree=True)
-        elif self.type == "tgat":
-            self.gnn = TGATConv(in_feats=h_size, out_feats=32, num_heads=4, attn_drop=attn_drop, feat_drop=feat_drop, activation=nn.ReLU())
+        elif self.type == "tgat": 
+            self.gnn = TGATConv(in_feats=h_size, out_feats=64, num_heads=4, attn_drop=attn_drop, feat_drop=feat_drop, activation=nn.ReLU())
         else:
             raise RuntimeError("!!!! 错误的GNN类型")
 
-        self.linner1 = nn.Linear(32, 16)
+        self.linner1 = nn.Linear(128, 64)
         if self.classify_type == "binary":
             self.linner2 = nn.Linear(16, 1)
             self.sigmoid = nn.Sigmoid()
         else:
-            self.linner2 = nn.Linear(16, 2)
+            self.linner2 = nn.Linear(64, 32)
+            self.linner3 = nn.Linear(32, 16)
+            self.linner4 = nn.Linear(16, 2)
 
     def forward(self, cfg, ast, h, c):
 
@@ -195,14 +202,17 @@ class SAGNN(nn.Module):
         # copy the learned feature to cfg => cfg和ast的节点id一一对应，保持一致
         for idx, stmt_ast in enumerate(dgl.unbatch(ast)):
             cfg.ndata["feature"][idx].copy_(stmt_ast.ndata['h'][0]) # NOTE: 每个ast.nodes[0]就是语句的根节点 --> 由dataset_construct.py保证
-        
+            cfg.ndata["syntax"][idx].copy_(stmt_ast.ndata['h'][0])
+
         if self.type =="gcn": # GNN
             res = self.gnn(cfg, cfg.ndata['feature'])
         elif self.type =="tgat": # TGAT
-            res = self.gnn(cfg, cfg.ndata['type']) # node_nums * 4 * 32
+            res = self.gnn(cfg, cfg.ndata['type']) # node_nums * 128
 
-        res = self.linner1(res) # 32 16
-        res = self.linner2(res) # 16 2
+        res = self.linner1(res) # 128 64
+        res = self.linner2(res) # 64 32
+        res = self.linner3(res) # 32 16
+        res = self.linner4(res) # 16 2
         
         if self.classify_type == "binary":
             res = self.sigmoid(res)
