@@ -6,13 +6,25 @@ import re
 import shutil
 import subprocess
 from tqdm import tqdm
-    
+
+vul_type_map = {
+    "SafeMath": 0,
+    "low-level call": 0,
+    "safe cast": 0,
+    "transaction order dependency": 0,
+    "nonReentrant": "re",
+    "onlyOwner": 0,
+    "resumable_loop": 0
+}
 class SrcNormalize:
-    def __init__(self, target_dir, contract) -> None:
+    def __init__(self, target_dir, contract, vul_type) -> None:
         self.target_dir = target_dir
-        self.norm_dir = target_dir + "normalized_src//"
+        self.sbp_dir = self.target_dir + "sbp_json//"
+        self.norm_dir = target_dir + f"normalized_src_{vul_type}//"
         self.contract = contract
         self.target_sols = {}
+        self.vul_type = vul_type
+        self.vul_lable = 0
         
         self.SafeLowLevelCallMap = ['safeTransferFrom', 'safeTransfer', "sendValue","functionCallWithValue",  "functionCall", "functionStaticCall"]
         self.TodCallMap = [".safeApprove", ".approve", ".safeIncreaseAllowance", ".safeDecreaseAllowance"]
@@ -28,6 +40,18 @@ class SrcNormalize:
             shutil.rmtree(self.norm_dir)
         os.mkdir(self.norm_dir)
 
+        # 获得当前样本的标签
+        sbp_json_files = os.listdir(self.sbp_dir)
+        for sbp_file in sbp_json_files:
+            with open(sbp_file, "r") as f:
+                sbp_infos = json.load(f)
+                function_sbp_infos = sbp_infos["function_sbp_infos"]
+                for _f_info in function_sbp_infos:
+                    _f_label = _f_info["lable_infos"]["label"]
+                    if vul_type_map[_f_label] == self.vul_type:
+                        self.vul_lable = 1
+                        break
+        
         # if not os.path.exists(self.target_dir + "download_done.txt"):
         if 'sbp_dataset' in self.target_dir:
             for dataset in ["dataset//reentrancy//", 'dataset//dataset_reloop//']:
@@ -212,11 +236,16 @@ class SrcNormalize:
                         delete_flag = 1
         return delete_flag, line
 
-    def _do_normalize_file(self, lines, norm_sol_file):
+    def _do_normalize_file(self, lines, norm_sol_file, vul_type):
         with open(norm_sol_file, "w+") as n_f:
             for line in lines:
                 if len(line.lstrip()) > 0 and line.lstrip()[0] == ".":
                     pass
+                
+                delete_flag = 0
+                if vul_type == "re":
+                    line = self.__do_normal_re(line)
+                    
                 else:
                     line = self.__do_normal_safecast(line)
                     line = self.__do_normal_safemath(line)
@@ -259,11 +288,11 @@ class SrcNormalize:
         for target in self.target_sols:
             lines = open(target).readlines()
             norm_sol_file = self.norm_dir + self.target_sols[target]
-            self._do_normalize_file(lines, norm_sol_file)
+            self._do_normalize_file(lines, norm_sol_file, self.vul_type)
         
         return self._do_test_compile()
         
-def normalize_dataset(dataset_dir):
+def normalize_dataset(dataset_dir, vul_type):
     contract_samples = os.listdir(dataset_dir)
     total_samples_cnt = len(contract_samples)
     fail_cnt = 0 
@@ -278,7 +307,7 @@ def normalize_dataset(dataset_dir):
                 if dataset_dir != "dataset//sbp_dataset" and not os.path.exists(path_sample + "construct_done.flag"):
                     pass 
                 else:
-                    nom = SrcNormalize(path_sample, _contract)
+                    nom = SrcNormalize(path_sample, _contract, vul_type)
                     fail_cnt += nom.normalize_files()
                     
             pbar.update(1)
@@ -287,14 +316,17 @@ def normalize_dataset(dataset_dir):
 def argParse():
     parser = argparse.ArgumentParser(description='manual to this script')
     parser.add_argument('-dataset', type=str, default=None)
+    parser.add_argument('-vul', type=str, default=None)
     args = parser.parse_args()
-    return args.dataset
+    return args.dataset, args.vul
 
 if __name__ == '__main__':
 
-    dataset = argParse()
+    dataset, _type = argParse()
     if dataset is not None:
-        normalize_dataset("dataset//" + dataset)
+        normalize_dataset("dataset//" + dataset, _type)
+        
+
 
     # norlamize_function_with_safemath(EXAMPLE_PERFIX + '0x06a566e7812413bc66215b48d6f26321ddf653a9/' + "Gauge.sol")
     # nom = SrcNormalize("example//0x00f401c1e60C9eBf48b1c22c0D87250Cc54F979f//")
