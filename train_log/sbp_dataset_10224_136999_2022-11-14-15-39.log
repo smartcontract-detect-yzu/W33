@@ -1,0 +1,25 @@
+>>>>>>>>>>开启黑名单
+
+=========模型情况打印:===========
+==my_seed: 3407
+==batch_size: 1024
+==epoch: 256
+==x_size: 100
+==h_size: 64
+==attn_drop: 0.1
+==feat_drop: 0.1
+==warmup: 1
+==weight_decay: 0
+==loss_type: cross_entropy
+==classify_type: multi
+==gnn_type: tgat
+==metic_calc: v2
+==device: cuda:0
+==黑名单: 56
+==bidir_cfg: 0
+
+====================统计信息===========================
+==数据集:dataset//sbp_dataset_10224_136999.bin
+==数量信息: total:10168 train_size:8134, valid_size:1016, test_size:1018
+==负标签分布: no_vul:103585 0.8302208781242371
+==正标签分布: vul:21183 0.16977910697460175
