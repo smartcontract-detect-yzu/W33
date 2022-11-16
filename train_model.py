@@ -18,8 +18,8 @@ from focal_loss import FocalLoss2d
 import logging
 
 
-def _do_pause():
-    raise RuntimeError("!!!!!!!!!!!!!!!!PAUSE")
+def _do_pause(info_str):
+    raise RuntimeError(f"!!!!!!!!!!!!!!!!PAUSE  ==> {info_str}")
 
 class MyDataset(DGLDataset):
     
@@ -79,7 +79,7 @@ def batcher_v1(device, classify_type):
     return batcher_v1_dev
 
 
-def dgl_bin_process(dataset_name, c_type):
+def dgl_bin_process(dataset_name, c_type, p_verified=False):
 
     idx_graphs = [] # 图索引
     cfg_graphs = {} # cfg map
@@ -128,6 +128,21 @@ def dgl_bin_process(dataset_name, c_type):
             ast_graphs[idx] = tmp_ast_graphs
             idx_graphs.append(idx)
 
+    # 验证阶段
+    if p_verified == True:
+
+        to_verified_cfg_graphs = []
+        to_verified_ast_graphs = []
+
+        for tmp_id in idx_graphs:
+            to_verified_cfg_graphs.append(cfg_graphs[tmp_id])
+            to_verified_ast_graphs.append(ast_graphs[tmp_id])
+        
+        to_verified_dataset = MyDataset(to_verified_cfg_graphs, to_verified_ast_graphs, idx_graphs)
+        
+        return to_verified_dataset
+
+
     # 划分train/test/valid数据集
     random.shuffle(idx_graphs)
     train_size = int(0.8*len(idx_graphs))
@@ -171,7 +186,7 @@ def dgl_bin_process(dataset_name, c_type):
     # 保存验证集和测试集
     dataset_info = {"valid": valid_idx_list,  "test": test_idx_list}
     with open(test_valide_json_name, "w+") as f:
-        f.write(json.dump(dataset_info, indent=4, separators=(",",":")))
+        f.write(json.dumps(dataset_info, indent=4, separators=(",",":")))
 
     return train_dataset, valid_dataset, test_dataset
 
@@ -278,7 +293,7 @@ def calculate_metrics_v2(y_pred, y_true, sample_idxs, prefix, epoch):
 
     logger.debug("[epoch:{}] - {}阶段指标: A: {} P: {} R: {} F1: {}".format(epoch, prefix, a.item(), p.item(), r.item(), f1.item()))
 
-    if useless_flag != 1 and f1 >= 0.80:
+    if useless_flag != 1 and f1 > 0.80:
         fn_samples_idx = [sample_idxs[idx] for idx in fn_idxs]
         fp_smaples_idx = [sample_idxs[idx] for idx in fp_idxs]
         wrong_sample_log_v2(fn_samples_idx, fp_smaples_idx)
@@ -378,31 +393,76 @@ def warmup_lr_scheduler(optimizer, warmup_iters, warmup_factor):
 def argParse():
     parser = argparse.ArgumentParser(description='manual to this script')
     parser.add_argument('-dataset', type=str, default="test")
+    parser.add_argument('-verified', type=int, default=0)
     args = parser.parse_args()
-    return args.dataset
+    return args.dataset, args.verified
 
 def debug_model_infos():
     logger.debug("\r\n=========模型情况打印:===========")
-    logger.debug("==my_seed: %s", my_seed)
-    logger.debug("==batch_size: %s", batch_size)
-    logger.debug("==epoch: %s", epoch)
-    logger.debug("==x_size: %s", x_size)
-    logger.debug("==h_size: %s", h_size)
-    logger.debug("==attn_drop: %s", attn_drop)
-    logger.debug("==feat_drop: %s", feat_drop)
-    logger.debug("==warmup: %s", warmup)
-    logger.debug("==weight_decay: %s", weight_decay)
-    logger.debug("==loss_type: %s", loss_type)
-    logger.debug("==classify_type: %s", classify_type)
-    logger.debug("==gnn_type: %s", gnn_type)
-    logger.debug("==metic_calc: %s", metic_calc)
-    logger.debug("==device: %s", device_name)
-    logger.debug("==黑名单: %d", len(BLACK_LIST))
-    logger.debug("==bidir_cfg: %d", bidir_cfg)
+    logger.debug("my_seed: %s", my_seed)
+    logger.debug("batch_size: %s", batch_size)
+    logger.debug("epoch: %s", epoch)
+    logger.debug("x_size: %s", x_size)
+    logger.debug("h_size: %s", h_size)
+    logger.debug("attn_drop: %s", attn_drop)
+    logger.debug("feat_drop: %s", feat_drop)
+    logger.debug("warmup: %s", warmup)
+    logger.debug("weight_decay: %s", weight_decay)
+    logger.debug("loss_type: %s", loss_type)
+    logger.debug("classify_type: %s", classify_type)
+    logger.debug("gnn_type: %s", gnn_type)
+    logger.debug("metic_calc: %s", metic_calc)
+    logger.debug("device: %s", device_name)
+    logger.debug("黑名单: %d", len(BLACK_LIST))
+    logger.debug("bidir_cfg: %d", bidir_cfg)
+    logger.debug("mode_prefix: %s", mode_prefix)
+	
+def load_trained_model():
+
+     # 参数列表
+    torch.manual_seed(3407)
+    x_size = 100 
+    h_size = 64 
+    attn_drop = 0.1
+    feat_drop = 0.1
+    classify_type = "multi"
+    gnn_type = "tgat" # tgat gcn
+    batch_size = 1
+
+    model = SAGNN(x_size, h_size, attn_drop, feat_drop, classify_type, gnn_type).to(device)
+    model.load_state_dict(torch.load("model//sbp_dataset_10224_136999_221_0.850252628326416_0.8483043313026428_0.8492773771286011.pt"))
+
+    dir_name = "dataset//" + "verified_smartbugs_new_140_1049.bin"
+    dataset = dgl_bin_process(dir_name, "multi", p_verified=True)
+    _loader = DataLoader(dataset=dataset, batch_size=batch_size, collate_fn=batcher_v1(device, classify_type), shuffle=False, num_workers=0)
+
+    zero_cnt = 0
+    one_cnt = 0
+    for _, batch in enumerate(_loader):
+        with torch.no_grad():
+            
+            batch_ast = batch.ast_batch.to(device)
+            batch_cfg = batch.cfg_batch.to(device)
+            n = batch_ast.number_of_nodes()
+            h = th.zeros((n, h_size)).to(device)
+            c = th.zeros((n, h_size)).to(device)
+
+            logits = model(batch_cfg, batch_ast, h, c)
+
+            if logits.argmax(dim=1).sum().item() == 0:
+                
+                cfg_id, ast_id = str(batch.idx_batch[0]).split('-')
+                print(DATASET_DB[cfg_id]["path"].split("//")[2])
+                zero_cnt += 1
+            else:
+                one_cnt += 1
+
+    print(f"0:{zero_cnt} 1:{one_cnt}")
 
 if __name__ == '__main__':
 
-    _dataset = argParse()
+    _dataset, verified = argParse()
+
     if str(_dataset).endswith(".bin"):
         dataset_name = "dataset//" + _dataset
         dataset_db_file = "dataset//" + str(_dataset).split(".bin")[0] + "_db.json"
@@ -415,6 +475,7 @@ if __name__ == '__main__':
     f = open(dataset_db_file, "r")
     DATASET_DB = json.load(f)
     
+
     # 日志初始化
     _time_stamp = time.strftime('%Y-%m-%d-%H-%M', time.localtime())
     log_file_name = "train_log//{}_{}.log".format(_dataset, _time_stamp)
@@ -440,14 +501,15 @@ if __name__ == '__main__':
         logger.debug(">>>>>>>>>>开启黑名单")
         BLACK_LIST = json.load(open(dataset_blacklist, "r"))
 
+
     # 参数列表
     my_seed = 3407
     batch_size = 1024
     epoch = 256
     x_size = 100 # ast node feature size
     h_size = 64  # tree_lstm learning feature or CFG node feature size
-    attn_drop = 0.05
-    feat_drop = 0.05
+    attn_drop = 0.1
+    feat_drop = 0.1
     warmup = 1
     weight_decay = 0  # 1e-4
     loss_type = "cross_entropy" # focal_loss  cross_entropy
@@ -455,6 +517,7 @@ if __name__ == '__main__':
     gnn_type = "tgat" # tgat gcn
     metic_calc = "v2"  # v1 v2
     bidir_cfg = 0    # CFG是否使用双向边:启用后效果差
+    mode_prefix = "withsyntax"
 
     if torch.cuda.is_available():
         device_name = "cuda:0"
@@ -464,6 +527,10 @@ if __name__ == '__main__':
         device_name = "cpu"
         device = torch.device("cpu")
     
+    if verified == 1:
+        load_trained_model()
+        _do_pause("退出")
+
     debug_model_infos()
     
     # 模型初始化
@@ -624,7 +691,7 @@ if __name__ == '__main__':
         elif metic_calc == "v2":
             flag, p ,r, f1 = calculate_metrics_v2(__preds, __labels, __idxs, "TEST", epoch)
             if flag == 1:
-                _pt_name = "model//{}_{}_{}_{}_{}.pt".format(_dataset, epoch, p, r, f1)
+                _pt_name = "model//{}_{}_{}_{}_{}_{}.pt".format(mode_prefix, _dataset, epoch, p, r, f1)
                 torch.save(model.state_dict(), _pt_name)
                 
         # save_flag, acc, recall, precision, f1 = calculate_metrics(__preds, __labels, __idxs, "TEST", epoch)
