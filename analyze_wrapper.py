@@ -43,6 +43,7 @@ def _do_main(ast_analyzer:FunctionAstAnalyzer):
     
     # AST中变量名修改: 效果不好, 默认不开启
     ast_analyzer.normalize_var_in_ast()
+    ast_analyzer.normalize_call_in_ast()
     
     # 根据对齐后的normalize_ast对cfg进行normalize
     ast_analyzer.normalize_sbp_in_cfg()
@@ -75,7 +76,7 @@ def _do_main(ast_analyzer:FunctionAstAnalyzer):
 
     return
 
-def _construct_all_stmts_ast_infos_wrapper(target_filter, target_info_collector, is_modifier=False, save_png=1):
+def _construct_all_stmts_ast_infos_wrapper(target_filter, target_info_collector, dataset_type, is_modifier=False, save_png=1):
      
      """
         包装器:构建AST语句级别信息
@@ -87,7 +88,7 @@ def _construct_all_stmts_ast_infos_wrapper(target_filter, target_info_collector,
            target_info = target_filter[c_name][f_name]
 
            # 构建解析器
-           ast_analyzer = FunctionAstAnalyzer(target_info, target_info_collector,log_level=LOG_LEVEL, is_modifier=is_modifier, save_png=save_png)
+           ast_analyzer = FunctionAstAnalyzer(target_info, target_info_collector, dataset_type, log_level=LOG_LEVEL, is_modifier=is_modifier, save_png=save_png)
            
            # 分析
            _do_main(ast_analyzer)
@@ -100,7 +101,7 @@ class AnalyzeWrapper:
     def __init__(self, dataset_dir, save_png) -> None:
         self.save_png = save_png
         self.dataset_dir = dataset_dir
-        if str(dataset_dir).startswith("verified"):
+        if "verified" in str(dataset_dir):
             self.dataset_tpye = "verified"
         else:
             self.dataset_tpye = "traing"
@@ -287,10 +288,10 @@ class AnalyzeWrapper:
         if not target_info_collector.slither_error:
             
             modifier_filter = target_info_collector.get_modifier_filter()
-            _construct_all_stmts_ast_infos_wrapper(modifier_filter, target_info_collector, is_modifier=True, save_png=self.save_png)
+            _construct_all_stmts_ast_infos_wrapper(modifier_filter, target_info_collector, self.dataset_tpye, is_modifier=True, save_png=self.save_png)
 
             target_filter = target_info_collector.get_target_filter()
-            _construct_all_stmts_ast_infos_wrapper(target_filter, target_info_collector, save_png=self.save_png)
+            _construct_all_stmts_ast_infos_wrapper(target_filter, target_info_collector, self.dataset_tpye, save_png=self.save_png)
 
     
     def do_analyze_for_dataset(self):
@@ -416,7 +417,9 @@ def argParse():
 
 
 def do_result_analyze(result_json):
-
+    """
+        分析模型的检测结果
+    """
     db = json.load(open("dataset\\sbp_dataset_10224_136999_db.json", "r"))
     top_k = 30
     black_list = {}
@@ -448,8 +451,8 @@ if __name__ == '__main__':
     if address is not None:
 
         LOG_LEVEL = 10 # log debug
-        analyze_wrapper = AnalyzeWrapper("dummy", save_png=1) # 创建假的
-        analyze_wrapper.do_analyze_for_target("dataset//reentrancy//{}//".format(address))
+        analyze_wrapper = AnalyzeWrapper("verified_smartbugs_new", save_png=1) # 创建假的
+        analyze_wrapper.do_analyze_for_target("dataset//verified_smartbugs_new//{}//".format(address))
         # analyze_wrapper.do_analyze_for_target("example//{}//".format(address))
 
     elif result:

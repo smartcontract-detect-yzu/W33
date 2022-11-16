@@ -532,15 +532,23 @@ class SbpNormalizer:
 
 class FunctionAstAnalyzer:
     
-    def __init__(self, target_info,target_infos_collector:TrgetInfoCollector, log_level=logging.WARNING, is_modifier=False, save_png=1) -> None:
+    def __init__(self, 
+                target_info,
+                target_infos_collector:TrgetInfoCollector, 
+                dataset_type,
+                log_level=logging.WARNING, 
+                is_modifier=False, 
+                save_png=1) -> None:
         
         self.target_infos_collector = target_infos_collector
         self.sbp_normalizer = SbpNormalizer()
         self.logger = None
-
+            
         # 开关
+        self.dataset_type = dataset_type
         self.save_png = save_png
         self.change_var_name = 0
+        self.call_normalize = 0
 
         self.is_modifier = is_modifier
         self.ast_json_file_name = target_info["file_name"]
@@ -865,10 +873,12 @@ class FunctionAstAnalyzer:
         """
             Normalize the AST based on its sbp file
         """
-        
         _to_normal_ast_graph = nx.DiGraph(self.ast_graph)
+
+        # 针对没有sbp的verifierd
+        print(self.sbp_file)
+
         sbp_file = self.sbp_file
-        
         if not os.path.exists(self.sbp_file):
             if self.is_modifier:
                 self.normalized_ast_graph = _to_normal_ast_graph
@@ -913,13 +923,21 @@ class FunctionAstAnalyzer:
             if _to_normal_ast_graph.has_node(node):
                 _to_normal_ast_graph = _do_remove_node(_to_normal_ast_graph, node)
 
-        # 3.图的记录特征删除
+        # 3.图的记录特征删除: 对于删除的top_stmts, 需要从记录中删除
         for stmt_id in _to_normal_ast_graph.graph["top_stmts"]:
             if stmt_id in nodes_to_remove_directly or stmt_id in nodes_to_remove:
                 _to_normal_ast_graph.graph["top_stmts"].remove(stmt_id)
         
         # 记录
         self.normalized_ast_graph = _to_normal_ast_graph
+
+    def normalize_call_in_ast(self):
+
+        if self.call_normalize == 0: return # 不开启该功能
+
+        for stmt_root in self.statements_ast:
+            self.do_normalize_call_in_ast(self.statements_ast[stmt_root], stmt_root)
+
 
     def normalize_var_in_ast(self):
         """
@@ -949,6 +967,50 @@ class FunctionAstAnalyzer:
         self.normalized_cfg = normalized_cfg 
         self.normalized_cfg.graph["leaves"] = _get_all_leaf_nodes(self.normalized_cfg)
     
+    def do_normalize_call_in_ast(self, _ast_graph:nx.DiGraph, _root):
+        """
+            ...... -> functionCall -> value (remove) -> call -> address
+                         -> params (remove)
+            
+            ...... -> functionCall -> call -> address
+                         -> params(remove)
+        """
+        remove_node = []
+        directly_remove_nodes = []
+        llc_flag = 0
+        for _node_id in  nx.dfs_preorder_nodes(_ast_graph, source=_root):
+            if _ast_graph.nodes[_node_id]["expr"] == "functionCall":
+                expr_sub_nodes = [subnode for subnode in _ast_graph.successors(_node_id)]
+
+                # functionCall -> value -> call
+                _value_node_id = expr_sub_nodes[0]
+                if _ast_graph.nodes[_value_node_id]["expr"] ==  "value":
+                    value_sub_nodes = [subnode for subnode in _ast_graph.successors(_value_node_id)]
+                    _call_node_id = value_sub_nodes[0]
+                    if _ast_graph.nodes[_call_node_id]["expr"] ==  "call":
+                        remove_node.append(_value_node_id)
+                        llc_flag = 1
+
+                # elif _ast_graph.nodes[_value_node_id]["expr"] ==  "call":
+                #     llc_flag = 1
+                
+                # if llc_flag == 1 and len(expr_sub_nodes) > 1:
+                #     for __node in expr_sub_nodes[1:]:
+                #         directly_remove_nodes += nx.nodes(nx.dfs_tree(_ast_graph, __node))
+
+        if llc_flag == 1:
+            # _ast_graph.remove_nodes_from(directly_remove_nodes)  # 1.可以直接删除的节点：
+
+            for node in remove_node: # 2.间接删除，需要重新连接边
+                if _ast_graph.has_node(node):
+                    _ast_graph = _do_remove_node(_ast_graph, node)      
+
+            # 2.间接删除，需要重新连接边 
+            self.save_ast_as_png(postfix="_llc", _graph=_ast_graph) 
+
+
+                
+
     def do_normalize_var_in_ast(self, _ast_graph:nx.DiGraph, _root):
         """
             将函数中的变量名称进行归一化表示
