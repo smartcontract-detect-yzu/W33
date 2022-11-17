@@ -630,7 +630,7 @@ def smartbugs_dataset(smartbugs_dir):
                     if str(sol_file).endswith(".sol"):
 
                         address = str(sol_file).strip(".sol")
-                        _new_dir_name = f"{address}-{name_map[vul_type]}"
+                        _new_dir_name = f"{name_map[vul_type]}-{address}"
                         
                         if os.path.exists(target_dir + _new_dir_name):
                             shutil.rmtree(target_dir + _new_dir_name)

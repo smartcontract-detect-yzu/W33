@@ -974,37 +974,102 @@ class FunctionAstAnalyzer:
             
             ...... -> functionCall -> call -> address
                          -> params(remove)
+        
+            全部归一化为 functionCall -> call -> VAR
         """
+
+        # llc 包含call send delegatecall staticcall 
+        for _node_id in  nx.dfs_preorder_nodes(_ast_graph, source=_root):
+            if _ast_graph.nodes[_node_id]["expr"] == "send":
+                _ast_graph.nodes[_node_id]["expr"] = "call"
+                _ast_graph.nodes[_node_id]["label"] = f"call  @{_node_id}"
+                llc_flag = 1
+
+            elif _ast_graph.nodes[_node_id]["expr"] == "call":
+                llc_flag = 1
+
+
         remove_node = []
         directly_remove_nodes = []
         llc_flag = 0
+        
+        first_function = 0
         for _node_id in  nx.dfs_preorder_nodes(_ast_graph, source=_root):
-            if _ast_graph.nodes[_node_id]["expr"] == "functionCall":
-                expr_sub_nodes = [subnode for subnode in _ast_graph.successors(_node_id)]
 
+            if _ast_graph.nodes[_node_id]["expr"] != "functionCall":
+                pass
+
+            else:
+                if first_function == 0:  first_function = _node_id
+                
                 # functionCall -> value -> call
-                _value_node_id = expr_sub_nodes[0]
-                if _ast_graph.nodes[_value_node_id]["expr"] ==  "value":
-                    value_sub_nodes = [subnode for subnode in _ast_graph.successors(_value_node_id)]
+                expr_sub_nodes = [subnode for subnode in _ast_graph.successors(_node_id)]
+                _fun_sub_id = expr_sub_nodes[0]
+                if _ast_graph.nodes[_fun_sub_id]["expr"] ==  "value":
+                    value_sub_nodes = [subnode for subnode in _ast_graph.successors(_fun_sub_id)]
                     _call_node_id = value_sub_nodes[0]
+
                     if _ast_graph.nodes[_call_node_id]["expr"] ==  "call":
-                        remove_node.append(_value_node_id)
+                        remove_node.append(_fun_sub_id)
                         llc_flag = 1
 
-                # elif _ast_graph.nodes[_value_node_id]["expr"] ==  "call":
-                #     llc_flag = 1
-                
-                # if llc_flag == 1 and len(expr_sub_nodes) > 1:
-                #     for __node in expr_sub_nodes[1:]:
-                #         directly_remove_nodes += nx.nodes(nx.dfs_tree(_ast_graph, __node))
+                        # call -> VAR
+                        call_sub_nodes = [subnode for subnode in _ast_graph.successors(_call_node_id)]
+                        _addre_node_id = call_sub_nodes[0]
+                       
+                        _ast_graph.nodes[_addre_node_id]["expr"] = "VAR"
+                        _ast_graph.nodes[_addre_node_id]["label"] = f"VAR  @{_addre_node_id}"
+                        if len(call_sub_nodes) > 1:
+                            directly_remove_nodes += call_sub_nodes[1:]
+                        
 
+                elif _ast_graph.nodes[_fun_sub_id]["expr"] ==  "call":
+                    llc_flag = 1
+
+                     # call -> VAR
+                    call_sub_nodes = [subnode for subnode in _ast_graph.successors(_fun_sub_id)]
+                    _addre_node_id = call_sub_nodes[0]
+
+                    _ast_graph.nodes[_addre_node_id]["expr"] = "VAR"
+                    _ast_graph.nodes[_addre_node_id]["label"] = f"VAR  @{_addre_node_id}"
+                    if len(call_sub_nodes) > 1:
+                            directly_remove_nodes += call_sub_nodes[1:]
+                
+                if llc_flag == 1 and len(expr_sub_nodes) > 1:
+                    for __node in expr_sub_nodes[1:]:
+                        directly_remove_nodes += nx.nodes(nx.dfs_tree(_ast_graph, __node))
+
+                
         if llc_flag == 1:
-            # _ast_graph.remove_nodes_from(directly_remove_nodes)  # 1.可以直接删除的节点：
+            expr_sub_nodes = [subnode for subnode in _ast_graph.successors(first_function)]
+            for _root_remove in expr_sub_nodes[1:]:
+                sub_nodes = nx.dfs_tree(_ast_graph, _root_remove)
+                directly_remove_nodes += sub_nodes
+        
+        if llc_flag == 1:
+            _ast_graph.remove_nodes_from(directly_remove_nodes)  # 1.可以直接删除的节点：
 
             for node in remove_node: # 2.间接删除，需要重新连接边
                 if _ast_graph.has_node(node):
                     _ast_graph = _do_remove_node(_ast_graph, node)      
 
+            # 连续两个functionCall
+            functionCall_cnt = 0
+            functionCall_remove = []
+            for _node_id in  nx.dfs_preorder_nodes(_ast_graph, source=_root):
+                if _ast_graph.nodes[_node_id]["expr"] == "functionCall":
+                    functionCall_cnt += 1
+                else:
+                    functionCall_cnt = 0
+                
+                if functionCall_cnt >= 2:
+                    functionCall_remove.append(_node_id)
+            
+            for node in functionCall_remove: # 2.间接删除，需要重新连接边
+                if _ast_graph.has_node(node):
+                    _ast_graph = _do_remove_node(_ast_graph, node)      
+
+            
             # 2.间接删除，需要重新连接边 
             self.save_ast_as_png(postfix="_llc", _graph=_ast_graph) 
 

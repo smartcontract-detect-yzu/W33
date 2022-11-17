@@ -945,7 +945,7 @@ function get_contract_list(dataset_dir:string) {
         let path_profix = dataset_dir + address + "//"
         
         /*!(ast_done && not_example_dir) && !compile_error && download*/
-        if (!(fs.existsSync(path_profix + AST_DONE_FLAG) && dataset_dir != TEST_DIR)
+        if (!(fs.existsSync(path_profix + AST_DONE_FLAG) && dataset_dir != EXAMPLE_DIR)
             && !fs.existsSync(path_profix + COMPILE_ERROR_FLAG)
             && fs.existsSync(path_profix + "download_done.txt")) {
             
@@ -975,8 +975,8 @@ SBPLIBRegist()
 SBPAPIRegist()
 ExtractContentByKeyRegist()
 
-let EXAMPLE_DIR = "dataset//varified_smartbugs//" // "example//"
-let DATASET_DIR = "dataset//varified_smartbugs//" // dataset//resumable_loop//   noRe_dataset
+let EXAMPLE_DIR = "dataset//verified_smartbugs_new//" // "example//"
+let DATASET_DIR = "dataset//verified_smartbugs_new//" // dataset//resumable_loop//   noRe_dataset
 let TOTAL_SIEZ = 0
 let TEST = 0
 let TEST_DIR = 1
@@ -989,7 +989,7 @@ if (!TEST) {
     /*analyze the dataset*/
     let analyze_object:Map<string, {[key:string]:string}> = get_contract_list(DATASET_DIR)
     
-    if (LINUX && TOTAL_SIEZ < 128){
+    if (LINUX && TOTAL_SIEZ < 16){
         
         /*async version only work in linux os -- 超大规模数据集, 性能下降，需要batch*/
         create_ast_for_dataset_async(analyze_object)
