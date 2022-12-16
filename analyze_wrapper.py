@@ -451,9 +451,15 @@ if __name__ == '__main__':
     if address is not None:
 
         LOG_LEVEL = 10 # log debug
-        analyze_wrapper = AnalyzeWrapper("verified_smartbugs_new", save_png=1) # 创建假的
-        analyze_wrapper.do_analyze_for_target("dataset//verified_smartbugs_new//{}//".format(address))
-        # analyze_wrapper.do_analyze_for_target("example//{}//".format(address))
+        
+        if dataset is None:
+            analyze_wrapper = AnalyzeWrapper("verified_smartbugs_new", save_png=1) # 创建假的
+            analyze_wrapper.do_analyze_for_target("dataset//verified_smartbugs_new//{}//".format(address))
+            # analyze_wrapper.do_analyze_for_target("example//{}//".format(address))
+        else:
+            analyze_wrapper = AnalyzeWrapper("verified_smartbugs_new", save_png=1) # 创建假的
+            analyze_wrapper.do_analyze_for_target(f"dataset//{dataset}//{address}//")
+
 
     elif result:
         do_result_analyze(result)
